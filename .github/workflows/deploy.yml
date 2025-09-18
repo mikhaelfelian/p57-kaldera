@@ -1,4 +1,4 @@
-name: Deploy to wgptix.com
+name: Deploy to p57-kaldera.com
 
 on:
   push:
@@ -6,7 +6,7 @@ on:
       - main
 
 concurrency:
-  group: deploy-wgptix
+  group: deploy-p57-kaldera
   cancel-in-progress: true
 
 jobs:
@@ -27,7 +27,7 @@ jobs:
           mkdir -p ~/.ssh
           ssh-keyscan -p ${{ secrets.SSH_PORT }} ${{ secrets.SSH_HOST }} >> ~/.ssh/known_hosts
 
-      - name: Deploy Code to DirectAdmin (wgptix.com)
+      - name: Deploy Code to DirectAdmin (p57-kaldera.com)
         run: |
           ssh -p ${{ secrets.SSH_PORT }} ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }} << 'EOF'
           set -e
@@ -38,7 +38,7 @@ jobs:
 
           cd "$DEPLOY_PATH"
 
-          REPO_SSH="git@github.com:mikhaelfelian/p56-wgtix.git"
+          REPO_SSH="git@github.com:mikhaelfelian/p57-kaldera.git"
           BRANCH="main"
 
           if [ -d .git ]; then
