@@ -112,6 +112,6 @@ phpunit
 .vscode/
 
 # Only ignore .htaccess in the project root
-/.htaccess
+.htaccess
 
 /public/file
