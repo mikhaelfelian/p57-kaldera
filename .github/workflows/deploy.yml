@@ -1,61 +1,34 @@
-name: Deploy to p57-kaldera.com
+- name: Deploy Code to DirectAdmin (janus.it.com)
+  run: |
+    ssh -p ${{ secrets.SSH_PORT }} ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }} << 'EOF'
+    set -e
+    DEPLOY_PATH="${{ secrets.DEPLOY_PATH }}"
 
-on:
-  push:
-    branches:
-      - main
+    # repair ownership & permission (prevent .git lock error)
+    chown -R "$USER:$USER" "$DEPLOY_PATH/.git" || true
+    chmod -R u+rwX "$DEPLOY_PATH/.git" || true
 
-concurrency:
-  group: deploy-p57-kaldera
-  cancel-in-progress: true
+    git config --global --add safe.directory "$DEPLOY_PATH" || true
+    cd "$DEPLOY_PATH"
 
-jobs:
-  deploy:
-    runs-on: ubuntu-latest
+    REPO_SSH="git@github.com:mikhaelfelian/p57-kaldera.git"
+    BRANCH="main"
 
-    steps:
-      - name: Checkout Repository
-        uses: actions/checkout@v4
+    if [ -d .git ]; then
+      git remote set-url origin "$REPO_SSH" || true
+      git fetch --all --prune
+      git checkout "$BRANCH" || true
+      git reset --hard "origin/$BRANCH"
+      git clean -fd
+    else
+      git clone -b "$BRANCH" "$REPO_SSH" .
+    fi
 
-      - name: Setup SSH Connection
-        uses: webfactory/ssh-agent@v0.9.0
-        with:
-          ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
-
-      - name: Trust server host key
-        run: |
-          mkdir -p ~/.ssh
-          ssh-keyscan -p ${{ secrets.SSH_PORT }} ${{ secrets.SSH_HOST }} >> ~/.ssh/known_hosts
-
-      - name: Deploy Code to DirectAdmin (p57-kaldera.com)
-        run: |
-          ssh -p ${{ secrets.SSH_PORT }} ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }} << 'EOF'
-          set -e
-          DEPLOY_PATH="${{ secrets.DEPLOY_PATH }}"
-
-          # fix safe.directory (error ownership)
-          git config --global --add safe.directory "$DEPLOY_PATH" || true
-
-          cd "$DEPLOY_PATH"
-
-          REPO_SSH="git@github.com:mikhaelfelian/p57-kaldera.git"
-          BRANCH="main"
-
-          if [ -d .git ]; then
-            git remote set-url origin "$REPO_SSH" || true
-            git fetch --all --prune
-            git checkout "$BRANCH" || true
-            git reset --hard "origin/$BRANCH"
-            git clean -fd
-          else
-            git clone -b "$BRANCH" "$REPO_SSH" .
-          fi
-
-          if command -v composer >/dev/null 2>&1; then
-            composer install --no-dev --prefer-dist --optimize-autoloader --no-interaction || true
-          fi
-          if command -v php >/dev/null 2>&1; then
-            php spark migrate --all --ansi || true
-            php -r 'if(function_exists("opcache_reset")){ opcache_reset(); }'
-          fi
-          EOF
+    if command -v composer >/dev/null 2>&1; then
+      composer install --no-dev --prefer-dist --optimize-autoloader --no-interaction || true
+    fi
+    if command -v php >/dev/null 2>&1; then
+      php spark migrate --all --ansi || true
+      php -r 'if(function_exists("opcache_reset")){ opcache_reset(); }'
+    fi
+    EOF
