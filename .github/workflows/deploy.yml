@@ -2,7 +2,8 @@ name: Deploy to development
 
 on:
   push:
-    branches: [main]
+    branches:
+      - main
 
 concurrency:
   group: deploy-dev
@@ -26,56 +27,30 @@ jobs:
           mkdir -p ~/.ssh
           ssh-keyscan -p ${{ secrets.SSH_PORT }} ${{ secrets.SSH_HOST }} >> ~/.ssh/known_hosts
 
-      # (opsional) cek koneksi biar error-nya jelas kalau key/port/user salah
-      - name: Test SSH login
-        run: |
-          ssh -o IdentitiesOnly=yes -p ${{ secrets.SSH_PORT }} ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }} 'echo OK && whoami && pwd'
-
       - name: Deploy Code to DirectAdmin (janus.it.com)
-        shell: bash
         run: |
-          ssh -o IdentitiesOnly=yes -p "${{ secrets.SSH_PORT }}" "${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }}" '
-            set -e
+          ssh -p ${{ secrets.SSH_PORT }} ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }} << 'EOF'
+          set -e
+          cd "${{ secrets.DEPLOY_PATH }}"
 
-            DEPLOY_PATH="${{ secrets.DEPLOY_PATH }}"
-            # toleransi kalau kamu tak sengaja isi "/domains/..." → prefiks pakai $HOME
-            case "$DEPLOY_PATH" in
-              /domains/*) DEPLOY_PATH="$HOME$DEPLOY_PATH" ;;
-            esac
+          if [ ! -d ".git" ]; then
+            echo "❌ Bukan repo git. Jalankan setup manual sekali di server."
+            exit 1
+          fi
 
-            REPO_SSH="git@github.com:mikhaelfelian/p57-kaldera.git"
-            BRANCH="main"
+          git fetch --all --prune
+          git checkout main || true
+          git reset --hard origin/main
+          git clean -fd
 
-            mkdir -p "$DEPLOY_PATH"
-            cd "$DEPLOY_PATH"
+          # (Opsional) kalau ada composer di server
+          if command -v composer >/dev/null 2>&1; then
+            composer install --no-dev --prefer-dist --optimize-autoloader --no-interaction || true
+          fi
 
-            # perbaiki kasus "detected dubious ownership"
-            git config --global --add safe.directory "$DEPLOY_PATH" || true
-
-            if [ -d .git ]; then
-              git remote set-url origin "$REPO_SSH" || true
-              git fetch --all --prune
-              git checkout "$BRANCH" || true
-              git reset --hard "origin/$BRANCH"
-              git clean -fd
-            else
-              # kalau ada file acak, backup lalu kosongkan
-              if [ -n "$(ls -A "$DEPLOY_PATH" 2>/dev/null)" ]; then
-                TS=$(date +%Y%m%d-%H%M%S)
-                tar -czf "$HOME/backup-$(basename "$DEPLOY_PATH")-$TS.tgz" . || true
-                rm -rf ./* .[^.] .??* 2>/dev/null || true
-              fi
-              git clone -b "$BRANCH" "$REPO_SSH" .
-            fi
-
-            # composer (jika tersedia di server)
-            if command -v composer >/dev/null 2>&1; then
-              composer install --no-dev --prefer-dist --optimize-autoloader --no-interaction || true
-            fi
-
-            # CodeIgniter 4: migrasi & reset opcache
-            if command -v php >/dev/null 2>&1; then
-              php spark migrate --all --ansi || true
-              php -r '\''if(function_exists("opcache_reset")){ opcache_reset(); }'\''
-            fi
-          '
+          # (Opsional) kalau CodeIgniter 4: migrasi & reset opcache
+          if command -v php >/dev/null 2>&1; then
+            php spark migrate --all --ansi || true
+            php -r 'if(function_exists("opcache_reset")){ opcache_reset(); }'
+          fi
+          EOF
