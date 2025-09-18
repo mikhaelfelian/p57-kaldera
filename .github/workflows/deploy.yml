@@ -2,7 +2,8 @@ name: Deploy to wgptix.com
 
 on:
   push:
-    branches: [main]
+    branches:
+      - main
 
 concurrency:
   group: deploy-wgptix
@@ -11,10 +12,12 @@ concurrency:
 jobs:
   deploy:
     runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
 
-      - name: Start SSH agent
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Setup SSH Connection
         uses: webfactory/ssh-agent@v0.9.0
         with:
           ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
@@ -24,43 +27,35 @@ jobs:
           mkdir -p ~/.ssh
           ssh-keyscan -p ${{ secrets.SSH_PORT }} ${{ secrets.SSH_HOST }} >> ~/.ssh/known_hosts
 
-      - name: Test SSH login (optional)
+      - name: Deploy Code to DirectAdmin (wgptix.com)
         run: |
-          ssh -o IdentitiesOnly=yes -p ${{ secrets.SSH_PORT }} ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }} 'echo OK && whoami'
+          ssh -p ${{ secrets.SSH_PORT }} ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }} << 'EOF'
+          set -e
+          DEPLOY_PATH="${{ secrets.DEPLOY_PATH }}"
 
-      - name: Deploy to DirectAdmin (wgptix.com)
-        shell: bash
-        run: |
-          ssh -o IdentitiesOnly=yes -p "${{ secrets.SSH_PORT }}" "${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }}" "
-            set -e
-            DEPLOY_PATH='${{ secrets.DEPLOY_PATH }}'
-            case \"\$DEPLOY_PATH\" in
-              /domains/*) DEPLOY_PATH=\"\$HOME\$DEPLOY_PATH\" ;;
-            esac
+          # fix safe.directory (error ownership)
+          git config --global --add safe.directory "$DEPLOY_PATH" || true
 
-            # FIX: 'detected dubious ownership'
-            git config --global --add safe.directory \"\$DEPLOY_PATH\" || true
+          cd "$DEPLOY_PATH"
 
-            cd \"\$DEPLOY_PATH\" || { echo '❌ Path not found'; exit 1; }
+          REPO_SSH="git@github.com:mikhaelfelian/p56-wgtix.git"
+          BRANCH="main"
 
-            REPO_SSH='git@github.com:mikhaelfelian/p56-wgtix.git'
-            BRANCH='main'
+          if [ -d .git ]; then
+            git remote set-url origin "$REPO_SSH" || true
+            git fetch --all --prune
+            git checkout "$BRANCH" || true
+            git reset --hard "origin/$BRANCH"
+            git clean -fd
+          else
+            git clone -b "$BRANCH" "$REPO_SSH" .
+          fi
 
-            if [ -d .git ]; then
-              git remote set-url origin \"\$REPO_SSH\" || true
-              git fetch --all --prune
-              git checkout \"\$BRANCH\" || true
-              git reset --hard \"origin/\$BRANCH\"
-              git clean -fd
-            else
-              git clone -b \"\$BRANCH\" \"\$REPO_SSH\" .
-            fi
-
-            if command -v composer >/dev/null 2>&1; then
-              composer install --no-dev --prefer-dist --optimize-autoloader --no-interaction || true
-            fi
-            if command -v php >/dev/null 2>&1; then
-              php spark migrate --all --ansi || true
-              php -r 'if(function_exists(\"opcache_reset\")){ opcache_reset(); }'
-            fi
-          "
+          if command -v composer >/dev/null 2>&1; then
+            composer install --no-dev --prefer-dist --optimize-autoloader --no-interaction || true
+          fi
+          if command -v php >/dev/null 2>&1; then
+            php spark migrate --all --ansi || true
+            php -r 'if(function_exists("opcache_reset")){ opcache_reset(); }'
+          fi
+          EOF
