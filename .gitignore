@@ -111,8 +111,7 @@ phpunit
 # Visual Studio Code
 .vscode/
 
-# htaccess
-.htaccess
-.htaccess
+# Only ignore .htaccess in the project root
+/.htaccess
 
 /public/file
