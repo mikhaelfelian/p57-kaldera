@@ -32,14 +32,16 @@ jobs:
           ssh -p ${{ secrets.SSH_PORT }} ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }} << 'EOF'
           set -e
           DEPLOY_PATH="${{ secrets.DEPLOY_PATH }}"
-
-          # fix safe.directory (error ownership)
-          git config --global --add safe.directory "$DEPLOY_PATH" || true
-
-          cd "$DEPLOY_PATH"
-
           REPO_SSH="git@github.com:mikhaelfelian/p57-kaldera.git"
           BRANCH="main"
+
+          # --- perbaikan ownership & safe.directory ---
+          chown -R "$USER:$USER" "$DEPLOY_PATH/.git" "$DEPLOY_PATH/.github" 2>/dev/null || true
+          chmod -R u+rwX "$DEPLOY_PATH/.git" "$DEPLOY_PATH/.github" 2>/dev/null || true
+          git config --global --add safe.directory "$DEPLOY_PATH" || true
+          # --------------------------------------------
+
+          cd "$DEPLOY_PATH"
 
           if [ -d .git ]; then
             git remote set-url origin "$REPO_SSH" || true
@@ -54,6 +56,7 @@ jobs:
           if command -v composer >/dev/null 2>&1; then
             composer install --no-dev --prefer-dist --optimize-autoloader --no-interaction || true
           fi
+
           if command -v php >/dev/null 2>&1; then
             php spark migrate --all --ansi || true
             php -r 'if(function_exists("opcache_reset")){ opcache_reset(); }'
