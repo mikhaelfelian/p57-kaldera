@@ -69,12 +69,10 @@ $routes->group('tfk', ['namespace' => 'App\\Controllers', 'filter' => 'auth'], f
     $routes->get('/', 'TargetFisikKeu::index', ['as' => 'tfk.index']);
     $routes->get('data', 'TargetFisikKeu::index', ['as' => 'tfk.data']);
 
-    // Input/create
-    $routes->get('input', 'TargetFisikKeu::input', ['as' => 'tfk.input']);
-    $routes->get('input/(:num)', 'TargetFisikKeu::input/$1', ['as' => 'tfk.input.id']);
+    // Input/create (redirects to index with master_id)
+    $routes->get('input', 'TargetFisikKeu::index', ['as' => 'tfk.input']);
+    $routes->get('input/(:num)', 'TargetFisikKeu::index', ['as' => 'tfk.input.id']);
     $routes->post('store', 'TargetFisikKeu::store', ['as' => 'tfk.store']);
-    $routes->post('update-cell', 'TargetFisikKeu::updateCell', ['as' => 'tfk.update_cell']);
-
     // Rekap
     $routes->get('rekap', 'TargetFisikKeu::rekap', ['as' => 'tfk.rekap']);
 
@@ -82,7 +80,13 @@ $routes->group('tfk', ['namespace' => 'App\\Controllers', 'filter' => 'auth'], f
     $routes->get('master', 'TargetFisikKeu::master', ['as' => 'tfk.master']);
     $routes->post('master/store', 'TargetFisikKeu::masterStore', ['as' => 'tfk.master.store']);
     $routes->post('master/delete/(:num)', 'TargetFisikKeu::masterDelete/$1', ['as' => 'tfk.master.delete']);
+    
+    // CSRF refresh
+    $routes->get('refresh-csrf', 'TargetFisikKeu::refreshCSRF', ['as' => 'tfk.refresh_csrf']);
 });
+
+// ==================== AJAX Routes (No CSRF) ====================
+$routes->post('tfk/update-cell', 'TargetFisikKeu::updateCell', ['as' => 'tfk.update_cell', 'filter' => 'auth']);
 
 // ==================== Public API ====================
 $routes->group('publik', function ($routes) {

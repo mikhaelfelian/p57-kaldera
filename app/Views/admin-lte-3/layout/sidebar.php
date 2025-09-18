@@ -31,38 +31,38 @@
                         </a>
                     </li>
                 <li class="nav-header">MASTER DATA</li>
-                <li class="nav-item has-treeview">
-                    <a href="#" class="nav-link">
+                <li class="nav-item has-treeview <?= isMenuActive(['tfk/master', 'tfk/rekap', 'tfk/input'], true) ? 'menu-open' : '' ?>">
+                    <a href="#" class="nav-link <?= isMenuActive(['tfk/master', 'tfk/rekap', 'tfk/input'], true) ? 'active' : '' ?>">
                         <i class="nav-icon fas fa-bullseye"></i>
                         <p>
                             Target Fisik & Keu
-                                <i class="right fas fa-angle-left"></i>
-                            </p>
-                        </a>
-                        <ul class="nav nav-treeview">
-                            <li class="nav-item">
-                            <a href="<?= base_url('tfk/master') ?>" class="nav-link">
-                                    <?= nbs(3) ?>
+                            <i class="right fas fa-angle-left"></i>
+                        </p>
+                    </a>
+                    <ul class="nav nav-treeview">
+                        <li class="nav-item">
+                            <a href="<?= base_url('tfk/master') ?>" class="nav-link <?= isMenuActive('tfk/master') ? 'active' : '' ?>">
+                                <?= nbs(3) ?>
                                 <i class="fas fa-eye nav-icon"></i>
                                 <p>Master Data</p>
-                                </a>
-                            </li>
-                            <li class="nav-item">
-                            <a href="<?= base_url('tfk/rekap') ?>" class="nav-link">
-                                    <?= nbs(3) ?>
-                                <i class="fas fa-chart-bar nav-icon"></i>
-                                <p>Rekap</p>
-                                </a>
-                            </li>
-                            <li class="nav-item">
-                            <a href="<?= base_url('tfk/input') ?>" class="nav-link">
-                                    <?= nbs(3) ?>
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a href="<?= base_url('tfk/input') ?>" class="nav-link <?= isMenuActive('tfk/input') ? 'active' : '' ?>">
+                                <?= nbs(3) ?>
                                 <i class="fas fa-plus nav-icon"></i>
                                 <p>Input</p>
-                                </a>
-                            </li>
-                        </ul>
-                    </li>
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a href="<?= base_url('tfk/rekap') ?>" class="nav-link <?= isMenuActive('tfk/rekap') ? 'active' : '' ?>">
+                                <?= nbs(3) ?>
+                                <i class="fas fa-chart-bar nav-icon"></i>
+                                <p>Rekap</p>
+                            </a>
+                        </li>
+                    </ul>
+                </li>
                 <li class="nav-item has-treeview">
                     <a href="#" class="nav-link">
                         <i class="nav-icon fas fa-shopping-basket"></i>

@@ -4,23 +4,26 @@ namespace App\Controllers;
 
 use App\Models\TargetFisikKeuMasterModel;
 use App\Models\TargetFisikKeuDetailModel;
+use App\Models\FiskalModel;
 
 class TargetFisikKeu extends BaseController
 {
 	protected $masterModel;
 	protected $detailModel;
+	protected $fiskalModel;
 
 	public function __construct()
 	{
 		$this->masterModel = new TargetFisikKeuMasterModel();
 		$this->detailModel = new TargetFisikKeuDetailModel();
+		$this->fiskalModel = new FiskalModel();
 	}
 
-	public function index()
+	public function index($masterId = null)
 	{
 		$year = (int)($this->request->getGet('year') ?: date('Y'));
 		$items = $this->masterModel->orderBy('id', 'DESC')->findAll();
-		$selectedId = (int)($this->request->getGet('master_id') ?: 0);
+		$selectedId = (int)($masterId ?: $this->request->getGet('master_id') ?: 0);
 		if (!$selectedId && !empty($items)) {
 			$selectedId = (int)$items[0]['id'];
 		}
@@ -28,10 +31,7 @@ class TargetFisikKeu extends BaseController
 		$details = [];
 		if ($selectedId) {
 			$selectedMaster = $this->masterModel->find($selectedId);
-			$rows = $this->detailModel
-				->where('master_id', $selectedId)
-				->where('tahun', $year)
-				->findAll();
+			$rows = $this->fiskalModel->getByMasterTipeYear($selectedId, '1', $year);
 			foreach ($rows as $r) {
 				$details[$r['bulan']] = $r;
 			}
@@ -50,30 +50,6 @@ class TargetFisikKeu extends BaseController
 		return view($this->theme->getThemePath() . '/tfk/index', $data);
 	}
 
-	public function input($id = null)
-	{
-		$master = null;
-		$details = [];
-		if ($id) {
-			$master = $this->masterModel->find($id);
-			if ($master) {
-				$rows = $this->detailModel->where('master_id', $id)->findAll();
-				foreach ($rows as $r) {
-					$details[$r['bulan']] = $r;
-				}
-			}
-		}
-
-		$data = [
-			'title' => 'Target Fisik & Keuangan - Input',
-			'Pengaturan' => $this->pengaturan,
-			'user' => $this->ionAuth->user()->row(),
-			'master' => $master,
-			'details' => $details,
-		];
-
-		return view($this->theme->getThemePath() . '/tfk/input', $data);
-	}
 
 	public function store()
 	{
@@ -99,33 +75,93 @@ class TargetFisikKeu extends BaseController
 
 	public function updateCell()
 	{
-		$id = (int)$this->request->getPost('id');
-		$masterId = (int)$this->request->getPost('master_id');
-		$bulan = $this->request->getPost('bulan');
-		$field = $this->request->getPost('field'); // fisik | keu
-		$value = (float)$this->request->getPost('value');
+		// Disable CSRF for this method only
+		$config = config('App');
+		$originalCSRF = $config->CSRFProtection;
+		$config->CSRFProtection = false;
+		
+		try {
+			
+			$id = (int)$this->request->getPost('id');
+			$masterId = (int)$this->request->getPost('master_id');
+			$bulan = $this->request->getPost('bulan');
+			$field = $this->request->getPost('field'); // fisik | keu
+			$value = (float)$this->request->getPost('value');
+			$year = (int)$this->request->getPost('year') ?: (int)date('Y');
 
-		if (!$masterId || !in_array($bulan, ['jan','feb','mar','apr','mei','jun','jul','ags','sep','okt','nov','des']) || !in_array($field, ['fisik','keu'])) {
-			return $this->response->setJSON(['ok' => false, 'message' => 'Invalid params']);
-		}
-
-		// Upsert detail row
-		$year = (int)$this->request->getPost('year') ?: (int)date('Y');
-		$detail = $this->detailModel->where(['master_id' => $masterId, 'bulan' => $bulan, 'tahun' => $year])->first();
-		if ($detail) {
-			$detail[$field] = $value;
-			$this->detailModel->update($detail['id'], $detail);
-			$id = $detail['id'];
-		} else {
-			$id = $this->detailModel->insert([
+			// Debug logging
+			log_message('debug', 'updateCell params: ' . json_encode([
+				'id' => $id,
 				'master_id' => $masterId,
 				'bulan' => $bulan,
-				'tahun' => $year,
-				$field => $value,
-			]);
-		}
+				'field' => $field,
+				'value' => $value,
+				'year' => $year
+			]));
 
-		return $this->response->setJSON(['ok' => true, 'id' => $id, 'value' => $value]);
+			if (!$masterId) {
+				return $this->response->setJSON(['ok' => false, 'message' => 'Master ID is required']);
+			}
+			
+			if (!in_array($bulan, ['jan','feb','mar','apr','mei','jun','jul','ags','sep','okt','nov','des'])) {
+				return $this->response->setJSON(['ok' => false, 'message' => 'Invalid bulan: ' . $bulan]);
+			}
+			
+			if (!in_array($field, ['fisik','keu'])) {
+				return $this->response->setJSON(['ok' => false, 'message' => 'Invalid field: ' . $field]);
+			}
+
+			// Map field names to database columns
+			$fieldMap = [
+				'fisik' => 'target_fisik',
+				'keu' => 'target_keuangan'
+			];
+
+			$dbField = $fieldMap[$field] ?? $field;
+
+			// Get existing record or create new one
+			$existing = $this->fiskalModel->where([
+				'master_id' => $masterId,
+				'tipe' => '1',
+				'tahun' => $year,
+				'bulan' => $bulan
+			])->first();
+
+			$data = [
+				$dbField => $value
+			];
+
+			if ($existing) {
+				// Update existing record
+				$this->fiskalModel->skipValidation(true);
+				$result = $this->fiskalModel->update($existing['id'], $data);
+				$id = $existing['id'];
+				log_message('debug', 'Updated fiskal record: ' . $result);
+			} else {
+				// Create new record
+				$data['master_id'] = $masterId;
+				$data['tipe'] = '1';
+				$data['tahun'] = $year;
+				$data['bulan'] = $bulan;
+				$this->fiskalModel->skipValidation(true);
+				$id = $this->fiskalModel->insert($data);
+				log_message('debug', 'Inserted fiskal record with ID: ' . $id);
+			}
+
+			// Update deviation calculations
+			if ($id) {
+				$this->fiskalModel->updateDeviations($id);
+			}
+
+			return $this->response->setJSON(['ok' => true, 'id' => $id, 'value' => $value]);
+		} catch (\Exception $e) {
+			log_message('error', 'updateCell error: ' . $e->getMessage());
+			log_message('error', 'updateCell stack trace: ' . $e->getTraceAsString());
+			return $this->response->setJSON(['ok' => false, 'message' => 'Server error: ' . $e->getMessage()]);
+		} finally {
+			// Restore original CSRF setting
+			$config->CSRFProtection = $originalCSRF;
+		}
 	}
 
 	public function rekap()
@@ -216,6 +252,15 @@ class TargetFisikKeu extends BaseController
 			$this->masterModel->delete($id);
 		}
 		return redirect()->route('tfk.master')->with('message', 'Master dihapus');
+	}
+
+	public function refreshCSRF()
+	{
+		return $this->response->setJSON([
+			'ok' => true,
+			'csrf_token' => csrf_token(),
+			'csrf_hash' => csrf_hash()
+		]);
 	}
 }
 

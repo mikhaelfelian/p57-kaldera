@@ -15,6 +15,7 @@ use CodeIgniter\Filters\SecureHeaders;
 use App\Filters\AuthFilter;
 use App\Filters\DisableSessionFilter;
 use App\Filters\JWTAuthFilter;
+use App\Filters\NoCSRFFilter;
 use App\Filters\ShiftFilter;
 
 class Filters extends BaseFilters
@@ -41,6 +42,7 @@ class Filters extends BaseFilters
         'auth'          => AuthFilter::class,
         'disableSession' => DisableSessionFilter::class,
         'jwtauth'       => JWTAuthFilter::class,
+        'no_csrf'       => NoCSRFFilter::class,
         'shift'         => ShiftFilter::class,
     ];
 
