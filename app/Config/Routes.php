@@ -86,7 +86,7 @@ $routes->group('tfk', ['namespace' => 'App\\Controllers', 'filter' => 'auth'], f
 });
 
 // ==================== AJAX Routes (No CSRF) ====================
-$routes->post('tfk/update-cell', 'TargetFisikKeu::updateCell', ['as' => 'tfk.update_cell', 'filter' => 'auth']);
+$routes->post('tfk/update-cell', 'TargetFisikKeu::updateCell', ['as' => 'tfk.update_cell']);
 
 // ==================== Public API ====================
 $routes->group('publik', function ($routes) {

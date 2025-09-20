@@ -7,13 +7,6 @@
 		<h3 class="card-title">Target Fisik & Keuangan</h3>
 		<form class="form-inline" method="get">
 			<?php $current = (int)($year ?? date('Y')); $start=$current-5; $end=$current+5; ?>
-			<label class="mr-2">Master:</label>
-			<select name="master_id" class="form-control form-control-sm mr-2" onchange="this.form.submit()">
-				<option value="">Pilih Master</option>
-				<?php foreach (($items ?? []) as $m): ?>
-				<option value="<?= $m['id'] ?>" <?= $masterId == $m['id'] ? 'selected' : '' ?>><?= esc($m['nama']) ?></option>
-				<?php endforeach; ?>
-			</select>
 			<label class="mr-2">Tahun</label>
 			<select name="year" class="form-control form-control-sm" onchange="this.form.submit()">
 				<?php for($y=$start;$y<=$end;$y++): ?>
@@ -23,9 +16,9 @@
 		</form>
 	</div>
 	<div class="card-body">
-		<?php if (!empty($items) && $masterId > 0): ?>
+		<?php if (!empty($items)): ?>
 		<div class="table-responsive mt-2">
-			<table class="table table-bordered mb-0 rounded-0" id="tfkTable" data-master-id="<?= (int)$masterId ?>" data-year="<?= (int)($year ?? $current) ?>">
+			<table class="table table-bordered mb-0 rounded-0" id="tfkTable" data-year="<?= (int)($year ?? $current) ?>">
 				<thead>
 					<tr>
 						<th>Kumulatif</th>
@@ -35,19 +28,23 @@
 					</tr>
 				</thead>
 				<tbody>
-					<?php $map = $details ?? []; ?>
-					<tr>
-						<td><strong><?= esc($selectedMaster['nama'] ?? 'Target Fisik (%)') ?></strong></td>
+					<?php foreach ($mastersWithData as $masterData): 
+						$master = $masterData['master'];
+						$map = $masterData['details'];
+					?>
+					<tr data-master-id="<?= (int)$master['id'] ?>">
+						<td><strong><?= esc($master['nama']) ?></strong></td>
 						<?php foreach ($months as $k=>$label): $d = $map[$k] ?? ['id'=>null]; $val = isset($d['target_fisik']) ? (float)$d['target_fisik'] : 0; ?>
 						<td><span class="editable" data-bulan="<?= $k ?>" data-field="fisik" data-id="<?= (int)($d['id'] ?? 0) ?>"><?= $val ?></span> <i class="fas fa-pencil-alt text-muted ml-1 edit-icon"></i></td>
 						<?php endforeach; ?>
 					</tr>
-					<tr>
-						<td><strong><?= esc($selectedMaster['tahapan'] ?? 'Target Keuangan (%)') ?></strong></td>
+					<tr data-master-id="<?= (int)$master['id'] ?>">
+						<td><strong><?= esc($master['tahapan']) ?></strong></td>
 						<?php foreach ($months as $k=>$label): $d = $map[$k] ?? ['id'=>null]; $val = isset($d['target_keuangan']) ? (float)$d['target_keuangan'] : 0; ?>
 						<td><span class="editable" data-bulan="<?= $k ?>" data-field="keu" data-id="<?= (int)($d['id'] ?? 0) ?>"><?= $val ?></span> <i class="fas fa-pencil-alt text-muted ml-1 edit-icon"></i></td>
 						<?php endforeach; ?>
 					</tr>
+					<?php endforeach; ?>
 				</tbody>
 			</table>
 			<div class="text-right mt-3">
@@ -75,13 +72,22 @@
 	var csrfToken = '<?= csrf_token() ?>';
 	var csrfHash = '<?= csrf_hash() ?>';
 	
-	function refreshCSRF() {
-		$.get('<?= base_url('tfk/update-cell') ?>', function(data) {
-			// This will trigger a 405 Method Not Allowed, but we just need to refresh the page
-			// or we can make a proper endpoint to refresh CSRF
-			location.reload();
-		});
-	}
+	// Test if we can make a simple AJAX call
+	console.log('Page loaded, testing AJAX capability');
+	
+	// Test AJAX call to see if it works
+	$.post('<?= base_url('tfk/update-cell') ?>', {
+		id: 0,
+		master_id: 1,
+		bulan: 'feb',
+		field: 'fisik',
+		value: 123.45,
+		year: 2025
+	}, function(response) {
+		console.log('Test AJAX successful:', response);
+	}, 'json').fail(function(xhr, status, error) {
+		console.error('Test AJAX failed:', xhr.responseText, status, error);
+	});
 	function makeInput(span){
 		var value = span.text().trim();
 		var input = $('<input type="number" step="0.01" min="0" max="100" class="form-control form-control-sm rounded-0" />');
@@ -91,11 +97,11 @@
 		input.focus();
 		function commit(){
 			var newVal = parseFloat(input.val()||0);
-			var masterId = $('#tfkTable').data('master-id');
+			var masterId = span.closest('tr').data('master-id');
 			
 			// Check if master is selected
 			if (!masterId || masterId <= 0) {
-				toastr.error('Pilih master terlebih dahulu!');
+				toastr.error('Master ID tidak ditemukan!');
 				input.remove(); 
 				span.show();
 				return;
@@ -109,12 +115,16 @@
 				field: span.data('field'),
 				value: newVal
 			};
+			console.log('Sending AJAX request to:', '<?= base_url('tfk/update-cell') ?>');
+			console.log('Payload:', payload);
 			$.post('<?= base_url('tfk/update-cell') ?>', payload, function(res){
+				console.log('Response received:', res);
 				if(res && res.ok){ 
 					span.data('id', res.id); 
 					span.text(newVal); 
 					toastr.success('Data berhasil disimpan!');
 				} else {
+					console.error('Save failed:', res);
 					toastr.error('Gagal menyimpan: ' + (res.message || 'Unknown error'));
 				}
 				input.remove(); span.show();
@@ -122,6 +132,7 @@
 				input.remove(); 
 				span.show(); 
 				console.error('AJAX Error:', xhr.responseText);
+				console.error('Status:', status, 'Error:', error);
 				if(xhr.status === 403 || xhr.responseText.includes('Forbidden')) {
 					toastr.error('Session expired. Please refresh the page.');
 					setTimeout(function() { location.reload(); }, 2000);
@@ -141,12 +152,7 @@
 		var $btn = $(this);
 		var originalText = $btn.text();
 		
-		// Check if master is selected
-		var masterId = $('#tfkTable').data('master-id');
-		if (!masterId || masterId <= 0) {
-			toastr.error('Pilih master terlebih dahulu!');
-			return;
-		}
+		console.log('Save button clicked');
 		
 		$btn.prop('disabled', true).text('Menyimpan...');
 		
@@ -154,16 +160,31 @@
 		var updates = [];
 		$('#tfkTable .editable').each(function(){
 			var $span = $(this);
+			var $row = $span.closest('tr');
+			var masterId = $row.data('master-id');
 			var value = parseFloat($span.text().trim()) || 0;
-			updates.push({
-				id: $span.data('id') || 0,
-				master_id: masterId,
-				bulan: $span.data('bulan'),
-				year: $('#tfkTable').data('year'),
-				field: $span.data('field'),
-				value: value
-			});
+			
+		console.log('Processing cell:', {
+			masterId: masterId,
+			bulan: $span.data('bulan'),
+			field: $span.data('field'),
+			value: value,
+			textValue: $span.text().trim()
 		});
+			
+			if (masterId && masterId > 0) {
+				updates.push({
+					id: $span.data('id') || 0,
+					master_id: masterId,
+					bulan: $span.data('bulan'),
+					year: $('#tfkTable').data('year'),
+					field: $span.data('field'),
+					value: value
+				});
+			}
+		});
+		
+		console.log('Total updates to process:', updates.length);
 		
 		// Save all updates
 		var promises = updates.map(function(update){
@@ -176,15 +197,17 @@
 				value: update.value
 			};
 			
+			console.log('Bulk save - Sending to:', '<?= base_url('tfk/update-cell') ?>', 'Payload:', payload);
 			return $.post('<?= base_url('tfk/update-cell') ?>', payload, null, 'json');
 		});
 		
 		Promise.all(promises).then(function(results){
+			console.log('Bulk save results:', results);
 			$btn.prop('disabled', false).text(originalText);
 			toastr.success('Semua data berhasil disimpan!');
 		}).catch(function(error){
 			$btn.prop('disabled', false).text(originalText);
-			console.error('Save Error:', error);
+			console.error('Bulk Save Error:', error);
 			toastr.error('Gagal menyimpan data!');
 		});
 	});

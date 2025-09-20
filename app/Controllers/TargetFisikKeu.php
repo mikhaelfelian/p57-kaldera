@@ -23,28 +23,29 @@ class TargetFisikKeu extends BaseController
 	{
 		$year = (int)($this->request->getGet('year') ?: date('Y'));
 		$items = $this->masterModel->orderBy('id', 'DESC')->findAll();
-		$selectedId = (int)($masterId ?: $this->request->getGet('master_id') ?: 0);
-		if (!$selectedId && !empty($items)) {
-			$selectedId = (int)$items[0]['id'];
-		}
-		$selectedMaster = null;
-		$details = [];
-		if ($selectedId) {
-			$selectedMaster = $this->masterModel->find($selectedId);
-			$rows = $this->fiskalModel->getByMasterTipeYear($selectedId, '1', $year);
-			foreach ($rows as $r) {
-				$details[$r['bulan']] = $r;
+		
+		// Load existing data for each master
+		$mastersWithData = [];
+		foreach ($items as $master) {
+			$masterDetails = $this->fiskalModel->getByMasterTipeYear($master['id'], '1', $year);
+			log_message('debug', 'Loading data for master ' . $master['id'] . ' year ' . $year . ': ' . json_encode($masterDetails));
+			$map = [];
+			foreach ($masterDetails as $detail) {
+				$map[$detail['bulan']] = $detail;
 			}
+			$mastersWithData[] = [
+				'master' => $master,
+				'details' => $map
+			];
 		}
+		
 		$data = [
 			'title' => 'Target Fisik & Keuangan - Data',
 			'Pengaturan' => $this->pengaturan,
 			'user' => $this->ionAuth->user()->row(),
 			'items' => $items,
+			'mastersWithData' => $mastersWithData,
 			'year' => $year,
-			'masterId' => $selectedId,
-			'selectedMaster' => $selectedMaster,
-			'details' => $details,
 		];
 
 		return view($this->theme->getThemePath() . '/tfk/index', $data);
@@ -75,12 +76,14 @@ class TargetFisikKeu extends BaseController
 
 	public function updateCell()
 	{
-		// Disable CSRF for this method only
-		$config = config('App');
-		$originalCSRF = $config->CSRFProtection;
-		$config->CSRFProtection = false;
+		// Simple test to verify route is working
+		if (empty($this->request->getPost())) {
+			return $this->response->setJSON(['ok' => true, 'message' => 'Route is working, but no POST data received']);
+		}
 		
 		try {
+			// Log all POST data for debugging
+			log_message('debug', 'updateCell POST data: ' . json_encode($this->request->getPost()));
 			
 			$id = (int)$this->request->getPost('id');
 			$masterId = (int)$this->request->getPost('master_id');
@@ -126,6 +129,9 @@ class TargetFisikKeu extends BaseController
 				'tahun' => $year,
 				'bulan' => $bulan
 			])->first();
+			
+			log_message('debug', 'Looking for existing record: master_id=' . $masterId . ', tipe=1, tahun=' . $year . ', bulan=' . $bulan);
+			log_message('debug', 'Existing record found: ' . json_encode($existing));
 
 			$data = [
 				$dbField => $value
@@ -136,7 +142,7 @@ class TargetFisikKeu extends BaseController
 				$this->fiskalModel->skipValidation(true);
 				$result = $this->fiskalModel->update($existing['id'], $data);
 				$id = $existing['id'];
-				log_message('debug', 'Updated fiskal record: ' . $result);
+				log_message('debug', 'Updated fiskal record ID ' . $id . ' with data: ' . json_encode($data) . ' - Result: ' . $result);
 			} else {
 				// Create new record
 				$data['master_id'] = $masterId;
@@ -145,7 +151,7 @@ class TargetFisikKeu extends BaseController
 				$data['bulan'] = $bulan;
 				$this->fiskalModel->skipValidation(true);
 				$id = $this->fiskalModel->insert($data);
-				log_message('debug', 'Inserted fiskal record with ID: ' . $id);
+				log_message('debug', 'Inserted fiskal record with ID: ' . $id . ' and data: ' . json_encode($data));
 			}
 
 			// Update deviation calculations
@@ -153,14 +159,19 @@ class TargetFisikKeu extends BaseController
 				$this->fiskalModel->updateDeviations($id);
 			}
 
+			// Verify the data was saved correctly
+			$savedRecord = $this->fiskalModel->find($id);
+			log_message('debug', 'Verification - Saved record: ' . json_encode($savedRecord));
+			
+			// Also check if the specific field was saved correctly
+			$fieldValue = $savedRecord[$dbField] ?? 'NOT_FOUND';
+			log_message('debug', 'Field ' . $dbField . ' value: ' . $fieldValue . ' (expected: ' . $value . ')');
+
 			return $this->response->setJSON(['ok' => true, 'id' => $id, 'value' => $value]);
 		} catch (\Exception $e) {
 			log_message('error', 'updateCell error: ' . $e->getMessage());
 			log_message('error', 'updateCell stack trace: ' . $e->getTraceAsString());
 			return $this->response->setJSON(['ok' => false, 'message' => 'Server error: ' . $e->getMessage()]);
-		} finally {
-			// Restore original CSRF setting
-			$config->CSRFProtection = $originalCSRF;
 		}
 	}
 

@@ -10,12 +10,13 @@ class NoCSRFFilter implements FilterInterface
 {
     public function before(RequestInterface $request, $arguments = null)
     {
-        // Simply return - no CSRF validation needed
-        return;
+        // Disable CSRF protection for this request
+        $config = config('App');
+        $config->CSRFProtection = false;
     }
 
     public function after(RequestInterface $request, ResponseInterface $response, $arguments = null)
     {
-        // No action needed after request
+        // Nothing to do after
     }
 }

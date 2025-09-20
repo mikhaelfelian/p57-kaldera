@@ -88,7 +88,8 @@ class Filters extends BaseFilters
                 'transaksi/jual/delete-draft/*',
                 'transaksi/retur/jual/search-items',
                 'transaksi/retur/jual/sales-items/*',
-                'transaksi/retur/jual/test'
+                'transaksi/retur/jual/test',
+                'tfk/update-cell'
             ]],
         ],
         'after' => [
