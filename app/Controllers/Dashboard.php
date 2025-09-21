@@ -14,6 +14,7 @@ class Dashboard extends BaseController
     protected $transJualModel;
     protected $transBeliModel;
     protected $transJualDetModel;
+    protected $fiskalModel;
     protected $db;
 
     public function __construct(){
@@ -21,21 +22,41 @@ class Dashboard extends BaseController
         $this->transJualModel = new \App\Models\TransJualModel();
         $this->transBeliModel = new \App\Models\TransBeliModel();
         $this->transJualDetModel = new \App\Models\TransJualDetModel();
+        $this->fiskalModel = new \App\Models\FiskalModel();
         $this->db = \Config\Database::connect();
     }
     
     public function index()
     {        
+        // Get available years from tbl_fiskal
+        $availableYears = $this->getAvailableYears();
+        
 		$data = [
 			'title' => 'Dashboard',
 			'Pengaturan' => $this->pengaturan,
 			'user' => $this->ionAuth->user()->row(),
+			'availableYears' => $availableYears,
 			'breadcrumbs' => '
 				<li class="breadcrumb-item"><a href="' . base_url() . '">Beranda</a></li>
 				<li class="breadcrumb-item active">Dashboard</li>
 			'
 		];
 		return view($this->theme->getThemePath() . '/dashboard', $data);
+    }
+    
+    /**
+     * Get available years from tbl_fiskal table
+     */
+    private function getAvailableYears()
+    {
+        $years = $this->db->table('tbl_fiskal')
+            ->select('tahun')
+            ->distinct()
+            ->orderBy('tahun', 'DESC')
+            ->get()
+            ->getResult();
+        
+        return array_column($years, 'tahun');
     }
     
     /**

@@ -8,11 +8,14 @@
 		<form class="form-inline" method="get">
 			<?php $current = (int)($year ?? date('Y')); $start=$current-5; $end=$current+5; ?>
 			<label class="mr-2">Tahun</label>
-			<select name="year" class="form-control form-control-sm" onchange="this.form.submit()">
+			<select name="year" class="form-control form-control-sm" onchange="this.form.submit()" <?= $current == date('Y') ? 'readonly disabled' : '' ?>>
 				<?php for($y=$start;$y<=$end;$y++): ?>
 				<option value="<?= $y ?>" <?= $y===$current?'selected':'' ?>><?= $y ?></option>
 				<?php endfor; ?>
 			</select>
+			<?php if ($current == date('Y')): ?>
+				<input type="hidden" name="year" value="<?= $current ?>">
+			<?php endif; ?>
 		</form>
 	</div>
 	<div class="card-body">
