@@ -300,8 +300,8 @@
                             </li>
                         </ul>
                     </li>
-                    <li class="nav-item has-treeview">
-                        <a href="#" class="nav-link">
+                    <li class="nav-item has-treeview <?= isMenuActive('gulkin', true) ? 'menu-open' : '' ?>">
+                        <a href="<?= base_url('gulkin') ?>" class="nav-link <?= isMenuActive('gulkin', true) ? 'active' : '' ?>">
                             <i class="nav-icon fas fa-industry"></i>
                             <p>
                                 Gulkin
@@ -310,7 +310,7 @@
                         </a>
                         <ul class="nav nav-treeview">
                             <li class="nav-item">
-                                <a href="#" class="nav-link">
+                                <a href="<?= base_url('gulkin') ?>" class="nav-link <?= isMenuActive('gulkin') ? 'active' : '' ?>">
                                     <?= nbs(3) ?>
                                     <i class="fas fa-plus nav-icon"></i>
                                     <p>Input</p>

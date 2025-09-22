@@ -55,11 +55,11 @@ class Gulkin extends BaseController
                 return $this->request->isAJAX() ? $this->response->setJSON(['ok' => false, 'message' => $msg]) : redirect()->back()->with('error', $msg);
             }
 
-            $targetDir = FCPATH . 'public' . DIRECTORY_SEPARATOR . 'file' . DIRECTORY_SEPARATOR . 'gulkin' . DIRECTORY_SEPARATOR . $id;
+            $targetDir = FCPATH . '' . DIRECTORY_SEPARATOR . 'file' . DIRECTORY_SEPARATOR . 'gulkin' . DIRECTORY_SEPARATOR . $id;
             if (!is_dir($targetDir)) mkdir($targetDir, 0777, true);
             $newName = 'gulkin_' . $id . '_' . time() . '.' . $ext;
             $file->move($targetDir, $newName, true);
-            $relative = 'public/file/gulkin/' . $id . '/' . $newName;
+            $relative = '/file/gulkin/' . $id . '/' . $newName;
             $this->model->update($id, ['fupload' => $relative]);
         }
 
