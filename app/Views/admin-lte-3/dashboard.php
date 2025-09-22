@@ -275,27 +275,6 @@
                 </div>
             </div>
         </div>
-        <div class="col-md-3 kaldera-left">
-            <div class="card">
-                <div class="card-body p-3">
-                    <div class="menu-item"><span class="menu-num">1</span><span class="menu-title">Target Fisik &
-                            Keu</span></div>
-                    <div class="menu-item"><span class="menu-num">2</span><span class="menu-title">Belanja</span></div>
-                    <div class="menu-item"><span class="menu-num">3</span><span class="menu-title">Pendapatan</span>
-                    </div>
-                    <div class="menu-item"><span class="menu-num">4</span><span class="menu-title">Indikator
-                            Kinerja</span></div>
-                    <div class="menu-item"><span class="menu-num">5</span><span class="menu-title">Pencatatan PBJ</span>
-                    </div>
-                    <div class="menu-item"><span class="menu-num">6</span><span class="menu-title">Belanja ke
-                            Masyarakat</span></div>
-                    <div class="menu-item"><span class="menu-num">7</span><span class="menu-title">Progres
-                            Konsultansi/Konstruksi</span></div>
-                    <div class="menu-item"><span class="menu-num">8</span><span class="menu-title">Persetujuan
-                            Teknis</span></div>
-                </div>
-            </div>
-        </div>
         <div class="col-md-9 kaldera-right">
             <div class="header-strip">Beranda</div>
             <div class="welcome-panel">
