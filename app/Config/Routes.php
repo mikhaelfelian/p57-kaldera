@@ -95,6 +95,42 @@ $routes->group('publik', function ($routes) {
     $routes->get('satuan', 'Publik::getSatuan');
 });
 
+// ==================== Gender Module ====================
+$routes->group('gender', ['namespace' => 'App\\Controllers', 'filter' => 'auth'], function ($routes) {
+    $routes->get('/', 'Gender::index', ['as' => 'gender.index']);
+    $routes->post('store', 'Gender::store', ['as' => 'gender.store']);
+    $routes->get('preview/(:num)', 'Gender::preview/$1', ['as' => 'gender.preview']);
+    $routes->get('download/(:num)', 'Gender::download/$1', ['as' => 'gender.download']);
+    $routes->post('delete/(:num)', 'Gender::delete/$1', ['as' => 'gender.delete']);
+});
+
+// ==================== Manajemen Risiko Module ====================
+$routes->group('risiko', ['namespace' => 'App\\Controllers', 'filter' => 'auth'], function ($routes) {
+    $routes->get('/', 'Risiko::index', ['as' => 'risiko.index']);
+    $routes->post('store', 'Risiko::store', ['as' => 'risiko.store']);
+    $routes->get('preview/(:num)', 'Risiko::preview/$1', ['as' => 'risiko.preview']);
+    $routes->get('download/(:num)', 'Risiko::download/$1', ['as' => 'risiko.download']);
+    $routes->post('delete/(:num)', 'Risiko::delete/$1', ['as' => 'risiko.delete']);
+});
+
+// ==================== SDGs Module ====================
+$routes->group('sdgs', ['namespace' => 'App\\Controllers', 'filter' => 'auth'], function ($routes) {
+    $routes->get('/', 'Sdgs::index', ['as' => 'sdgs.index']);
+    $routes->post('store', 'Sdgs::store', ['as' => 'sdgs.store']);
+    $routes->get('preview/(:num)', 'Sdgs::preview/$1', ['as' => 'sdgs.preview']);
+    $routes->get('download/(:num)', 'Sdgs::download/$1', ['as' => 'sdgs.download']);
+    $routes->post('delete/(:num)', 'Sdgs::delete/$1', ['as' => 'sdgs.delete']);
+});
+
+// ==================== Gulkin Module ====================
+$routes->group('gulkin', ['namespace' => 'App\\Controllers', 'filter' => 'auth'], function ($routes) {
+    $routes->get('/', 'Gulkin::index', ['as' => 'gulkin.index']);
+    $routes->post('store', 'Gulkin::store', ['as' => 'gulkin.store']);
+    $routes->get('preview/(:num)', 'Gulkin::preview/$1', ['as' => 'gulkin.preview']);
+    $routes->get('download/(:num)', 'Gulkin::download/$1', ['as' => 'gulkin.download']);
+    $routes->post('delete/(:num)', 'Gulkin::delete/$1', ['as' => 'gulkin.delete']);
+});
+
 // ==================== Settings (Pengaturan) ====================
 $routes->group('pengaturan', ['namespace' => 'App\Controllers', 'filter' => 'auth'], function ($routes) {
     // App settings

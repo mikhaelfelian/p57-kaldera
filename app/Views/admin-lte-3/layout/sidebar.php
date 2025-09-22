@@ -31,7 +31,7 @@
                         <p>Dashboard</p>
                     </a>
                 </li>
-                <?php if (isset($_GET['year']) && !empty($_GET['year'])): ?>
+                <?php // if (isset($_GET['year']) && !empty($_GET['year'])): ?>
                     <li class="nav-header">MASTER DATA</li>
                     <li
                         class="nav-item has-treeview <?= isMenuActive(['tfk/master', 'tfk/rekap', 'tfk/input'], true) ? 'menu-open' : '' ?>">
@@ -80,14 +80,14 @@
                         </a>
                         <ul class="nav nav-treeview">
                             <li class="nav-item">
-                                <a href="#" class="nav-link">
+                                <a href="<?= base_url('gender') ?>" class="nav-link <?= isMenuActive('gender') ? 'active' : '' ?>">
                                     <?= nbs(3) ?>
                                     <i class="fas fa-plus nav-icon"></i>
                                     <p>Input</p>
                                 </a>
                             </li>
                             <li class="nav-item">
-                                <a href="#" class="nav-link">
+                                <a href="<?= base_url('gender') ?>" class="nav-link <?= isMenuActive('gender') ? 'active' : '' ?>">
                                     <?= nbs(3) ?>
                                     <i class="fas fa-list nav-icon"></i>
                                     <p>Data</p>
@@ -105,14 +105,14 @@
                         </a>
                         <ul class="nav nav-treeview">
                             <li class="nav-item">
-                                <a href="#" class="nav-link">
+                                <a href="<?= base_url('gender') ?>" class="nav-link <?= isMenuActive('gender') ? 'active' : '' ?>">
                                     <?= nbs(3) ?>
                                     <i class="fas fa-plus nav-icon"></i>
                                     <p>Input</p>
                                 </a>
                             </li>
                             <li class="nav-item">
-                                <a href="#" class="nav-link">
+                                <a href="<?= base_url('gender') ?>" class="nav-link <?= isMenuActive('gender') ? 'active' : '' ?>">
                                     <?= nbs(3) ?>
                                     <i class="fas fa-list nav-icon"></i>
                                     <p>Data</p>
@@ -130,14 +130,14 @@
                         </a>
                         <ul class="nav nav-treeview">
                             <li class="nav-item">
-                                <a href="#" class="nav-link">
+                                <a href="<?= base_url('risiko') ?>" class="nav-link <?= isMenuActive('risiko') ? 'active' : '' ?>">
                                     <?= nbs(3) ?>
                                     <i class="fas fa-plus nav-icon"></i>
                                     <p>Input</p>
                                 </a>
                             </li>
                             <li class="nav-item">
-                                <a href="#" class="nav-link">
+                                <a href="<?= base_url('risiko') ?>" class="nav-link <?= isMenuActive('risiko') ? 'active' : '' ?>">
                                     <?= nbs(3) ?>
                                     <i class="fas fa-list nav-icon"></i>
                                     <p>Data</p>
@@ -246,12 +246,84 @@
                         </ul>
                     </li>
                     <!-- Additional menu items as in the image -->
+                    <li class="nav-item has-treeview <?= isMenuActive('gender', true) ? 'menu-open' : '' ?>">
+                        <a href="<?= base_url('gender') ?>" class="nav-link <?= isMenuActive('gender', true) ? 'active' : '' ?>">
+                            <i class="nav-icon fas fa-venus-mars"></i>
+                            <p>
+                                Gender
+                                <i class="right fas fa-angle-left"></i>
+                            </p>
+                        </a>
+                        <ul class="nav nav-treeview">
+                            <li class="nav-item">
+                                <a href="<?= base_url('gender') ?>" class="nav-link <?= isMenuActive('gender') ? 'active' : '' ?>">
+                                    <?= nbs(3) ?>
+                                    <i class="fas fa-plus nav-icon"></i>
+                                    <p>Input</p>
+                                </a>
+                            </li>
+                        </ul>
+                    </li>
+                    <li class="nav-item has-treeview <?= isMenuActive('risiko', true) ? 'menu-open' : '' ?>">
+                        <a href="<?= base_url('risiko') ?>" class="nav-link <?= isMenuActive('risiko', true) ? 'active' : '' ?>">
+                            <i class="nav-icon fas fa-shield-alt"></i>
+                            <p>
+                                Manajemen Risiko
+                                <i class="right fas fa-angle-left"></i>
+                            </p>
+                        </a>
+                        <ul class="nav nav-treeview">
+                            <li class="nav-item">
+                                <a href="<?= base_url('risiko') ?>" class="nav-link <?= isMenuActive('risiko') ? 'active' : '' ?>">
+                                    <?= nbs(3) ?>
+                                    <i class="fas fa-plus nav-icon"></i>
+                                    <p>Input</p>
+                                </a>
+                            </li>
+                        </ul>
+                    </li>
+                    <li class="nav-item has-treeview <?= isMenuActive('sdgs', true) ? 'menu-open' : '' ?>">
+                        <a href="<?= base_url('sdgs') ?>" class="nav-link <?= isMenuActive('sdgs', true) ? 'active' : '' ?>">
+                            <i class="nav-icon fas fa-globe"></i>
+                            <p>
+                                SDG's
+                                <i class="right fas fa-angle-left"></i>
+                            </p>
+                        </a>
+                        <ul class="nav nav-treeview">
+                            <li class="nav-item">
+                                <a href="<?= base_url('sdgs') ?>" class="nav-link <?= isMenuActive('sdgs') ? 'active' : '' ?>">
+                                    <?= nbs(3) ?>
+                                    <i class="fas fa-plus nav-icon"></i>
+                                    <p>Input</p>
+                                </a>
+                            </li>
+                        </ul>
+                    </li>
                     <li class="nav-item has-treeview">
                         <a href="#" class="nav-link">
-                            <i class="nav-icon fas fa-check-circle" style="color: #000;"></i>
+                            <i class="nav-icon fas fa-industry"></i>
                             <p>
-                                <span style="font-weight:bold;color:#000;">Gender</span>
-                                <i class="right fas fa-angle-left" style="color:#000;"></i>
+                                Gulkin
+                                <i class="right fas fa-angle-left"></i>
+                            </p>
+                        </a>
+                        <ul class="nav nav-treeview">
+                            <li class="nav-item">
+                                <a href="#" class="nav-link">
+                                    <?= nbs(3) ?>
+                                    <i class="fas fa-plus nav-icon"></i>
+                                    <p>Input</p>
+                                </a>
+                            </li>
+                        </ul>
+                    </li>
+                    <li class="nav-item has-treeview">
+                        <a href="#" class="nav-link">
+                            <i class="nav-icon fas fa-map-marked-alt"></i>
+                            <p>
+                                Web Gis ESDM
+                                <i class="right fas fa-angle-left"></i>
                             </p>
                         </a>
                         <ul class="nav nav-treeview">
@@ -273,10 +345,10 @@
                     </li>
                     <li class="nav-item has-treeview">
                         <a href="#" class="nav-link">
-                            <i class="nav-icon fas fa-check-circle" style="color: #000;"></i>
+                            <i class="nav-icon fas fa-file-alt"></i>
                             <p>
-                                <span style="font-weight:bold;color:#000;">Manajemen Risiko</span>
-                                <i class="right fas fa-angle-left" style="color:#000;"></i>
+                                Pelaporan
+                                <i class="right fas fa-angle-left"></i>
                             </p>
                         </a>
                         <ul class="nav nav-treeview">
@@ -298,85 +370,10 @@
                     </li>
                     <li class="nav-item has-treeview">
                         <a href="#" class="nav-link">
-                            <i class="nav-icon fas fa-check-circle" style="color: #000;"></i>
+                            <i class="nav-icon fas fa-comments"></i>
                             <p>
-                                <span style="font-weight:bold;color:#000;">SDG’s</span>
-                                <i class="right fas fa-angle-left" style="color:#000;"></i>
-                            </p>
-                        </a>
-                        <ul class="nav nav-treeview">
-                            <li class="nav-item">
-                                <a href="#" class="nav-link">
-                                    <?= nbs(3) ?>
-                                    <i class="fas fa-plus nav-icon"></i>
-                                    <p>Input</p>
-                                </a>
-                            </li>
-                            <li class="nav-item">
-                                <a href="#" class="nav-link">
-                                    <?= nbs(3) ?>
-                                    <i class="fas fa-list nav-icon"></i>
-                                    <p>Data</p>
-                                </a>
-                            </li>
-                        </ul>
-                    </li>
-                    <li class="nav-item has-treeview">
-                        <a href="#" class="nav-link">
-                            <i class="nav-icon fas fa-check-circle" style="color: #000;"></i>
-                            <p>
-                                <span style="font-weight:bold;color:#000;">Gulkin</span>
-                                <i class="right fas fa-angle-left" style="color:#000;"></i>
-                            </p>
-                        </a>
-                        <ul class="nav nav-treeview">
-                            <li class="nav-item">
-                                <a href="#" class="nav-link">
-                                    <?= nbs(3) ?>
-                                    <i class="fas fa-plus nav-icon"></i>
-                                    <p>Input</p>
-                                </a>
-                            </li>
-                            <li class="nav-item">
-                                <a href="#" class="nav-link">
-                                    <?= nbs(3) ?>
-                                    <i class="fas fa-list nav-icon"></i>
-                                    <p>Data</p>
-                                </a>
-                            </li>
-                        </ul>
-                    </li>
-                    <li class="nav-item has-treeview">
-                        <a href="#" class="nav-link">
-                            <i class="nav-icon fas fa-check-circle" style="color: #000;"></i>
-                            <p>
-                                <span style="font-weight:bold;color:#000;">Web Gis ESDM</span>
-                                <i class="right fas fa-angle-left" style="color:#000;"></i>
-                            </p>
-                        </a>
-                        <ul class="nav nav-treeview">
-                            <li class="nav-item">
-                                <a href="#" class="nav-link">
-                                    <?= nbs(3) ?>
-                                    <i class="fas fa-plus nav-icon"></i>
-                                    <p>Input</p>
-                                </a>
-                            </li>
-                            <li class="nav-item">
-                                <a href="#" class="nav-link">
-                                    <?= nbs(3) ?>
-                                    <i class="fas fa-list nav-icon"></i>
-                                    <p>Data</p>
-                                </a>
-                            </li>
-                        </ul>
-                    </li>
-                    <li class="nav-item has-treeview">
-                        <a href="#" class="nav-link">
-                            <i class="nav-icon fas fa-check-circle" style="color: #000;"></i>
-                            <p>
-                                <span style="font-weight:bold;color:#000;">Pelaporan</span>
-                                <i class="right fas fa-angle-left" style="color:#000;"></i>
+                                ESDM Feedback
+                                <i class="right fas fa-angle-left"></i>
                             </p>
                         </a>
                         <ul class="nav nav-treeview">
@@ -397,10 +394,9 @@
                         </ul>
                     </li>
                 </ul>
-            <?php endif; ?>
+            <?php // endif; ?>
         </nav>
         <!-- /.sidebar-menu -->
     </div>
-
     <!-- /.sidebar -->
 </aside>

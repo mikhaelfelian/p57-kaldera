@@ -326,22 +326,20 @@
                     <?php if (!empty($availableYears)): ?>
                         <?php foreach ($availableYears as $year): ?>
                             <div class="col-lg-3 col-md-4 col-sm-6 mb-4">
-                                <a href="<?= site_url('dashboard?year=' . $year) ?>" class="text-decoration-none">
-                                    <div class="year-card" data-year="<?= $year ?>" style="cursor: pointer;">
-                                        <div class="card h-100">
-                                            <div class="card-body text-center">
-                                                <div class="year-icon">
-                                                    <div class="icon-wrapper">
-                                                        <i class="fas fa-calendar-alt"></i>
-                                                    </div>
+                                <div class="year-card" data-year="<?= $year ?>" style="cursor: pointer;">
+                                    <div class="card h-100">
+                                        <div class="card-body text-center">
+                                            <div class="year-icon">
+                                                <div class="icon-wrapper">
+                                                    <i class="fas fa-calendar-alt"></i>
                                                 </div>
-                                                <h5 class="card-title">E-Penatausahaan</h5>
-                                                <h2 class="year-number"><?= $year ?></h2>
-                                                <p class="card-subtitle">Data Fiskal</p>
                                             </div>
+                                            <h5 class="card-title">E-Penatausahaan</h5>
+                                            <h2 class="year-number"><?= $year ?></h2>
+                                            <p class="card-subtitle">Data Fiskal</p>
                                         </div>
                                     </div>
-                                </a>
+                                </div>
                             </div>
                         <?php endforeach; ?>
                     <?php else: ?>
