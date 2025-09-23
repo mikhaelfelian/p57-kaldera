@@ -199,7 +199,7 @@
                         <a href="#" class="nav-link">
                             <i class="nav-icon fas fa-project-diagram"></i>
                             <p>
-                                Progres Konsultansi/Konstruksi
+                                Progres Konsultansi
                                 <i class="right fas fa-angle-left"></i>
                             </p>
                         </a>
