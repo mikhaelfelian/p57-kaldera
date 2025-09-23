@@ -131,6 +131,32 @@ $routes->group('gulkin', ['namespace' => 'App\\Controllers', 'filter' => 'auth']
     $routes->post('delete/(:num)', 'Gulkin::delete/$1', ['as' => 'gulkin.delete']);
 });
 
+// ==================== LINKS (Web GIS ESDM) ====================
+$routes->group('links', ['namespace' => 'App\\Controllers', 'filter' => 'auth'], function ($routes) {
+    $routes->get('/', 'Links::index', ['as' => 'links.index']);
+    $routes->post('store', 'Links::store', ['as' => 'links.store']);
+    $routes->post('delete/(:num)', 'Links::delete/$1', ['as' => 'links.delete']);
+});
+
+// ==================== ESDM Feedbacks ====================
+$routes->group('esdm-feedbacks', ['namespace' => 'App\\Controllers', 'filter' => 'auth'], function ($routes) {
+    $routes->get('/', 'EsdmFeedbacks::index', ['as' => 'esdm_feedbacks.index']);
+    $routes->post('store', 'EsdmFeedbacks::store', ['as' => 'esdm_feedbacks.store']);
+    $routes->post('delete/(:num)', 'EsdmFeedbacks::delete/$1', ['as' => 'esdm_feedbacks.delete']);
+});
+
+// Backward-compatible alias (singular URL)
+$routes->get('esdm-feedback', 'EsdmFeedbacks::index');
+
+// ==================== Upload Laporan ====================
+$routes->group('uploads', ['namespace' => 'App\\Controllers', 'filter' => 'auth'], function ($routes) {
+    $routes->get('/', 'Uploads::index', ['as' => 'uploads.index']);
+    $routes->post('store', 'Uploads::store', ['as' => 'uploads.store']);
+    $routes->get('preview/(:num)', 'Uploads::preview/$1', ['as' => 'uploads.preview']);
+    $routes->get('download/(:num)', 'Uploads::download/$1', ['as' => 'uploads.download']);
+    $routes->post('delete/(:num)', 'Uploads::delete/$1', ['as' => 'uploads.delete']);
+});
+
 // ==================== Settings (Pengaturan) ====================
 $routes->group('pengaturan', ['namespace' => 'App\Controllers', 'filter' => 'auth'], function ($routes) {
     // App settings

@@ -17,7 +17,8 @@ class LinksModel extends Model
         'name',
         'links',
         'keterangan',
-        'status'
+        'status',
+        'tipe'
     ];
 
     // Timestamps

@@ -70,8 +70,8 @@
                             </li>
                         </ul>
                     </li>
-                    <li class="nav-item has-treeview">
-                        <a href="#" class="nav-link">
+                    <li class="nav-item has-treeview <?= isMenuActive('esdm-feedbacks', true) ? 'menu-open' : '' ?>">
+                        <a href="<?= base_url('esdm-feedbacks') ?>" class="nav-link <?= isMenuActive('esdm-feedbacks', true) ? 'active' : '' ?>">
                             <i class="nav-icon fas fa-shopping-basket"></i>
                             <p>
                                 Belanja
@@ -318,8 +318,8 @@
                             </li>
                         </ul>
                     </li>
-                    <li class="nav-item has-treeview">
-                        <a href="#" class="nav-link">
+                    <li class="nav-item has-treeview <?= isMenuActive('links', true) ? 'menu-open' : '' ?>">
+                        <a href="<?= base_url('links') ?>" class="nav-link <?= isMenuActive('links', true) ? 'active' : '' ?>">
                             <i class="nav-icon fas fa-map-marked-alt"></i>
                             <p>
                                 Web Gis ESDM
@@ -328,23 +328,16 @@
                         </a>
                         <ul class="nav nav-treeview">
                             <li class="nav-item">
-                                <a href="#" class="nav-link">
+                                <a href="<?= base_url('links') ?>" class="nav-link <?= isMenuActive('links') ? 'active' : '' ?>">
                                     <?= nbs(3) ?>
                                     <i class="fas fa-plus nav-icon"></i>
                                     <p>Input</p>
                                 </a>
                             </li>
-                            <li class="nav-item">
-                                <a href="#" class="nav-link">
-                                    <?= nbs(3) ?>
-                                    <i class="fas fa-list nav-icon"></i>
-                                    <p>Data</p>
-                                </a>
-                            </li>
                         </ul>
                     </li>
-                    <li class="nav-item has-treeview">
-                        <a href="#" class="nav-link">
+                    <li class="nav-item has-treeview <?= isMenuActive('uploads', true) ? 'menu-open' : '' ?>">
+                        <a href="<?= base_url('uploads') ?>" class="nav-link <?= isMenuActive('uploads', true) ? 'active' : '' ?>">
                             <i class="nav-icon fas fa-file-alt"></i>
                             <p>
                                 Pelaporan
@@ -353,17 +346,10 @@
                         </a>
                         <ul class="nav nav-treeview">
                             <li class="nav-item">
-                                <a href="#" class="nav-link">
+                                <a href="<?= base_url('uploads') ?>" class="nav-link <?= isMenuActive('uploads') ? 'active' : '' ?>">
                                     <?= nbs(3) ?>
                                     <i class="fas fa-plus nav-icon"></i>
                                     <p>Input</p>
-                                </a>
-                            </li>
-                            <li class="nav-item">
-                                <a href="#" class="nav-link">
-                                    <?= nbs(3) ?>
-                                    <i class="fas fa-list nav-icon"></i>
-                                    <p>Data</p>
                                 </a>
                             </li>
                         </ul>
@@ -378,17 +364,10 @@
                         </a>
                         <ul class="nav nav-treeview">
                             <li class="nav-item">
-                                <a href="#" class="nav-link">
+                                <a href="<?= base_url('esdm-feedbacks') ?>" class="nav-link <?= isMenuActive('esdm-feedbacks') ? 'active' : '' ?>">
                                     <?= nbs(3) ?>
                                     <i class="fas fa-plus nav-icon"></i>
                                     <p>Input</p>
-                                </a>
-                            </li>
-                            <li class="nav-item">
-                                <a href="#" class="nav-link">
-                                    <?= nbs(3) ?>
-                                    <i class="fas fa-list nav-icon"></i>
-                                    <p>Data</p>
                                 </a>
                             </li>
                         </ul>
