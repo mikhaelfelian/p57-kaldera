@@ -17,13 +17,21 @@ class FiskalModel extends Model
         'tipe',
         'tahun',
         'bulan',
+        // DECIMAL(20,2) NOT NULL DEFAULT '0.00' COMMENT 'Target Fisik (%)'
         'target_fisik',
+        // DECIMAL(20,2) NOT NULL DEFAULT '0.00' COMMENT 'Target Keuangan (%)'
         'target_keuangan',
+        // DECIMAL(20,2) NOT NULL DEFAULT '0.00' COMMENT 'Realisasi Fisik (%)'
         'realisasi_fisik',
+        // DECIMAL(20,2) NOT NULL DEFAULT '0.00' COMMENT 'Realisasi Keuangan (%)'
         'realisasi_keuangan',
+        // DECIMAL(20,2) NOT NULL DEFAULT '0.00' COMMENT 'Realisasi Fisik Provinsi (%)'
         'realisasi_fisik_prov',
+        // DECIMAL(20,2) NOT NULL DEFAULT '0.00' COMMENT 'Realisasi Keuangan Provinsi (%)'
         'realisasi_keuangan_prov',
+        // DECIMAL(20,2) NOT NULL DEFAULT '0.00' COMMENT 'Deviasi Fisik (%) - calculated field'
         'deviasi_fisik',
+        // DECIMAL(20,2) NOT NULL DEFAULT '0.00' COMMENT 'Deviasi Keuangan (%) - calculated field'
         'deviasi_keuangan',
         'analisa'
     ];
@@ -41,13 +49,21 @@ class FiskalModel extends Model
         'tipe' => 'required|in_list[0,1,2,3,4,5,6,7,8,9,10]',
         'tahun' => 'required|integer|greater_than_equal_to[2000]|less_than_equal_to[2100]',
         'bulan' => 'required|in_list[jan,feb,mar,apr,mei,jun,jul,ags,sep,okt,nov,des]',
-        'target_fisik' => 'decimal',
-        'target_keuangan' => 'decimal',
-        'realisasi_fisik' => 'decimal',
-        'realisasi_keuangan' => 'decimal',
-        'realisasi_fisik_prov' => 'decimal',
-        'realisasi_keuangan_prov' => 'decimal',
+        // DECIMAL(20,2) NOT NULL DEFAULT '0.00' COMMENT 'Target Fisik (%)'
+        'target_fisik' => 'decimal|greater_than_equal_to[0]|less_than_equal_to[100]',
+        // DECIMAL(20,2) NOT NULL DEFAULT '0.00' COMMENT 'Target Keuangan (%)'
+        'target_keuangan' => 'decimal|greater_than_equal_to[0]|less_than_equal_to[100]',
+        // DECIMAL(20,2) NOT NULL DEFAULT '0.00' COMMENT 'Realisasi Fisik (%)'
+        'realisasi_fisik' => 'decimal|greater_than_equal_to[0]|less_than_equal_to[100]',
+        // DECIMAL(20,2) NOT NULL DEFAULT '0.00' COMMENT 'Realisasi Keuangan (%)'
+        'realisasi_keuangan' => 'decimal|greater_than_equal_to[0]|less_than_equal_to[100]',
+        // DECIMAL(20,2) NOT NULL DEFAULT '0.00' COMMENT 'Realisasi Fisik Provinsi (%)'
+        'realisasi_fisik_prov' => 'decimal|greater_than_equal_to[0]|less_than_equal_to[100]',
+        // DECIMAL(20,2) NOT NULL DEFAULT '0.00' COMMENT 'Realisasi Keuangan Provinsi (%)'
+        'realisasi_keuangan_prov' => 'decimal|greater_than_equal_to[0]|less_than_equal_to[100]',
+        // DECIMAL(20,2) NOT NULL DEFAULT '0.00' COMMENT 'Deviasi Fisik (%) - calculated field'
         'deviasi_fisik' => 'decimal',
+        // DECIMAL(20,2) NOT NULL DEFAULT '0.00' COMMENT 'Deviasi Keuangan (%) - calculated field'
         'deviasi_keuangan' => 'decimal',
     ];
 
@@ -87,6 +103,23 @@ class FiskalModel extends Model
      */
     public function upsertMonthData($masterId, $tipe, $year, $bulan, $data)
     {
+        // Ensure default values for DECIMAL(20,2) NOT NULL DEFAULT '0.00' fields
+        $decimalFields = [
+            'target_fisik',
+            'target_keuangan',
+            'realisasi_fisik',
+            'realisasi_keuangan',
+            'realisasi_fisik_prov',
+            'realisasi_keuangan_prov',
+            'deviasi_fisik',
+            'deviasi_keuangan'
+        ];
+        foreach ($decimalFields as $field) {
+            if (!isset($data[$field]) || $data[$field] === null || $data[$field] === '') {
+                $data[$field] = '0.00';
+            }
+        }
+
         $existing = $this->where([
             'master_id' => $masterId,
             'tipe' => $tipe,
@@ -112,12 +145,18 @@ class FiskalModel extends Model
     {
         $record = $this->find($id);
         if ($record) {
-            $deviasi_fisik = $record['realisasi_fisik'] - $record['target_fisik'];
-            $deviasi_keuangan = $record['realisasi_keuangan'] - $record['target_keuangan'];
-            
+            // Ensure values are float for calculation, fallback to 0.00 if null
+            $target_fisik = isset($record['target_fisik']) ? (float)$record['target_fisik'] : 0.00;
+            $realisasi_fisik = isset($record['realisasi_fisik']) ? (float)$record['realisasi_fisik'] : 0.00;
+            $target_keuangan = isset($record['target_keuangan']) ? (float)$record['target_keuangan'] : 0.00;
+            $realisasi_keuangan = isset($record['realisasi_keuangan']) ? (float)$record['realisasi_keuangan'] : 0.00;
+
+            $deviasi_fisik = round($realisasi_fisik - $target_fisik, 2);
+            $deviasi_keuangan = round($realisasi_keuangan - $target_keuangan, 2);
+
             return $this->update($id, [
-                'deviasi_fisik' => $deviasi_fisik,
-                'deviasi_keuangan' => $deviasi_keuangan
+                'deviasi_fisik' => number_format($deviasi_fisik, 2, '.', ''),
+                'deviasi_keuangan' => number_format($deviasi_keuangan, 2, '.', '')
             ]);
         }
         return false;

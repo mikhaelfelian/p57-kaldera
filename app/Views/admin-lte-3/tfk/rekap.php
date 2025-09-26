@@ -1,6 +1,141 @@
 <?= $this->extend(theme_path('main')) ?>
 
 <?= $this->section('content') ?>
+<?php helper('angka'); $months = ['jan'=>'Januari','feb'=>'Februari','mar'=>'Maret','apr'=>'April','mei'=>'Mei','jun'=>'Juni','jul'=>'Juli','ags'=>'Agustus','sep'=>'September','okt'=>'Oktober','nov'=>'November','des'=>'Desember']; ?>
+<div class="card">
+    <div class="card-header d-flex align-items-center justify-content-between">
+        <h3 class="card-title">Target Fisik & Keuangan - Rekap</h3>
+        <form class="form-inline" method="get">
+            <?php $current = (int)($year ?? date('Y')); $start=$current-5; $end=$current+5; ?>
+            <label class="mr-2">Tahun</label>
+            <select name="year" class="form-control form-control-sm mr-3" disabled readonly>
+                <option value="<?= $current ?>" selected><?= $current ?></option>
+            </select>
+            <input type="hidden" name="year" value="<?= $current ?>">
+        </form>
+    </div>
+    <div class="card-body">
+        <div class="table-responsive mt-2">
+            <table class="table table-bordered mb-0 rounded-0" id="rekapTable">
+                <thead>
+                    <tr>
+                        <th style="width:220px">Kumulatif</th>
+                        <?php foreach ($months as $label): ?>
+                            <th><?= $label ?></th>
+                        <?php endforeach; ?>
+                    </tr>
+                </thead>
+                <tbody>
+                    <?php $map = $details ?? []; ?>
+                    <tr>
+                        <td class="red-box"><strong>Target Fisik (%)</strong></td>
+                        <?php foreach ($months as $k=>$label): $d = $map[$k] ?? []; $val=(float)($d['target_fisik']??0); ?>
+                        <td><?= format_angka($val) ?></td>
+                        <?php endforeach; ?>
+                    </tr>
+                    <tr>
+                        <td><strong>Realisasi Fisik (%)</strong></td>
+                        <?php foreach ($months as $k=>$label): $d = $map[$k] ?? []; $val=(float)($d['realisasi_fisik']??0); ?>
+                        <td><?= format_angka($val,2) ?></td>
+                        <?php endforeach; ?>
+                    </tr>
+                    <tr>
+                        <td><strong>Realisasi Fisik Prov (%)</strong></td>
+                        <?php foreach ($months as $k=>$label): $d = $map[$k] ?? []; $val=(float)($d['realisasi_fisik_prov']??0); ?>
+                        <td><?= format_angka($val,2) ?></td>
+                        <?php endforeach; ?>
+                    </tr>
+                    <tr>
+                        <td><strong>Deviasi Fisik (%)</strong><div class="text-muted small">Realisasi - Target</div></td>
+                        <?php foreach ($months as $k=>$label): $d=$map[$k]??[]; $dev=(float)($d['realisasi_fisik']??0)-(float)($d['target_fisik']??0); ?>
+                        <td><?= format_angka($dev,2) ?></td>
+                        <?php endforeach; ?>
+                    </tr>
+
+                    <tr>
+                        <td class="red-box"><strong>Target Keuangan (%)</strong></td>
+                        <?php foreach ($months as $k=>$label): $d = $map[$k] ?? []; $val=(float)($d['target_keuangan']??0); ?>
+                        <td><?= format_angka($val) ?></td>
+                        <?php endforeach; ?>
+                    </tr>
+                    <tr>
+                        <td><strong>Realisasi Keuangan (%)</strong></td>
+                        <?php foreach ($months as $k=>$label): $d = $map[$k] ?? []; $val=(float)($d['realisasi_keuangan']??0); ?>
+                        <td><?= format_angka($val,2) ?></td>
+                        <?php endforeach; ?>
+                    </tr>
+                    <tr>
+                        <td><strong>Realisasi Keuangan Prov (%)</strong></td>
+                        <?php foreach ($months as $k=>$label): $d = $map[$k] ?? []; $val=(float)($d['realisasi_keuangan_prov']??0); ?>
+                        <td><?= format_angka($val,2) ?></td>
+                        <?php endforeach; ?>
+                    </tr>
+                    <tr>
+                        <td><strong>Deviasi Keuangan (%)</strong><div class="text-muted small">Realisasi - Target</div></td>
+                        <?php foreach ($months as $k=>$label): $d=$map[$k]??[]; $dev=(float)($d['realisasi_keuangan']??0)-(float)($d['target_keuangan']??0); ?>
+                        <td><?= format_angka($dev,2) ?></td>
+                        <?php endforeach; ?>
+                    </tr>
+                    <tr>
+                        <td><strong>Analisa</strong></td>
+                        <?php foreach ($months as $k=>$label): $d=$map[$k]??[]; $val=(string)($d['analisa']??''); ?>
+                        <td><?= esc($val) ?></td>
+                        <?php endforeach; ?>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <div class="mt-4">
+            <canvas id="rekapChart" height="120"></canvas>
+        </div>
+    </div>
+</div>
+<?= $this->endSection() ?>
+
+<?= $this->section('css') ?>
+<style>
+    #rekapTable td { vertical-align: middle; }
+    #rekapTable td.red-box { border: 3px solid #dc3545 !important; background-color: #fff; }
+</style>
+<?= $this->endSection() ?>
+
+<?= $this->section('js') ?>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+(function(){
+    var chartData = <?= json_encode($chartData ?? []) ?>;
+    var labels = chartData.map(function(d){ return d.month; });
+    var tF = chartData.map(function(d){ return Number(d.target_fisik||0); });
+    var rF = chartData.map(function(d){ return Number(d.realisasi_fisik||0); });
+    var tK = chartData.map(function(d){ return Number(d.target_keuangan||0); });
+    var rK = chartData.map(function(d){ return Number(d.realisasi_keuangan||0); });
+
+    var ctx = document.getElementById('rekapChart').getContext('2d');
+    new Chart(ctx, {
+        type: 'line',
+        data: {
+            labels: labels,
+            datasets: [
+                { label: 'T. Fisik', data: tF, borderColor: '#0d6efd', backgroundColor: 'transparent' },
+                { label: 'R. Fisik', data: rF, borderColor: '#6c757d', backgroundColor: 'transparent' },
+                { label: 'T. Keuangan', data: tK, borderColor: '#dc3545', backgroundColor: 'transparent' },
+                { label: 'R. Keuangan', data: rK, borderColor: '#198754', backgroundColor: 'transparent' }
+            ]
+        },
+        options: {
+            responsive: true,
+            plugins: { legend: { position: 'top' } },
+            scales: { y: { beginAtZero: true, max: 100 } }
+        }
+    });
+})();
+</script>
+<?= $this->endSection() ?>
+
+<?= $this->extend(theme_path('main')) ?>
+
+<?= $this->section('content') ?>
 <?php 
 $months = ['jan'=>'Januari','feb'=>'Februari','mar'=>'Maret','apr'=>'April','mei'=>'Mei','jun'=>'Juni','jul'=>'Juli','ags'=>'Agustus','sep'=>'September','okt'=>'Oktober','nov'=>'November','des'=>'Desember'];
 $tahapan = ['Penetapan APBD', 'Pergeseran', 'Perubahan APBD'];

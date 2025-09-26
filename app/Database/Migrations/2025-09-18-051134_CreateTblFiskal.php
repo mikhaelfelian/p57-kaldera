@@ -36,52 +36,68 @@ class CreateTblFiskal extends Migration
                 'constraint' => ['jan','feb','mar','apr','mei','jun','jul','ags','sep','okt','nov','des'],
                 'comment' => 'Month abbreviation'
             ],
+            // ALTER TABLE: target_fisik after bulan, DECIMAL(20,2) NOT NULL DEFAULT '0.00'
             'target_fisik' => [
                 'type' => 'DECIMAL',
-                'constraint' => '5,2',
-                'default' => 0,
+                'constraint' => '20,2',
+                'default' => '0.00',
+                'null' => false,
                 'comment' => 'Target Fisik (%)'
             ],
+            // ALTER TABLE: target_keuangan after target_fisik, DECIMAL(20,2) NOT NULL DEFAULT '0.00'
             'target_keuangan' => [
                 'type' => 'DECIMAL',
-                'constraint' => '5,2',
-                'default' => 0,
+                'constraint' => '20,2',
+                'default' => '0.00',
+                'null' => false,
                 'comment' => 'Target Keuangan (%)'
             ],
+            // ALTER TABLE: realisasi_fisik after target_keuangan, DECIMAL(20,2) NOT NULL DEFAULT '0.00'
             'realisasi_fisik' => [
                 'type' => 'DECIMAL',
-                'constraint' => '5,2',
-                'default' => 0,
+                'constraint' => '20,2',
+                'default' => '0.00',
+                'null' => false,
                 'comment' => 'Realisasi Fisik (%)'
             ],
+            // ALTER TABLE: realisasi_keuangan after realisasi_fisik, DECIMAL(20,2) NOT NULL DEFAULT '0.00'
             'realisasi_keuangan' => [
                 'type' => 'DECIMAL',
-                'constraint' => '5,2',
-                'default' => 0,
+                'constraint' => '20,2',
+                'default' => '0.00',
+                'null' => false,
                 'comment' => 'Realisasi Keuangan (%)'
             ],
+            // ALTER TABLE: realisasi_fisik_prov after realisasi_keuangan, DECIMAL(20,2) NOT NULL DEFAULT '0.00'
             'realisasi_fisik_prov' => [
                 'type' => 'DECIMAL',
-                'constraint' => '5,2',
-                'default' => 0,
+                'constraint' => '20,2',
+                'default' => '0.00',
+                'null' => false,
                 'comment' => 'Realisasi Fisik Provinsi (%)'
             ],
+            // ALTER TABLE: realisasi_keuangan_prov after realisasi_fisik_prov, DECIMAL(20,2) NOT NULL DEFAULT '0.00'
             'realisasi_keuangan_prov' => [
                 'type' => 'DECIMAL',
-                'constraint' => '5,2',
-                'default' => 0,
+                'constraint' => '20,2',
+                'default' => '0.00',
+                'null' => false,
                 'comment' => 'Realisasi Keuangan Provinsi (%)'
             ],
+            // ALTER TABLE: deviasi_fisik after realisasi_keuangan_prov, DECIMAL(20,2) NOT NULL DEFAULT '0.00'
             'deviasi_fisik' => [
                 'type' => 'DECIMAL',
-                'constraint' => '5,2',
-                'default' => 0,
+                'constraint' => '20,2',
+                'default' => '0.00',
+                'null' => false,
                 'comment' => 'Deviasi Fisik (%) - calculated field'
             ],
+            // ALTER TABLE: deviasi_keuangan after deviasi_fisik, DECIMAL(20,2) NOT NULL DEFAULT '0.00'
             'deviasi_keuangan' => [
                 'type' => 'DECIMAL',
-                'constraint' => '5,2',
-                'default' => 0,
+                'constraint' => '20,2',
+                'default' => '0.00',
+                'null' => false,
                 'comment' => 'Deviasi Keuangan (%) - calculated field'
             ],
             'analisa' => [

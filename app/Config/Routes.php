@@ -69,9 +69,9 @@ $routes->group('tfk', ['namespace' => 'App\\Controllers', 'filter' => 'auth'], f
     $routes->get('/', 'TargetFisikKeu::index', ['as' => 'tfk.index']);
     $routes->get('data', 'TargetFisikKeu::index', ['as' => 'tfk.data']);
 
-    // Input/create (redirects to index with master_id)
-    $routes->get('input', 'TargetFisikKeu::index', ['as' => 'tfk.input']);
-    $routes->get('input/(:num)', 'TargetFisikKeu::index', ['as' => 'tfk.input.id']);
+    // Input manual page
+    $routes->get('input', 'TargetFisikKeu::input', ['as' => 'tfk.input']);
+    $routes->get('input/(:num)', 'TargetFisikKeu::input/$1', ['as' => 'tfk.input.id']);
     $routes->post('store', 'TargetFisikKeu::store', ['as' => 'tfk.store']);
     // Rekap
     $routes->get('rekap', 'TargetFisikKeu::rekap', ['as' => 'tfk.rekap']);

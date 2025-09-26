@@ -19,6 +19,41 @@ class TargetFisikKeu extends BaseController
 		$this->fiskalModel = new FiskalModel();
 	}
 
+    /**
+     * Input manual page (static layout with tahapan dropdown)
+     */
+    public function input($masterId = null)
+    {
+        $year = (int)($this->request->getGet('year') ?: date('Y'));
+        $tahapan = (string)($this->request->getGet('tahapan') ?: 'Penetapan APBD');
+
+        // Masters for dropdown (tahapan options come from master rows' "tahapan")
+        $masters = $this->masterModel->orderBy('id', 'DESC')->findAll();
+
+        // Choose first master as default source for target values
+        $sourceMaster = $masters[0] ?? null;
+        $detailsMap = [];
+        if ($sourceMaster) {
+            $rows = $this->fiskalModel->getByMasterTipeYear($sourceMaster['id'], '1', $year);
+            foreach ($rows as $r) {
+                $detailsMap[$r['bulan']] = $r;
+            }
+        }
+
+        $data = [
+            'title' => 'Target Fisik & Keuangan - Input Manual',
+            'Pengaturan' => $this->pengaturan,
+            'user' => $this->ionAuth->user()->row(),
+            'year' => $year,
+            'tahapan' => $tahapan,
+            'masters' => $masters,
+            'sourceMaster' => $sourceMaster,
+            'detailsMap' => $detailsMap,
+        ];
+
+        return view($this->theme->getThemePath() . '/tfk/input', $data);
+    }
+
 	public function index($masterId = null)
 	{
 		$year = (int)($this->request->getGet('year') ?: date('Y'));
@@ -110,14 +145,19 @@ class TargetFisikKeu extends BaseController
 				return $this->response->setJSON(['ok' => false, 'message' => 'Invalid bulan: ' . $bulan]);
 			}
 			
-			if (!in_array($field, ['fisik','keu'])) {
+            if (!in_array($field, ['fisik','keu','real_fisik','real_keu','real_fisik_prov','real_keu_prov','analisa'])) {
 				return $this->response->setJSON(['ok' => false, 'message' => 'Invalid field: ' . $field]);
 			}
 
 			// Map field names to database columns
-			$fieldMap = [
+            $fieldMap = [
 				'fisik' => 'target_fisik',
-				'keu' => 'target_keuangan'
+                'keu' => 'target_keuangan',
+                'real_fisik' => 'realisasi_fisik',
+                'real_keu' => 'realisasi_keuangan',
+                'real_fisik_prov' => 'realisasi_fisik_prov',
+                'real_keu_prov' => 'realisasi_keuangan_prov',
+                'analisa' => 'analisa',
 			];
 
 			$dbField = $fieldMap[$field] ?? $field;
@@ -177,57 +217,54 @@ class TargetFisikKeu extends BaseController
 
 	public function rekap()
 	{
-		$year = (int)($this->request->getGet('year') ?: date('Y'));
-		$masterId = (int)($this->request->getGet('master_id') ?: 0);
-		
-		$masters = $this->masterModel->orderBy('id', 'DESC')->findAll();
-		$selectedMaster = null;
-		$details = [];
-		$chartData = [];
-		
-		if ($masterId) {
-			$selectedMaster = $this->masterModel->find($masterId);
-			if ($selectedMaster) {
-				$rows = $this->detailModel
-					->where('master_id', $masterId)
-					->where('tahun', $year)
-					->orderBy('bulan', 'ASC')
-					->findAll();
-				
-				foreach ($rows as $r) {
-					$details[$r['bulan']] = $r;
-				}
-				
-				// Prepare chart data
-				$months = ['jan','feb','mar','apr','mei','jun','jul','ags','sep','okt','nov','des'];
-				$monthNames = ['Jan','Feb','Mar','Apr','Mei','Jun','Jul','Ags','Sep','Okt','Nov','Des'];
-				
-				foreach ($months as $i => $month) {
-					$d = $details[$month] ?? [];
-					$chartData[] = [
-						'month' => $monthNames[$i],
-						'target_fisik' => (float)($d['fisik'] ?? 0),
-						'realisasi_fisik' => (float)($d['realisasi_fisik'] ?? 0),
-						'target_keu' => (float)($d['keu'] ?? 0),
-						'realisasi_keu' => (float)($d['keu_real'] ?? 0)
-					];
-				}
-			}
-		}
+        $year = (int)($this->request->getGet('year') ?: date('Y'));
+        $masterId = (int)($this->request->getGet('master_id') ?: 0);
+
+        $masters = $this->masterModel->orderBy('id', 'DESC')->findAll();
+        if (!$masterId && !empty($masters)) {
+            $masterId = (int)$masters[0]['id'];
+        }
+
+        $selectedMaster = null;
+        $details = [];
+        $chartData = [];
+
+        if ($masterId) {
+            $selectedMaster = $this->masterModel->find($masterId);
+            if ($selectedMaster) {
+                $rows = $this->fiskalModel->getByMasterTipeYear($masterId, '1', $year);
+                foreach ($rows as $r) {
+                    $details[$r['bulan']] = $r;
+                }
+
+                $months = ['jan','feb','mar','apr','mei','jun','jul','ags','sep','okt','nov','des'];
+                $monthNames = ['Jan','Feb','Mar','Apr','Mei','Jun','Jul','Ags','Sep','Okt','Nov','Des'];
+                foreach ($months as $i => $m) {
+                    $d = $details[$m] ?? [];
+                    $chartData[] = [
+                        'month' => $monthNames[$i],
+                        'target_fisik' => (float)($d['target_fisik'] ?? 0),
+                        'realisasi_fisik' => (float)($d['realisasi_fisik'] ?? 0),
+                        'target_keuangan' => (float)($d['target_keuangan'] ?? 0),
+                        'realisasi_keuangan' => (float)($d['realisasi_keuangan'] ?? 0),
+                    ];
+                }
+            }
+        }
 
         $data = [
-			'title' => 'Target Fisik & Keuangan - Rekap',
-			'Pengaturan' => $this->pengaturan,
-			'user' => $this->ionAuth->user()->row(),
-			'masters' => $masters,
-			'selectedMaster' => $selectedMaster,
-			'masterId' => $masterId,
-			'year' => $year,
-			'details' => $details,
-			'chartData' => $chartData,
-		];
+            'title' => 'Target Fisik & Keuangan - Rekap',
+            'Pengaturan' => $this->pengaturan,
+            'user' => $this->ionAuth->user()->row(),
+            'masters' => $masters,
+            'selectedMaster' => $selectedMaster,
+            'masterId' => $masterId,
+            'year' => $year,
+            'details' => $details,
+            'chartData' => $chartData,
+        ];
 
-		return view($this->theme->getThemePath() . '/tfk/rekap', $data);
+        return view($this->theme->getThemePath() . '/tfk/rekap', $data);
 	}
 
 	public function master()

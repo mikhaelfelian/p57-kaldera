@@ -34,9 +34,9 @@
                 <?php // if (isset($_GET['year']) && !empty($_GET['year'])): ?>
                     <li class="nav-header">MASTER DATA</li>
                     <li
-                        class="nav-item has-treeview <?= isMenuActive(['tfk/master', 'tfk/rekap', 'tfk/input'], true) ? 'menu-open' : '' ?>">
+                        class="nav-item has-treeview <?= isMenuActive(['tfk', 'tfk/data', 'tfk/input', 'tfk/rekap', 'tfk/master'], true) ? 'menu-open' : '' ?>">
                         <a href="#"
-                            class="nav-link <?= isMenuActive(['tfk/master', 'tfk/rekap', 'tfk/input'], true) ? 'active' : '' ?>">
+                            class="nav-link <?= isMenuActive(['tfk', 'tfk/data', 'tfk/input', 'tfk/rekap', 'tfk/master'], true) ? 'active' : '' ?>">
                             <i class="nav-icon fas fa-bullseye"></i>
                             <p>
                                 Target Fisik & Keu
@@ -45,13 +45,22 @@
                         </a>
                         <ul class="nav nav-treeview">
                             <li class="nav-item">
-                                <a href="<?= base_url('tfk/master') ?>"
-                                    class="nav-link <?= isMenuActive('tfk/master') ? 'active' : '' ?>">
+                                <a href="<?= base_url('tfk/data') ?>"
+                                    class="nav-link <?= isMenuActive(['tfk', 'tfk/data']) ? 'active' : '' ?>">
                                     <?= nbs(3) ?>
-                                    <i class="fas fa-eye nav-icon"></i>
+                                    <i class="fas fa-list nav-icon"></i>
                                     <p>Master Data</p>
                                 </a>
                             </li>
+                            <!-- <li class="nav-item">
+                                <a href="<?= base_url('tfk/master') ?>"
+                                    class="nav-link <?= isMenuActive('tfk/master') ? 'active' : '' ?>">
+                                    <?= nbs(3) ?>
+                                    <i class="fas fa-database nav-icon"></i>
+                                    <p>Master Data</p>
+                                </a>
+                            </li>-->
+                            
                             <li class="nav-item">
                                 <a href="<?= base_url('tfk/input') ?>"
                                     class="nav-link <?= isMenuActive('tfk/input') ? 'active' : '' ?>">
@@ -59,7 +68,8 @@
                                     <i class="fas fa-plus nav-icon"></i>
                                     <p>Input</p>
                                 </a>
-                            </li>
+                            </li> 
+               
                             <li class="nav-item">
                                 <a href="<?= base_url('tfk/rekap') ?>"
                                     class="nav-link <?= isMenuActive('tfk/rekap') ? 'active' : '' ?>">
