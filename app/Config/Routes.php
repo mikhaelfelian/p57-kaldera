@@ -87,6 +87,15 @@ $routes->group('tfk', ['namespace' => 'App\\Controllers', 'filter' => 'auth'], f
     $routes->get('refresh-csrf', 'TargetFisikKeu::refreshCSRF', ['as' => 'tfk.refresh_csrf']);
 });
 
+// ==================== Belanja (alias routes to TFK controller) ====================
+$routes->group('belanja', ['namespace' => 'App\\Controllers', 'filter' => 'auth'], function ($routes) {
+    $routes->get('master', 'TargetFisikKeu::master', ['as' => 'belanja.master']);
+    $routes->get('master/get', 'TargetFisikKeu::belanjaMasterGet', ['as' => 'belanja.master.get']);
+    $routes->get('input', 'TargetFisikKeu::input', ['as' => 'belanja.input']);
+    $routes->get('rekap', 'TargetFisikKeu::rekap', ['as' => 'belanja.rekap']);
+    $routes->post('master/update', 'TargetFisikKeu::belanjaMasterUpdate', ['as' => 'belanja.master.update']);
+});
+
 // ==================== AJAX Routes (No CSRF) ====================
 $routes->post('tfk/update-cell', 'TargetFisikKeu::updateCell', ['as' => 'tfk.update_cell']);
 

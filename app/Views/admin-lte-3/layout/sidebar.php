@@ -80,8 +80,8 @@
                             </li>
                         </ul>
                     </li>
-                    <li class="nav-item has-treeview <?= isMenuActive('esdm-feedbacks', true) ? 'menu-open' : '' ?>">
-                        <a href="<?= base_url('esdm-feedbacks') ?>" class="nav-link <?= isMenuActive('esdm-feedbacks', true) ? 'active' : '' ?>">
+                    <li class="nav-item has-treeview <?= isMenuActive(['belanja/master','belanja/input','belanja/rekap'], true) ? 'menu-open' : '' ?>">
+                        <a href="<?= base_url('belanja/master') ?>" class="nav-link <?= isMenuActive(['belanja/master','belanja/input','belanja/rekap'], true) ? 'active' : '' ?>">
                             <i class="nav-icon fas fa-shopping-basket"></i>
                             <p>
                                 Belanja
@@ -90,17 +90,24 @@
                         </a>
                         <ul class="nav nav-treeview">
                             <li class="nav-item">
-                                <a href="<?= base_url('gender') ?>" class="nav-link <?= isMenuActive('gender') ? 'active' : '' ?>">
+                                <a href="<?= base_url('belanja/master') ?>" class="nav-link <?= isMenuActive('belanja/master') ? 'active' : '' ?>">
+                                    <?= nbs(3) ?>
+                                    <i class="fas fa-list nav-icon"></i>
+                                    <p>Master Data</p>
+                                </a>
+                            </li>
+                            <li class="nav-item">
+                                <a href="<?= base_url('belanja/input') ?>" class="nav-link <?= isMenuActive('belanja/input') ? 'active' : '' ?>">
                                     <?= nbs(3) ?>
                                     <i class="fas fa-plus nav-icon"></i>
                                     <p>Input</p>
                                 </a>
                             </li>
                             <li class="nav-item">
-                                <a href="<?= base_url('gender') ?>" class="nav-link <?= isMenuActive('gender') ? 'active' : '' ?>">
+                                <a href="<?= base_url('belanja/rekap') ?>" class="nav-link <?= isMenuActive('belanja/rekap') ? 'active' : '' ?>">
                                     <?= nbs(3) ?>
-                                    <i class="fas fa-list nav-icon"></i>
-                                    <p>Data</p>
+                                    <i class="fas fa-chart-bar nav-icon"></i>
+                                    <p>Rekap</p>
                                 </a>
                             </li>
                         </ul>
@@ -115,7 +122,7 @@
                         </a>
                         <ul class="nav nav-treeview">
                             <li class="nav-item">
-                                <a href="<?= base_url('gender') ?>" class="nav-link <?= isMenuActive('gender') ? 'active' : '' ?>">
+                                <a href="<?= base_url('pendapatan') ?>" class="nav-link <?= isMenuActive('pendapatan') ? 'active' : '' ?>">
                                     <?= nbs(3) ?>
                                     <i class="fas fa-plus nav-icon"></i>
                                     <p>Input</p>

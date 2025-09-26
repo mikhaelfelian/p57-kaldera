@@ -5,18 +5,51 @@ namespace App\Controllers;
 use App\Models\TargetFisikKeuMasterModel;
 use App\Models\TargetFisikKeuDetailModel;
 use App\Models\FiskalModel;
+use App\Models\TfkMasterAnggaranModel;
+use App\Models\BelanjaAnggaranModel;
 
 class TargetFisikKeu extends BaseController
 {
 	protected $masterModel;
 	protected $detailModel;
 	protected $fiskalModel;
+    protected $anggaranModel;
+    protected $belanjaModel;
 
 	public function __construct()
 	{
 		$this->masterModel = new TargetFisikKeuMasterModel();
 		$this->detailModel = new TargetFisikKeuDetailModel();
 		$this->fiskalModel = new FiskalModel();
+        $this->anggaranModel = new TfkMasterAnggaranModel();
+        $this->belanjaModel = new BelanjaAnggaranModel();
+	}
+
+	/**
+	 * Get current belanja anggaran by tahun+tahapan
+	 */
+	public function belanjaMasterGet()
+	{
+		$tahun = (int)$this->request->getGet('tahun');
+		$tahapan = (string)$this->request->getGet('tahapan');
+		if (!$tahun) { $tahun = (int)date('Y'); }
+		if (!in_array($tahapan, ['penetapan','pergeseran','perubahan'])) {
+			$tahapan = 'penetapan';
+		}
+		$row = $this->belanjaModel->where(['tahun'=>$tahun,'tahapan'=>$tahapan])->first();
+		if (!$row) {
+			$row = [
+				'tahun'=>$tahun,
+				'tahapan'=>$tahapan,
+				'pegawai'=>0,'barang_jasa'=>0,'hibah'=>0,'bansos'=>0,'modal'=>0,'total'=>0,
+			];
+		}
+		return $this->response->setJSON([
+			'ok'=>true,
+			'row'=>$row,
+			'csrf_token'=>csrf_token(),
+			'csrf_hash'=>csrf_hash(),
+		]);
 	}
 
     /**
@@ -417,29 +450,59 @@ class TargetFisikKeu extends BaseController
         exit;
     }
 
-	public function master()
-	{
-		$items = $this->masterModel->orderBy('id', 'DESC')->findAll();
-		$data = [
-			'title' => 'TFK - Master Data',
-			'Pengaturan' => $this->pengaturan,
-			'user' => $this->ionAuth->user()->row(),
-			'items' => $items,
-		];
-		return view($this->theme->getThemePath() . '/tfk/master', $data);
-	}
+    public function master()
+    {
+        $year = (int)($this->request->getGet('year') ?: date('Y'));
+        $tahapan = (string)($this->request->getGet('tahapan') ?: 'penetapan');
+
+        // Determine master (first available)
+        $masters = $this->masterModel->orderBy('id','DESC')->findAll();
+        $masterId = !empty($masters) ? (int)$masters[0]['id'] : 0;
+
+        // Load monthly target data (read-only)
+        $details = [];
+        if ($masterId) {
+            $rows = $this->fiskalModel->where([
+                'master_id' => $masterId,
+                'tipe'      => '1',
+                'tahun'     => $year,
+                'tahapan'   => $tahapan,
+            ])->orderBy('bulan','ASC')->findAll();
+            foreach ($rows as $r) { $details[$r['bulan']] = $r; }
+        }
+
+        $data = [
+            'title' => 'TFK - Master Data',
+            'Pengaturan' => $this->pengaturan,
+            'user' => $this->ionAuth->user()->row(),
+            'year' => $year,
+            'tahapan' => $tahapan,
+            'details' => $details,
+        ];
+        return view($this->theme->getThemePath() . '/tfk/master', $data);
+    }
 
 	public function masterStore()
 	{
-		$nama = trim((string)$this->request->getPost('nama'));
-		$tahapan = trim((string)$this->request->getPost('tahapan'));
-		if ($nama === '') {
-			return redirect()->back()->with('error', 'Nama wajib diisi');
-		}
-		$this->masterModel->insert([
-			'nama' => $nama,
-			'tahapan' => $tahapan,
-		]);
+        $tahun = (int)$this->request->getPost('tahun');
+        $tahapan = (string)$this->request->getPost('tahapan');
+        $pegawai = (float)$this->request->getPost('pegawai');
+        $barang = (float)$this->request->getPost('barang_jasa');
+        $hibah = (float)$this->request->getPost('hibah');
+        $bansos = (float)$this->request->getPost('bansos');
+        $modal = (float)$this->request->getPost('modal');
+        $total = $pegawai + $barang + $hibah + $bansos + $modal;
+
+        $this->anggaranModel->insert([
+            'tahun' => $tahun,
+            'tahapan' => $tahapan,
+            'pegawai' => $pegawai,
+            'barang_jasa' => $barang,
+            'hibah' => $hibah,
+            'bansos' => $bansos,
+            'modal' => $modal,
+            'total' => $total,
+        ]);
 		return redirect()->route('tfk.master')->with('message', 'Master ditambahkan');
 	}
 
@@ -459,6 +522,60 @@ class TargetFisikKeu extends BaseController
 			'csrf_token' => csrf_token(),
 			'csrf_hash' => csrf_hash()
 		]);
+	}
+
+	public function belanjaMasterUpdate()
+	{
+		try {
+			$tahun = (int)$this->request->getPost('tahun');
+			$tahapan = (string)$this->request->getPost('tahapan');
+			$field = (string)$this->request->getPost('field');
+			$value = (float)$this->request->getPost('value');
+			
+			if (!$tahun) { $tahun = (int)date('Y'); }
+            if (!in_array($tahapan, ['penetapan','pergeseran','perubahan'])) {
+                $tahapan = 'penetapan';
+            }
+		$allowed = ['pegawai','barang_jasa','hibah','bansos','modal'];
+		if (!in_array($field, $allowed)) {
+		    return $this->response->setJSON([
+		        'ok'=>false,
+		        'message'=>'Invalid field',
+		        'csrf_token' => csrf_token(),
+		        'csrf_hash' => csrf_hash(),
+		    ]);
+		}
+			$row = $this->belanjaModel->where(['tahun'=>$tahun,'tahapan'=>$tahapan])->first();
+			if ($row) {
+				$row[$field] = $value;
+				$row['total'] = (float)($row['pegawai'] + $row['barang_jasa'] + $row['hibah'] + $row['bansos'] + $row['modal']);
+				$this->belanjaModel->update($row['id'], $row);
+			} else {
+				$data = [
+					'tahun'=>$tahun,
+					'tahapan'=>$tahapan,
+					'pegawai'=>0,'barang_jasa'=>0,'hibah'=>0,'bansos'=>0,'modal'=>0,
+				];
+				$data[$field] = $value;
+				$data['total'] = (float)($data['pegawai'] + $data['barang_jasa'] + $data['hibah'] + $data['bansos'] + $data['modal']);
+				$id = $this->belanjaModel->insert($data);
+				$row = $this->belanjaModel->find($id);
+			}
+            return $this->response->setJSON([
+                'ok'=>true,
+                'row'=>$row,
+                'csrf_token' => csrf_token(),
+                'csrf_hash' => csrf_hash(),
+            ]);
+		} catch (\Exception $e) {
+			log_message('error', 'BelanjaMasterUpdate Error: ' . $e->getMessage());
+            return $this->response->setJSON([
+                'ok'=>false,
+                'message'=>$e->getMessage(),
+                'csrf_token' => csrf_token(),
+                'csrf_hash' => csrf_hash(),
+            ]);
+		}
 	}
 }
 
