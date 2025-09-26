@@ -91,7 +91,8 @@ $routes->group('tfk', ['namespace' => 'App\\Controllers', 'filter' => 'auth'], f
 $routes->group('belanja', ['namespace' => 'App\\Controllers', 'filter' => 'auth'], function ($routes) {
     $routes->get('master', 'TargetFisikKeu::master', ['as' => 'belanja.master']);
     $routes->get('master/get', 'TargetFisikKeu::belanjaMasterGet', ['as' => 'belanja.master.get']);
-    $routes->get('input', 'TargetFisikKeu::input', ['as' => 'belanja.input']);
+    $routes->get('input', 'TargetFisikKeu::belanjaInput', ['as' => 'belanja.input']);
+    $routes->post('input/save', 'TargetFisikKeu::belanjaInputSave', ['as' => 'belanja.input.save']);
     $routes->get('rekap', 'TargetFisikKeu::rekap', ['as' => 'belanja.rekap']);
     $routes->post('master/update', 'TargetFisikKeu::belanjaMasterUpdate', ['as' => 'belanja.master.update']);
 });

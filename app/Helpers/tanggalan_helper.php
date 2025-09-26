@@ -224,4 +224,22 @@ if (!function_exists('format_tanggal_waktu')) {
             date('H:i:s', $timestamp)
         );
     }
+}
+
+if (!function_exists('bulan_ke_str')) {
+    /**
+     * Convert month number to Indonesian month name
+     * 
+     * @param int $bln Month number (1-12)
+     * @return string Indonesian month name
+     */
+    function bulan_ke_str($bln)
+    {
+        $bulan = [
+            1 => 'Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni',
+            'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'
+        ];
+        
+        return isset($bulan[$bln]) ? $bulan[$bln] : '';
+    }
 } 

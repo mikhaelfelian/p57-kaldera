@@ -7,6 +7,7 @@ use App\Models\TargetFisikKeuDetailModel;
 use App\Models\FiskalModel;
 use App\Models\TfkMasterAnggaranModel;
 use App\Models\BelanjaAnggaranModel;
+use App\Models\BelanjaInputModel;
 
 class TargetFisikKeu extends BaseController
 {
@@ -15,6 +16,7 @@ class TargetFisikKeu extends BaseController
 	protected $fiskalModel;
     protected $anggaranModel;
     protected $belanjaModel;
+    protected $belanjaInputModel;
 
 	public function __construct()
 	{
@@ -23,6 +25,7 @@ class TargetFisikKeu extends BaseController
 		$this->fiskalModel = new FiskalModel();
         $this->anggaranModel = new TfkMasterAnggaranModel();
         $this->belanjaModel = new BelanjaAnggaranModel();
+        $this->belanjaInputModel = new BelanjaInputModel();
 	}
 
 	/**
@@ -575,6 +578,83 @@ class TargetFisikKeu extends BaseController
                 'csrf_token' => csrf_token(),
                 'csrf_hash' => csrf_hash(),
             ]);
+		}
+	}
+
+	/**
+	 * Belanja Input page
+	 */
+	public function belanjaInput()
+	{
+		$year = (int)($this->request->getGet('year') ?: date('Y'));
+		$tahapan = (string)($this->request->getGet('tahapan') ?: 'penetapan');
+		$bulan = (int)($this->request->getGet('bulan') ?: 9); // Default to September
+
+		// Get existing data
+		$existingData = $this->belanjaInputModel->getByTahunTahapanBulan($year, $tahapan, $bulan);
+		
+		// Get master data for anggaran values
+		$masterData = $this->belanjaModel->where(['tahun' => $year, 'tahapan' => $tahapan])->first();
+		
+		$data = [
+			'title' => 'Belanja - Input',
+			'Pengaturan' => $this->pengaturan,
+			'user' => $this->ionAuth->user()->row(),
+			'year' => $year,
+			'tahapan' => $tahapan,
+			'bulan' => $bulan,
+			'existingData' => $existingData,
+			'masterData' => $masterData,
+		];
+
+		return view($this->theme->getThemePath() . '/tfk/belanja_input', $data);
+	}
+
+	/**
+	 * Save belanja input data
+	 */
+	public function belanjaInputSave()
+	{
+		try {
+			$tahun = (int)$this->request->getPost('tahun');
+			$tahapan = (string)$this->request->getPost('tahapan');
+			$bulan = (int)$this->request->getPost('bulan');
+			
+			$inputData = [
+				'pegawai_anggaran' => (float)$this->request->getPost('pegawai_anggaran'),
+				'pegawai_realisasi' => (float)$this->request->getPost('pegawai_realisasi'),
+				'barang_jasa_anggaran' => (float)$this->request->getPost('barang_jasa_anggaran'),
+				'barang_jasa_realisasi' => (float)$this->request->getPost('barang_jasa_realisasi'),
+				'hibah_anggaran' => (float)$this->request->getPost('hibah_anggaran'),
+				'hibah_realisasi' => (float)$this->request->getPost('hibah_realisasi'),
+				'bansos_anggaran' => (float)$this->request->getPost('bansos_anggaran'),
+				'bansos_realisasi' => (float)$this->request->getPost('bansos_realisasi'),
+				'modal_anggaran' => (float)$this->request->getPost('modal_anggaran'),
+				'modal_realisasi' => (float)$this->request->getPost('modal_realisasi'),
+			];
+
+			// Calculate totals
+			$inputData['total_anggaran'] = $inputData['pegawai_anggaran'] + $inputData['barang_jasa_anggaran'] + 
+											$inputData['hibah_anggaran'] + $inputData['bansos_anggaran'] + $inputData['modal_anggaran'];
+			$inputData['total_realisasi'] = $inputData['pegawai_realisasi'] + $inputData['barang_jasa_realisasi'] + 
+											$inputData['hibah_realisasi'] + $inputData['bansos_realisasi'] + $inputData['modal_realisasi'];
+
+			$this->belanjaInputModel->upsert($tahun, $tahapan, $bulan, $inputData);
+
+			return $this->response->setJSON([
+				'ok' => true,
+				'message' => 'Data berhasil disimpan',
+				'csrf_token' => csrf_token(),
+				'csrf_hash' => csrf_hash(),
+			]);
+		} catch (\Exception $e) {
+			log_message('error', 'BelanjaInputSave Error: ' . $e->getMessage());
+			return $this->response->setJSON([
+				'ok' => false,
+				'message' => $e->getMessage(),
+				'csrf_token' => csrf_token(),
+				'csrf_hash' => csrf_hash(),
+			]);
 		}
 	}
 }
