@@ -21,10 +21,10 @@ $tahapan = ['Penetapan APBD', 'Pergeseran', 'Perubahan APBD'];
                         </select>
                         <input type="hidden" name="year" value="<?= $current ?>">
 					</form>
-					<div class="btn-group">
-						<button class="btn btn-success btn-sm" onclick="exportPDF()">Export PDF</button>
-						<button class="btn btn-success btn-sm" onclick="exportExcel()">Export Excel</button>
-					</div>
+                    <div class="btn-group">
+                        <a class="btn btn-success btn-sm" id="btnExportPdf">Export PDF</a>
+                        <a class="btn btn-success btn-sm" id="btnExportExcel">Export Excel</a>
+                    </div>
 				</div>
 			</div>
 			<div class="card-body">
@@ -219,37 +219,18 @@ const chart = new Chart(ctx, {
     }
 });
 
-// Export Functions
-function exportPDF() {
-    window.print();
-}
-
-function exportExcel() {
-    // Create CSV content
-    let csv = 'Kumulatif,';
-    const months = ['Januari','Februari','Maret','April','Mei','Juni','Juli','Agustus','September','Oktober','November','Desember'];
-    csv += months.join(',') + '\n';
-    
-    // Add table data
-    const table = document.getElementById('rekapTable');
-    const rows = table.querySelectorAll('tbody tr');
-    rows.forEach(row => {
-        const cells = row.querySelectorAll('td');
-        let rowData = [];
-        cells.forEach(cell => {
-            rowData.push(cell.textContent.trim());
-        });
-        csv += rowData.join(',') + '\n';
-    });
-    
-    // Download CSV
-    const blob = new Blob([csv], { type: 'text/csv' });
-    const url = window.URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = 'rekap_tfk_<?= $selectedMaster['nama'] ?? 'data' ?>_<?= $year ?>.csv';
-    a.click();
-    window.URL.revokeObjectURL(url);
-}
+// Export: build URLs to backend endpoints
+document.getElementById('btnExportPdf').addEventListener('click', function(){
+    var params = new URLSearchParams(window.location.search);
+    if (!params.get('year')) params.set('year', '<?= (int)$year ?>');
+    if (!params.get('tahapan')) params.set('tahapan', '<?= esc(service('request')->getGet('tahapan') ?? 'penetapan') ?>');
+    window.location.href = '<?= base_url('tfk/rekap/export-pdf') ?>' + '?' + params.toString();
+});
+document.getElementById('btnExportExcel').addEventListener('click', function(){
+    var params = new URLSearchParams(window.location.search);
+    if (!params.get('year')) params.set('year', '<?= (int)$year ?>');
+    if (!params.get('tahapan')) params.set('tahapan', '<?= esc(service('request')->getGet('tahapan') ?? 'penetapan') ?>');
+    window.location.href = '<?= base_url('tfk/rekap/export-excel') ?>' + '?' + params.toString();
+});
 </script>
 <?= $this->endSection() ?>
