@@ -75,6 +75,8 @@ $routes->group('tfk', ['namespace' => 'App\\Controllers', 'filter' => 'auth'], f
     $routes->post('store', 'TargetFisikKeu::store', ['as' => 'tfk.store']);
     // Rekap
     $routes->get('rekap', 'TargetFisikKeu::rekap', ['as' => 'tfk.rekap']);
+    $routes->get('rekap/export-excel', 'TargetFisikKeu::rekapExportExcel', ['as' => 'tfk.rekap.export_excel']);
+    $routes->get('rekap/export-pdf', 'TargetFisikKeu::rekapExportPDF', ['as' => 'tfk.rekap.export_pdf']);
 
     // Master management
     $routes->get('master', 'TargetFisikKeu::master', ['as' => 'tfk.master']);

@@ -1,187 +1,25 @@
 <?= $this->extend(theme_path('main')) ?>
 
 <?= $this->section('content') ?>
-<?php helper('angka'); $months = ['jan'=>'Januari','feb'=>'Februari','mar'=>'Maret','apr'=>'April','mei'=>'Mei','jun'=>'Juni','jul'=>'Juli','ags'=>'Agustus','sep'=>'September','okt'=>'Oktober','nov'=>'November','des'=>'Desember']; ?>
-<div class="card">
-    <div class="card-header d-flex align-items-center justify-content-between">
-        <h3 class="card-title">Target Fisik & Keuangan - Rekap</h3>
-        <form class="form-inline" method="get">
-            <?php $current = (int)($year ?? date('Y')); $start=$current-5; $end=$current+5; ?>
-            <label class="mr-2">Tahun</label>
-            <select name="year" class="form-control form-control-sm mr-3" disabled readonly>
-                <option value="<?= $current ?>" selected><?= $current ?></option>
-            </select>
-            <input type="hidden" name="year" value="<?= $current ?>">
-        </form>
-    </div>
-    <div class="card-body">
-        <div class="table-responsive mt-2">
-            <table class="table table-bordered mb-0 rounded-0" id="rekapTable">
-                <thead>
-                    <tr>
-                        <th style="width:220px">Kumulatif</th>
-                        <?php foreach ($months as $label): ?>
-                            <th><?= $label ?></th>
-                        <?php endforeach; ?>
-                    </tr>
-                </thead>
-                <tbody>
-                    <?php $map = $details ?? []; ?>
-                    <tr>
-                        <td class="red-box"><strong>Target Fisik (%)</strong></td>
-                        <?php foreach ($months as $k=>$label): $d = $map[$k] ?? []; $val=(float)($d['target_fisik']??0); ?>
-                        <td><?= format_angka($val) ?></td>
-                        <?php endforeach; ?>
-                    </tr>
-                    <tr>
-                        <td><strong>Realisasi Fisik (%)</strong></td>
-                        <?php foreach ($months as $k=>$label): $d = $map[$k] ?? []; $val=(float)($d['realisasi_fisik']??0); ?>
-                        <td><?= format_angka($val,2) ?></td>
-                        <?php endforeach; ?>
-                    </tr>
-                    <tr>
-                        <td><strong>Realisasi Fisik Prov (%)</strong></td>
-                        <?php foreach ($months as $k=>$label): $d = $map[$k] ?? []; $val=(float)($d['realisasi_fisik_prov']??0); ?>
-                        <td><?= format_angka($val,2) ?></td>
-                        <?php endforeach; ?>
-                    </tr>
-                    <tr>
-                        <td><strong>Deviasi Fisik (%)</strong><div class="text-muted small">Realisasi - Target</div></td>
-                        <?php foreach ($months as $k=>$label): $d=$map[$k]??[]; $dev=(float)($d['realisasi_fisik']??0)-(float)($d['target_fisik']??0); ?>
-                        <td><?= format_angka($dev,2) ?></td>
-                        <?php endforeach; ?>
-                    </tr>
-
-                    <tr>
-                        <td class="red-box"><strong>Target Keuangan (%)</strong></td>
-                        <?php foreach ($months as $k=>$label): $d = $map[$k] ?? []; $val=(float)($d['target_keuangan']??0); ?>
-                        <td><?= format_angka($val) ?></td>
-                        <?php endforeach; ?>
-                    </tr>
-                    <tr>
-                        <td><strong>Realisasi Keuangan (%)</strong></td>
-                        <?php foreach ($months as $k=>$label): $d = $map[$k] ?? []; $val=(float)($d['realisasi_keuangan']??0); ?>
-                        <td><?= format_angka($val,2) ?></td>
-                        <?php endforeach; ?>
-                    </tr>
-                    <tr>
-                        <td><strong>Realisasi Keuangan Prov (%)</strong></td>
-                        <?php foreach ($months as $k=>$label): $d = $map[$k] ?? []; $val=(float)($d['realisasi_keuangan_prov']??0); ?>
-                        <td><?= format_angka($val,2) ?></td>
-                        <?php endforeach; ?>
-                    </tr>
-                    <tr>
-                        <td><strong>Deviasi Keuangan (%)</strong><div class="text-muted small">Realisasi - Target</div></td>
-                        <?php foreach ($months as $k=>$label): $d=$map[$k]??[]; $dev=(float)($d['realisasi_keuangan']??0)-(float)($d['target_keuangan']??0); ?>
-                        <td><?= format_angka($dev,2) ?></td>
-                        <?php endforeach; ?>
-                    </tr>
-                    <tr>
-                        <td><strong>Analisa</strong></td>
-                        <?php foreach ($months as $k=>$label): $d=$map[$k]??[]; $val=(string)($d['analisa']??''); ?>
-                        <td><?= esc($val) ?></td>
-                        <?php endforeach; ?>
-                    </tr>
-                </tbody>
-            </table>
-        </div>
-
-        <div class="mt-4">
-            <canvas id="rekapChart" height="120"></canvas>
-        </div>
-    </div>
-</div>
-<?= $this->endSection() ?>
-
-<?= $this->section('css') ?>
-<style>
-    #rekapTable td { vertical-align: middle; }
-    #rekapTable td.red-box { border: 3px solid #dc3545 !important; background-color: #fff; }
-</style>
-<?= $this->endSection() ?>
-
-<?= $this->section('js') ?>
-<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-<script>
-(function(){
-    var chartData = <?= json_encode($chartData ?? []) ?>;
-    var labels = chartData.map(function(d){ return d.month; });
-    var tF = chartData.map(function(d){ return Number(d.target_fisik||0); });
-    var rF = chartData.map(function(d){ return Number(d.realisasi_fisik||0); });
-    var tK = chartData.map(function(d){ return Number(d.target_keuangan||0); });
-    var rK = chartData.map(function(d){ return Number(d.realisasi_keuangan||0); });
-
-    var ctx = document.getElementById('rekapChart').getContext('2d');
-    new Chart(ctx, {
-        type: 'line',
-        data: {
-            labels: labels,
-            datasets: [
-                { label: 'T. Fisik', data: tF, borderColor: '#0d6efd', backgroundColor: 'transparent' },
-                { label: 'R. Fisik', data: rF, borderColor: '#6c757d', backgroundColor: 'transparent' },
-                { label: 'T. Keuangan', data: tK, borderColor: '#dc3545', backgroundColor: 'transparent' },
-                { label: 'R. Keuangan', data: rK, borderColor: '#198754', backgroundColor: 'transparent' }
-            ]
-        },
-        options: {
-            responsive: true,
-            plugins: { legend: { position: 'top' } },
-            scales: { y: { beginAtZero: true, max: 100 } }
-        }
-    });
-})();
-</script>
-<?= $this->endSection() ?>
-
-<?= $this->extend(theme_path('main')) ?>
-
-<?= $this->section('content') ?>
 <?php 
 $months = ['jan'=>'Januari','feb'=>'Februari','mar'=>'Maret','apr'=>'April','mei'=>'Mei','jun'=>'Juni','jul'=>'Juli','ags'=>'Agustus','sep'=>'September','okt'=>'Oktober','nov'=>'November','des'=>'Desember'];
 $tahapan = ['Penetapan APBD', 'Pergeseran', 'Perubahan APBD'];
 ?>
 
 <div class="row">
-	<!-- Left Panel - Tahapan -->
-	<div class="col-md-3">
-		<div class="card border-success">
-			<div class="card-header bg-success">
-				<h3 class="card-title text-white">Tahapan</h3>
-			</div>
-			<div class="card-body">
-				<ul class="list-group list-group-flush">
-					<?php foreach ($tahapan as $t): ?>
-					<li class="list-group-item border-0 px-0 py-2">
-						<i class="fas fa-circle text-success mr-2"></i>
-						<?= $t ?>
-					</li>
-					<?php endforeach; ?>
-				</ul>
-			</div>
-		</div>
-	</div>
-
-	<!-- Main Content Area -->
-	<div class="col-md-9">
+    <!-- Main Content Area -->
+    <div class="col-md-12">
 		<div class="card">
 			<div class="card-header d-flex align-items-center justify-content-between">
 				<h3 class="card-title">Target Fisik dan Keuangan - Rekap</h3>
 				<div class="d-flex align-items-center">
-					<form class="form-inline mr-3" method="get">
-						<label class="mr-2">Master:</label>
-						<select name="master_id" class="form-control form-control-sm mr-2" onchange="this.form.submit()">
-							<option value="">Pilih Master</option>
-							<?php foreach (($masters ?? []) as $m): ?>
-							<option value="<?= $m['id'] ?>" <?= $masterId == $m['id'] ? 'selected' : '' ?>><?= esc($m['nama']) ?></option>
-							<?php endforeach; ?>
-						</select>
-						<label class="mr-2">Tahun:</label>
-						<select name="year" class="form-control form-control-sm" onchange="this.form.submit()">
-							<?php $current = (int)($year ?? date('Y')); $start=$current-5; $end=$current+5; ?>
-							<?php for($y=$start;$y<=$end;$y++): ?>
-							<option value="<?= $y ?>" <?= $y===$current?'selected':'' ?>><?= $y ?></option>
-							<?php endfor; ?>
-						</select>
+                    <form class="form-inline mr-3" method="get">
+                        <label class="mr-2">Tahun:</label>
+                        <?php $current = (int)($year ?? date('Y')); ?>
+                        <select name="year" class="form-control form-control-sm" disabled readonly>
+                            <option value="<?= $current ?>" selected><?= $current ?></option>
+                        </select>
+                        <input type="hidden" name="year" value="<?= $current ?>">
 					</form>
 					<div class="btn-group">
 						<button class="btn btn-success btn-sm" onclick="exportPDF()">Export PDF</button>
@@ -207,10 +45,10 @@ $tahapan = ['Penetapan APBD', 'Pergeseran', 'Perubahan APBD'];
 								<tbody>
 									<?php $map = $details ?? []; ?>
 									<!-- Target Fisik -->
-									<tr>
-										<td><strong>Target Fisik (%)</strong></td>
-										<?php foreach ($months as $k=>$label): $d = $map[$k] ?? []; $val = isset($d['fisik']) ? (float)$d['fisik'] : 0; ?>
-										<td class="text-center"><?= number_format($val, 1) ?></td>
+                                    <tr>
+                                        <td class="red-box"><strong>Target Fisik (%)</strong></td>
+                                        <?php foreach ($months as $k=>$label): $d = $map[$k] ?? []; $val = isset($d['target_fisik']) ? (float)$d['target_fisik'] : 0; ?>
+                                        <td class="text-center"><?= number_format($val, 1) ?></td>
 										<?php endforeach; ?>
 									</tr>
 									<!-- Realisasi Fisik -->
@@ -223,7 +61,7 @@ $tahapan = ['Penetapan APBD', 'Pergeseran', 'Perubahan APBD'];
 									<!-- Realisasi Fisik Prov -->
 									<tr>
 										<td><strong>Realisasi Fisik Prov (%)</strong></td>
-										<?php foreach ($months as $k=>$label): $d = $map[$k] ?? []; $val = isset($d['realisasi_fisik_prov']) ? (float)$d['realisasi_fisik_prov'] : 0; ?>
+                                        <?php foreach ($months as $k=>$label): $d = $map[$k] ?? []; $val = isset($d['realisasi_fisik_prov']) ? (float)$d['realisasi_fisik_prov'] : 0; ?>
 										<td class="text-center"><?= number_format($val, 1) ?></td>
 										<?php endforeach; ?>
 									</tr>
@@ -232,7 +70,7 @@ $tahapan = ['Penetapan APBD', 'Pergeseran', 'Perubahan APBD'];
 										<td><strong>Deviasi Fisik (%)</strong></td>
 										<?php foreach ($months as $k=>$label): 
 											$d = $map[$k] ?? []; 
-											$target = (float)($d['fisik'] ?? 0);
+                                            $target = (float)($d['target_fisik'] ?? 0);
 											$realisasi = (float)($d['realisasi_fisik'] ?? 0);
 											$deviasi = $realisasi - $target;
 										?>
@@ -243,22 +81,22 @@ $tahapan = ['Penetapan APBD', 'Pergeseran', 'Perubahan APBD'];
 									</tr>
 									<!-- Target Keuangan -->
 									<tr>
-										<td><strong>Target Keuangan (%)</strong></td>
-										<?php foreach ($months as $k=>$label): $d = $map[$k] ?? []; $val = isset($d['keu']) ? (float)$d['keu'] : 0; ?>
+                                        <td class="red-box"><strong>Target Keuangan (%)</strong></td>
+                                        <?php foreach ($months as $k=>$label): $d = $map[$k] ?? []; $val = isset($d['target_keuangan']) ? (float)$d['target_keuangan'] : 0; ?>
 										<td class="text-center"><?= number_format($val, 1) ?></td>
 										<?php endforeach; ?>
 									</tr>
 									<!-- Realisasi Keuangan -->
 									<tr>
 										<td><strong>Realisasi Keuangan (%)</strong></td>
-										<?php foreach ($months as $k=>$label): $d = $map[$k] ?? []; $val = isset($d['keu_real']) ? (float)$d['keu_real'] : 0; ?>
+                                        <?php foreach ($months as $k=>$label): $d = $map[$k] ?? []; $val = isset($d['realisasi_keuangan']) ? (float)$d['realisasi_keuangan'] : 0; ?>
 										<td class="text-center"><?= number_format($val, 1) ?></td>
 										<?php endforeach; ?>
 									</tr>
 									<!-- Realisasi Keu Prov -->
 									<tr>
 										<td><strong>Realisasi Keu Prov (%)</strong></td>
-										<?php foreach ($months as $k=>$label): $d = $map[$k] ?? []; $val = isset($d['realisasi_keu_prov']) ? (float)$d['realisasi_keu_prov'] : 0; ?>
+                                        <?php foreach ($months as $k=>$label): $d = $map[$k] ?? []; $val = isset($d['realisasi_keuangan_prov']) ? (float)$d['realisasi_keuangan_prov'] : 0; ?>
 										<td class="text-center"><?= number_format($val, 1) ?></td>
 										<?php endforeach; ?>
 									</tr>
@@ -267,8 +105,8 @@ $tahapan = ['Penetapan APBD', 'Pergeseran', 'Perubahan APBD'];
 										<td><strong>Deviasi Keuangan (%)</strong></td>
 										<?php foreach ($months as $k=>$label): 
 											$d = $map[$k] ?? []; 
-											$target = (float)($d['keu'] ?? 0);
-											$realisasi = (float)($d['keu_real'] ?? 0);
+                                            $target = (float)($d['target_keuangan'] ?? 0);
+                                            $realisasi = (float)($d['realisasi_keuangan'] ?? 0);
 											$deviasi = $realisasi - $target;
 										?>
 										<td class="text-center <?= $deviasi < 0 ? 'text-danger' : ($deviasi > 0 ? 'text-success' : '') ?>">
@@ -279,7 +117,7 @@ $tahapan = ['Penetapan APBD', 'Pergeseran', 'Perubahan APBD'];
 									<!-- Analisa -->
 									<tr>
 										<td><strong>Analisa</strong></td>
-										<?php foreach ($months as $k=>$label): $d = $map[$k] ?? []; $val = $d['analisa'] ?? ''; ?>
+                                        <?php foreach ($months as $k=>$label): $d = $map[$k] ?? []; $val = $d['analisa'] ?? ''; ?>
 										<td class="text-center"><?= esc($val) ?></td>
 										<?php endforeach; ?>
 									</tr>

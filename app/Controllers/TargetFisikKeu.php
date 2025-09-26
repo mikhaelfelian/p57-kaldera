@@ -25,7 +25,7 @@ class TargetFisikKeu extends BaseController
     public function input($masterId = null)
     {
         $year = (int)($this->request->getGet('year') ?: date('Y'));
-        $tahapan = (string)($this->request->getGet('tahapan') ?: 'Penetapan APBD');
+        $tahapan = (string)($this->request->getGet('tahapan') ?: 'penetapan');
 
         // Masters for dropdown (tahapan options come from master rows' "tahapan")
         $masters = $this->masterModel->orderBy('id', 'DESC')->findAll();
@@ -120,12 +120,13 @@ class TargetFisikKeu extends BaseController
 			// Log all POST data for debugging
 			log_message('debug', 'updateCell POST data: ' . json_encode($this->request->getPost()));
 			
-			$id = (int)$this->request->getPost('id');
+            $id = (int)$this->request->getPost('id');
 			$masterId = (int)$this->request->getPost('master_id');
 			$bulan = $this->request->getPost('bulan');
 			$field = $this->request->getPost('field'); // fisik | keu
-			$value = (float)$this->request->getPost('value');
+            $value = $this->request->getPost('value');
 			$year = (int)$this->request->getPost('year') ?: (int)date('Y');
+            $tahapan = (string)($this->request->getPost('tahapan') ?: 'penetapan');
 
 			// Debug logging
 			log_message('debug', 'updateCell params: ' . json_encode([
@@ -163,11 +164,12 @@ class TargetFisikKeu extends BaseController
 			$dbField = $fieldMap[$field] ?? $field;
 
 			// Get existing record or create new one
-			$existing = $this->fiskalModel->where([
+            $existing = $this->fiskalModel->where([
 				'master_id' => $masterId,
 				'tipe' => '1',
 				'tahun' => $year,
-				'bulan' => $bulan
+                'bulan' => $bulan,
+                'tahapan' => $tahapan
 			])->first();
 			
 			log_message('debug', 'Looking for existing record: master_id=' . $masterId . ', tipe=1, tahun=' . $year . ', bulan=' . $bulan);
@@ -188,7 +190,8 @@ class TargetFisikKeu extends BaseController
 				$data['master_id'] = $masterId;
 				$data['tipe'] = '1';
 				$data['tahun'] = $year;
-				$data['bulan'] = $bulan;
+                $data['bulan'] = $bulan;
+                $data['tahapan'] = $tahapan;
 				$this->fiskalModel->skipValidation(true);
 				$id = $this->fiskalModel->insert($data);
 				log_message('debug', 'Inserted fiskal record with ID: ' . $id . ' and data: ' . json_encode($data));
@@ -218,12 +221,9 @@ class TargetFisikKeu extends BaseController
 	public function rekap()
 	{
         $year = (int)($this->request->getGet('year') ?: date('Y'));
-        $masterId = (int)($this->request->getGet('master_id') ?: 0);
-
+        // Use first master automatically (no selector in UI)
         $masters = $this->masterModel->orderBy('id', 'DESC')->findAll();
-        if (!$masterId && !empty($masters)) {
-            $masterId = (int)$masters[0]['id'];
-        }
+        $masterId = !empty($masters) ? (int)$masters[0]['id'] : 0;
 
         $selectedMaster = null;
         $details = [];
@@ -256,7 +256,7 @@ class TargetFisikKeu extends BaseController
             'title' => 'Target Fisik & Keuangan - Rekap',
             'Pengaturan' => $this->pengaturan,
             'user' => $this->ionAuth->user()->row(),
-            'masters' => $masters,
+            'masters' => $masters, // kept for completeness although not shown in UI
             'selectedMaster' => $selectedMaster,
             'masterId' => $masterId,
             'year' => $year,
@@ -266,6 +266,156 @@ class TargetFisikKeu extends BaseController
 
         return view($this->theme->getThemePath() . '/tfk/rekap', $data);
 	}
+
+    /**
+     * Export Rekap to Excel (PhpSpreadsheet)
+     */
+    public function rekapExportExcel()
+    {
+        $year = (int)($this->request->getGet('year') ?: date('Y'));
+        $masterId = (int)($this->request->getGet('master_id') ?: 0);
+        $tahapan = (string)($this->request->getGet('tahapan') ?: 'penetapan');
+        if (!$masterId) {
+            $masters = $this->masterModel->orderBy('id', 'DESC')->findAll();
+            $masterId = !empty($masters) ? (int)$masters[0]['id'] : 0;
+        }
+
+        // Pull data
+        $rows = $this->fiskalModel->where([
+            'master_id' => $masterId,
+            'tipe'      => '1',
+            'tahun'     => $year,
+            'tahapan'   => $tahapan,
+        ])->orderBy('bulan', 'ASC')->findAll();
+
+        $map = [];
+        foreach ($rows as $r) { $map[$r['bulan']] = $r; }
+        $months = ['jan','feb','mar','apr','mei','jun','jul','ags','sep','okt','nov','des'];
+        $monthNames = ['Januari','Februari','Maret','April','Mei','Juni','Juli','Agustus','September','Oktober','November','Desember'];
+
+        // Build spreadsheet
+        $spreadsheet = new \PhpOffice\PhpSpreadsheet\Spreadsheet();
+        $sheet = $spreadsheet->getActiveSheet();
+        $sheet->setTitle('Rekap ' . $year);
+
+        // Header
+        $sheet->setCellValue('A1', 'Kumulatif');
+        foreach ($monthNames as $i => $name) {
+            $col = chr(ord('B') + $i);
+            $sheet->setCellValue($col . '1', $name);
+        }
+
+        $rowsSpec = [
+            ['Target Fisik (%)', 'target_fisik', 0],
+            ['Realisasi Fisik (%)', 'realisasi_fisik', 2],
+            ['Realisasi Fisik Prov (%)', 'realisasi_fisik_prov', 2],
+            ['Deviasi Fisik (%)', null, 2, function($d){return ($d['realisasi_fisik']??0)-($d['target_fisik']??0);} ],
+            ['Target Keuangan (%)', 'target_keuangan', 0],
+            ['Realisasi Keuangan (%)', 'realisasi_keuangan', 2],
+            ['Realisasi Keuangan Prov (%)', 'realisasi_keuangan_prov', 2],
+            ['Deviasi Keuangan (%)', null, 2, function($d){return ($d['realisasi_keuangan']??0)-($d['target_keuangan']??0);} ],
+            ['Analisa', 'analisa', null],
+        ];
+
+        $r = 2;
+        foreach ($rowsSpec as $spec) {
+            [$label, $field, $decimals] = $spec;
+            $sheet->setCellValue('A' . $r, $label);
+            foreach ($months as $i => $m) {
+                $col = chr(ord('B') + $i);
+                $d = $map[$m] ?? [];
+                if (isset($spec[3]) && is_callable($spec[3])) {
+                    $val = call_user_func($spec[3], $d);
+                } else {
+                    $val = $field ? ($d[$field] ?? '') : '';
+                }
+                $sheet->setCellValue($col . $r, $val);
+            }
+            $r++;
+        }
+
+        // Output
+        $filename = 'rekap_tfk_' . $year . '_' . $tahapan . '.xlsx';
+        header('Content-Type: application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
+        header('Content-Disposition: attachment; filename="' . $filename . '"');
+        header('Cache-Control: max-age=0');
+        $writer = new \PhpOffice\PhpSpreadsheet\Writer\Xlsx($spreadsheet);
+        $writer->save('php://output');
+        exit;
+    }
+
+    /**
+     * Export Rekap to PDF (TCPDF as FPDF-like library via vendor/tecnickcom/tcpdf)
+     */
+    public function rekapExportPDF()
+    {
+        $year = (int)($this->request->getGet('year') ?: date('Y'));
+        $masterId = (int)($this->request->getGet('master_id') ?: 0);
+        $tahapan = (string)($this->request->getGet('tahapan') ?: 'penetapan');
+        if (!$masterId) {
+            $masters = $this->masterModel->orderBy('id', 'DESC')->findAll();
+            $masterId = !empty($masters) ? (int)$masters[0]['id'] : 0;
+        }
+
+        $rows = $this->fiskalModel->where([
+            'master_id' => $masterId,
+            'tipe'      => '1',
+            'tahun'     => $year,
+            'tahapan'   => $tahapan,
+        ])->orderBy('bulan', 'ASC')->findAll();
+
+        $map = [];
+        foreach ($rows as $r) { $map[$r['bulan']] = $r; }
+        $months = ['jan','feb','mar','apr','mei','jun','jul','ags','sep','okt','nov','des'];
+        $monthNames = ['Januari','Februari','Maret','April','Mei','Juni','Juli','Agustus','September','Oktober','November','Desember'];
+
+        // Initialize TCPDF
+        $pdf = new \TCPDF();
+        $pdf->SetCreator('Kaldera');
+        $pdf->SetAuthor('Kaldera');
+        $pdf->SetTitle('Rekap TFK ' . $year);
+        $pdf->setPrintHeader(false);
+        $pdf->setPrintFooter(false);
+        $pdf->AddPage('L', 'A4');
+
+        $html = '<h3 style="margin:0;">Rekap Target Fisik & Keuangan - ' . $year . ' (' . strtoupper($tahapan) . ')</h3>';
+        $html .= '<table border="1" cellpadding="4" cellspacing="0">';
+        $html .= '<tr><th>Kumulatif</th>';
+        foreach ($monthNames as $name) { $html .= '<th>' . $name . '</th>'; }
+        $html .= '</tr>';
+
+        $rowsSpec = [
+            ['Target Fisik (%)', 'target_fisik'],
+            ['Realisasi Fisik (%)', 'realisasi_fisik'],
+            ['Realisasi Fisik Prov (%)', 'realisasi_fisik_prov'],
+            ['Deviasi Fisik (%)', null, function($d){return ($d['realisasi_fisik']??0)-($d['target_fisik']??0);} ],
+            ['Target Keuangan (%)', 'target_keuangan'],
+            ['Realisasi Keuangan (%)', 'realisasi_keuangan'],
+            ['Realisasi Keuangan Prov (%)', 'realisasi_keuangan_prov'],
+            ['Deviasi Keuangan (%)', null, function($d){return ($d['realisasi_keuangan']??0)-($d['target_keuangan']??0);} ],
+            ['Analisa', 'analisa'],
+        ];
+
+        foreach ($rowsSpec as $spec) {
+            [$label, $field] = $spec;
+            $html .= '<tr><td><b>' . $label . '</b></td>';
+            foreach ($months as $m) {
+                $d = $map[$m] ?? [];
+                if (isset($spec[2]) && is_callable($spec[2])) {
+                    $val = call_user_func($spec[2], $d);
+                } else {
+                    $val = $field ? ($d[$field] ?? '') : '';
+                }
+                $html .= '<td>' . $val . '</td>';
+            }
+            $html .= '</tr>';
+        }
+        $html .= '</table>';
+
+        $pdf->writeHTML($html, true, false, true, false, '');
+        $pdf->Output('rekap_tfk_' . $year . '_' . $tahapan . '.pdf', 'I');
+        exit;
+    }
 
 	public function master()
 	{

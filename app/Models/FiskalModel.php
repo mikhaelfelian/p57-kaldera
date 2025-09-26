@@ -17,6 +17,7 @@ class FiskalModel extends Model
         'tipe',
         'tahun',
         'bulan',
+        'tahapan',
         // DECIMAL(20,2) NOT NULL DEFAULT '0.00' COMMENT 'Target Fisik (%)'
         'target_fisik',
         // DECIMAL(20,2) NOT NULL DEFAULT '0.00' COMMENT 'Target Keuangan (%)'
@@ -90,12 +91,20 @@ class FiskalModel extends Model
         if (!$year) {
             $year = date('Y');
         }
-        
-        return $this->where([
+        $builder = $this->where([
             'master_id' => $masterId,
             'tipe' => $tipe,
             'tahun' => $year
-        ])->orderBy('bulan', 'ASC')->findAll();
+        ]);
+
+        // Optional tahapan filter if provided via GET param in request service
+        $request = service('request');
+        $tahapan = $request ? $request->getGet('tahapan') : null;
+        if ($tahapan) {
+            $builder = $builder->where('tahapan', $tahapan);
+        }
+
+        return $builder->orderBy('bulan', 'ASC')->findAll();
     }
 
     /**
@@ -120,7 +129,7 @@ class FiskalModel extends Model
             }
         }
 
-        $existing = $this->where([
+            $existing = $this->where([
             'master_id' => $masterId,
             'tipe' => $tipe,
             'tahun' => $year,
@@ -134,6 +143,10 @@ class FiskalModel extends Model
             $data['tipe'] = $tipe;
             $data['tahun'] = $year;
             $data['bulan'] = $bulan;
+            if (!isset($data['tahapan'])) {
+                $request = service('request');
+                $data['tahapan'] = $request ? ($request->getGet('tahapan') ?: $request->getPost('tahapan')) : 'penetapan';
+            }
             return $this->insert($data);
         }
     }

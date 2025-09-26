@@ -130,13 +130,14 @@
 				return;
 			}
 			
-			var payload = {
+            var payload = {
 				id: span.data('id')||0,
 				master_id: masterId,
 				bulan: span.data('bulan'),
 				year: $('#tfkTable').data('year'),
 				field: span.data('field'),
-				value: newVal
+                value: newVal,
+                tahapan: $('select[name="tahapan"]').val() || ''
 			};
 			console.log('Sending AJAX request to:', '<?= base_url('tfk/update-cell') ?>');
 			console.log('Payload:', payload);
@@ -182,7 +183,7 @@
 		
         // Collect all editable values
 		var updates = [];
-		$('#tfkTable .editable').each(function(){
+        $('#tfkTable .editable').each(function(){
 			var $span = $(this);
 			var $row = $span.closest('tr');
 			var masterId = $row.data('master-id');
@@ -204,7 +205,8 @@
 					bulan: $span.data('bulan'),
 					year: $('#tfkTable').data('year'),
 					field: $span.data('field'),
-					value: value
+                    value: value,
+                    tahapan: $('select[name="tahapan"]').val() || ''
 				});
 			}
 		});
@@ -213,13 +215,14 @@
 		
 		// Save all updates
 		var promises = updates.map(function(update){
-			var payload = {
+            var payload = {
 				id: update.id,
 				master_id: update.master_id,
 				bulan: update.bulan,
 				year: update.year,
 				field: update.field,
-				value: update.value
+                value: update.value,
+                tahapan: $('select[name="tahapan"]').val() || ''
 			};
 			
 			console.log('Bulk save - Sending to:', '<?= base_url('tfk/update-cell') ?>', 'Payload:', payload);

@@ -14,8 +14,8 @@
             <input type="hidden" name="year" value="<?= $current ?>">
             <label class="mr-2">Tahapan</label>
             <select name="tahapan" class="form-control form-control-sm" onchange="this.form.submit()">
-                <?php $opt = ['Penetapan APBD','Pergeseran','Perubahan APBD']; foreach($opt as $o): ?>
-                <option value="<?= $o ?>" <?= ($tahapan===$o)?'selected':'' ?>><?= $o ?></option>
+                <?php $opt = ['penetapan' => 'Penetapan APBD', 'pergeseran' => 'Pergeseran', 'perubahan' => 'Perubahan APBD']; foreach($opt as $k=>$o): ?>
+                <option value="<?= $k ?>" <?= ($tahapan===$k)?'selected':'' ?>><?= $o ?></option>
                 <?php endforeach; ?>
             </select>
         </form>
@@ -125,7 +125,8 @@
                 bulan: span.data('bulan'),
                 year: $('#tfkInput').data('year'),
                 field: span.data('field'),
-                value: newVal
+                value: newVal,
+                tahapan: $('select[name="tahapan"]').val()
             };
             $.post('<?= base_url('tfk/update-cell') ?>', payload, function(res){
                 if(res && res.ok){
@@ -153,7 +154,8 @@
                 bulan: span.data('bulan'),
                 year: $('#tfkInput').data('year'),
                 field: span.data('field'),
-                value: newVal
+                value: newVal,
+                tahapan: $('select[name="tahapan"]').val()
             };
             $.post('<?= base_url('tfk/update-cell') ?>', payload, function(res){
                 if(res && res.ok){ span.data('id', res.id); span.data('value', newVal); span.text(newVal); }
