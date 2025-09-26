@@ -58,7 +58,6 @@
                                 <tr>
                                     <td class="text-center"><code><?= esc($row['month'] ?? '') ?></code></td>
                                     <td>
-                                        <div class="font-weight-600 mb-1">Monitoring Progres</div>
                                         <div><?= esc($row['uraian']) ?></div>
                                     </td>
                                     <td class="text-center">
