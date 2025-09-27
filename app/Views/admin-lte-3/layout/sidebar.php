@@ -179,8 +179,22 @@
                             </li>
                         </ul>
                     </li>
-                    <li class="nav-item has-treeview">
-                        <a href="#" class="nav-link">
+                    <li class="nav-item has-treeview <?= isMenuActive([
+                        'pbj/input/indeks', 
+                        'pbj/input/realisasi_pdn', 
+                        'pbj/input/progres', 
+                        'pbj/rekap/indeks', 
+                        'pbj/rekap/realisasi_pdn', 
+                        'pbj/rekap/progres'
+                    ], true) ? 'menu-open' : '' ?>">
+                        <a href="#" class="nav-link <?= isMenuActive([
+                            'pbj/input/indeks', 
+                            'pbj/input/realisasi_pdn', 
+                            'pbj/input/progres', 
+                            'pbj/rekap/indeks', 
+                            'pbj/rekap/realisasi_pdn', 
+                            'pbj/rekap/progres'
+                        ], true) ? 'active' : '' ?>">
                             <i class="nav-icon fas fa-clipboard-check"></i>
                             <p>
                                 Pencatatan PBJ
@@ -188,18 +202,50 @@
                             </p>
                         </a>
                         <ul class="nav nav-treeview">
+                            <!-- Input Section -->
+                            <li class="nav-header font-weight-bold" style="font-size: 1rem;"><?= nbs(3) ?>Input</li>
                             <li class="nav-item">
-                                <a href="#" class="nav-link">
-                                    <?= nbs(3) ?>
-                                    <i class="fas fa-plus nav-icon"></i>
-                                    <p>Input</p>
+                                <a href="<?= base_url('pbj/input/indeks') ?>" class="nav-link <?= isMenuActive('pbj/input/indeks') ? 'active' : '' ?>">
+                                    <?= nbs(5) ?>
+                                    <i class="fas fa-chart-line nav-icon"></i>
+                                    <p>Indeks PBJ</p>
                                 </a>
                             </li>
                             <li class="nav-item">
-                                <a href="#" class="nav-link">
-                                    <?= nbs(3) ?>
-                                    <i class="fas fa-list nav-icon"></i>
-                                    <p>Data</p>
+                                <a href="<?= base_url('pbj/input/realisasi_pdn') ?>" class="nav-link <?= isMenuActive('pbj/input/realisasi_pdn') ? 'active' : '' ?>">
+                                    <?= nbs(5) ?>
+                                    <i class="fas fa-chart-line nav-icon"></i>
+                                    <p>Indeks Realisasi PDN</p>
+                                </a>
+                            </li>
+                            <li class="nav-item">
+                                <a href="<?= base_url('pbj/input/progres') ?>" class="nav-link <?= isMenuActive('pbj/input/progres') ? 'active' : '' ?>">
+                                    <?= nbs(5) ?>
+                                    <i class="fas fa-chart-line nav-icon"></i>
+                                    <p>Progres PBJ</p>
+                                </a>
+                            </li>
+                            <!-- Rekap Section -->
+                            <li class="nav-header font-weight-bold mt-2" style="font-size: 1rem;"><?= nbs(3) ?>Rekap</li>
+                            <li class="nav-item">
+                                <a href="<?= base_url('pbj/rekap/indeks') ?>" class="nav-link <?= isMenuActive('pbj/rekap/indeks') ? 'active' : '' ?>">
+                                    <?= nbs(5) ?>
+                                    <i class="fas fa-chart-bar nav-icon"></i>
+                                    <p>Indeks PBJ</p>
+                                </a>
+                            </li>
+                            <li class="nav-item">
+                                <a href="<?= base_url('pbj/rekap/realisasi_pdn') ?>" class="nav-link <?= isMenuActive('pbj/rekap/realisasi_pdn') ? 'active' : '' ?>">
+                                    <?= nbs(5) ?>
+                                    <i class="fas fa-chart-bar nav-icon"></i>
+                                    <p>Indeks Realisasi PDN</p>
+                                </a>
+                            </li>
+                            <li class="nav-item">
+                                <a href="<?= base_url('pbj/rekap/progres') ?>" class="nav-link <?= isMenuActive('pbj/rekap/progres') ? 'active' : '' ?>">
+                                    <?= nbs(5) ?>
+                                    <i class="fas fa-chart-bar nav-icon"></i>
+                                    <p>Progres PBJ</p>
                                 </a>
                             </li>
                         </ul>

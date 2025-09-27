@@ -204,6 +204,23 @@ $routes->group('indikator', ['namespace' => 'App\\Controllers', 'filter' => 'aut
     $routes->get('rekap', 'IndikatorInput::rekap', ['as' => 'indikator.rekap']);
 });
 
+// ==================== PBJ (Pengadaan Barang dan Jasa) ====================
+$routes->group('pbj', ['namespace' => 'App\\Controllers', 'filter' => 'auth'], function ($routes) {
+    $routes->get('input', 'Pbj::input', ['as' => 'pbj.input']);
+    $routes->get('input/indeks', 'Pbj::input', ['as' => 'pbj.input.indeks']);
+    $routes->post('input/save', 'Pbj::save', ['as' => 'pbj.input.save']);
+    $routes->get('input/realisasi_pdn', 'PbjPdn::realisasi_pdn', ['as' => 'pbj.input.realisasi_pdn']);
+    $routes->post('input/realisasi_pdn/save', 'PbjPdn::save', ['as' => 'pbj.input.realisasi_pdn.save']);
+    $routes->get('input/progres', 'PbjProgres::progres', ['as' => 'pbj.input.progres']);
+    $routes->post('input/progres/save', 'PbjProgres::save', ['as' => 'pbj.input.progres.save']);
+    $routes->post('input/progres/update-status', 'PbjProgres::updateStatus', ['as' => 'pbj.input.progres.update_status']);
+    
+    // Rekap routes
+    $routes->get('rekap/indeks', 'Pbj::rekap_indeks', ['as' => 'pbj.rekap.indeks']);
+    $routes->get('rekap/realisasi_pdn', 'PbjPdn::rekap_realisasi_pdn', ['as' => 'pbj.rekap.realisasi_pdn']);
+    $routes->get('rekap/progres', 'PbjProgres::rekap_progres', ['as' => 'pbj.rekap.progres']);
+});
+
 // ==================== Settings (Pengaturan) ====================
 $routes->group('pengaturan', ['namespace' => 'App\Controllers', 'filter' => 'auth'], function ($routes) {
     // App settings
