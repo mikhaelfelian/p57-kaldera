@@ -234,6 +234,7 @@
 (function(){
     var csrfToken = '<?= csrf_token() ?>';
     var csrfHash = '<?= csrf_hash() ?>';
+    var csrfTokenName = '<?= config('Security')->tokenName ?>';
     var currentDataId = null;
     
     // Upload button click
@@ -293,7 +294,7 @@
         e.preventDefault();
         
         var formData = new FormData(this);
-        formData.append(csrfToken, csrfHash);
+        formData.append(csrfTokenName, csrfHash);
         
         $.ajax({
             url: '<?= base_url('indikator/upload') ?>',

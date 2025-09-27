@@ -185,10 +185,20 @@ $routes->group('uploads', ['namespace' => 'App\\Controllers', 'filter' => 'auth'
 
 // ==================== Indikator Module ====================
 $routes->group('indikator', ['namespace' => 'App\\Controllers', 'filter' => 'auth'], function ($routes) {
+    // Metadata routes
     $routes->get('metadata', 'IndikatorMeta::metadata', ['as' => 'indikator.metadata']);
     $routes->post('upload', 'IndikatorMeta::upload', ['as' => 'indikator.upload']);
     $routes->get('view/(:num)', 'IndikatorMeta::viewData/$1', ['as' => 'indikator.view']);
     $routes->get('download/(:num)', 'IndikatorMeta::download/$1', ['as' => 'indikator.download']);
+    
+    // Input routes
+    $routes->get('input', 'IndikatorInput::input', ['as' => 'indikator.input']);
+    $routes->post('input/save', 'IndikatorInput::save', ['as' => 'indikator.input.save']);
+    $routes->post('input/upload-catatan', 'IndikatorInput::uploadCatatan', ['as' => 'indikator.input.upload_catatan']);
+    $routes->post('input/upload-rencana', 'IndikatorInput::uploadRencana', ['as' => 'indikator.input.upload_rencana']);
+    $routes->get('input/preview/(:num)', 'IndikatorInput::preview/$1', ['as' => 'indikator.input.preview']);
+    $routes->get('input/download-catatan/(:num)', 'IndikatorInput::downloadCatatan/$1', ['as' => 'indikator.input.download_catatan']);
+    $routes->get('input/download-rencana/(:num)', 'IndikatorInput::downloadRencana/$1', ['as' => 'indikator.input.download_rencana']);
 });
 
 // ==================== Settings (Pengaturan) ====================
