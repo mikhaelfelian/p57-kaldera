@@ -48,7 +48,7 @@ class IndikatorMeta extends BaseController
         }
 
         // Create upload directory if not exists
-        $uploadPath = FCPATH . 'public/file/indikator/';
+        $uploadPath = FCPATH . '/file/indikator/';
         if (!is_dir($uploadPath)) {
             mkdir($uploadPath, 0755, true);
         }
@@ -61,7 +61,7 @@ class IndikatorMeta extends BaseController
             'jenis_indikator' => $jenisIndikator,
             'nama_indikator' => $namaIndikator,
             'deskripsi' => $formulasi . "\n\nDefinisi Operasional:\n" . $definisiOperasional,
-            'file_path' => 'public/file/indikator/' . $fileName,
+            'file_path' => '/file/indikator/' . $fileName,
             'file_name' => $file->getClientName(),
             'file_size' => $file->getSize(),
             'uploaded_by' => session('user_id') ?? 1,

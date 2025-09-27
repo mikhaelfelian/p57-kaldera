@@ -91,7 +91,7 @@ class IndikatorInput extends BaseController
         }
 
         // Create upload directory if not exists
-        $uploadPath = FCPATH . 'public/file/indikator/input/';
+        $uploadPath = FCPATH . 'file/indikator/input/';
         if (!is_dir($uploadPath)) {
             mkdir($uploadPath, 0755, true);
         }
@@ -167,7 +167,7 @@ class IndikatorInput extends BaseController
         }
 
         // Create upload directory if not exists
-        $uploadPath = FCPATH . 'public/file/indikator/input/';
+        $uploadPath = FCPATH . '/file/indikator/input/';
         if (!is_dir($uploadPath)) {
             mkdir($uploadPath, 0755, true);
         }
