@@ -144,8 +144,8 @@
                             </li>
                         </ul>
                     </li>
-                    <li class="nav-item has-treeview">
-                        <a href="#" class="nav-link">
+                    <li class="nav-item has-treeview <?= isMenuActive(['indikator/metadata','indikator/input','indikator/rekap'], true) ? 'menu-open' : '' ?>">
+                        <a href="#" class="nav-link <?= isMenuActive(['indikator/metadata','indikator/input','indikator/rekap'], true) ? 'active' : '' ?>">
                             <i class="nav-icon fas fa-chart-line"></i>
                             <p>
                                 Indikator Kinerja
@@ -153,18 +153,28 @@
                             </p>
                         </a>
                         <ul class="nav nav-treeview">
+                            <!-- Metadata -->
                             <li class="nav-item">
-                                <a href="<?= base_url('risiko') ?>" class="nav-link <?= isMenuActive('risiko') ? 'active' : '' ?>">
+                                <a href="<?= base_url('indikator/metadata') ?>" class="nav-link <?= isMenuActive('indikator/metadata') ? 'active' : '' ?>">
                                     <?= nbs(3) ?>
-                                    <i class="fas fa-plus nav-icon"></i>
+                                    <i class="fas fa-database nav-icon"></i>
+                                    <p>Metadata</p>
+                                </a>
+                            </li>
+                            <!-- Input -->
+                            <li class="nav-item">
+                                <a href="<?= base_url('indikator/input') ?>" class="nav-link <?= isMenuActive('indikator/input') ? 'active' : '' ?>">
+                                    <?= nbs(3) ?>
+                                    <i class="fas fa-keyboard nav-icon"></i>
                                     <p>Input</p>
                                 </a>
                             </li>
+                            <!-- Rekap -->
                             <li class="nav-item">
-                                <a href="<?= base_url('risiko') ?>" class="nav-link <?= isMenuActive('risiko') ? 'active' : '' ?>">
+                                <a href="<?= base_url('indikator/rekap') ?>" class="nav-link <?= isMenuActive('indikator/rekap') ? 'active' : '' ?>">
                                     <?= nbs(3) ?>
-                                    <i class="fas fa-list nav-icon"></i>
-                                    <p>Data</p>
+                                    <i class="fas fa-chart-bar nav-icon"></i>
+                                    <p>Rekap</p>
                                 </a>
                             </li>
                         </ul>

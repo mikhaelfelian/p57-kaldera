@@ -183,6 +183,14 @@ $routes->group('uploads', ['namespace' => 'App\\Controllers', 'filter' => 'auth'
     $routes->post('delete/(:num)', 'Uploads::delete/$1', ['as' => 'uploads.delete']);
 });
 
+// ==================== Indikator Module ====================
+$routes->group('indikator', ['namespace' => 'App\\Controllers', 'filter' => 'auth'], function ($routes) {
+    $routes->get('metadata', 'IndikatorMeta::metadata', ['as' => 'indikator.metadata']);
+    $routes->post('upload', 'IndikatorMeta::upload', ['as' => 'indikator.upload']);
+    $routes->get('view/(:num)', 'IndikatorMeta::viewData/$1', ['as' => 'indikator.view']);
+    $routes->get('download/(:num)', 'IndikatorMeta::download/$1', ['as' => 'indikator.download']);
+});
+
 // ==================== Settings (Pengaturan) ====================
 $routes->group('pengaturan', ['namespace' => 'App\Controllers', 'filter' => 'auth'], function ($routes) {
     // App settings

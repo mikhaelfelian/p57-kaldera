@@ -68,11 +68,26 @@
                     <tbody>
                         <?php 
                         $rows = [
-                            'pegawai' => ['label' => 'Belanja Pegawai', 'sub' => '(Gaji, TPP, Honor)'],
-                            'barang_jasa' => ['label' => 'Belanja Barang dan Jasa', 'sub' => ''],
-                            'hibah' => ['label' => 'Belanja Hibah', 'sub' => ''],
-                            'bansos' => ['label' => 'Belanja Bantuan Sosial', 'sub' => ''],
-                            'modal' => ['label' => 'Belanja Modal', 'sub' => ''],
+                            'pegawai'     => [
+                                'label' => 'Belanja Pegawai',
+                                'sub'   => '(Gaji, TPP, Honor)'
+                            ],
+                            'barang_jasa' => [
+                                'label' => 'Belanja Barang dan Jasa',
+                                'sub'   => ''
+                            ],
+                            'hibah'       => [
+                                'label' => 'Belanja Hibah',
+                                'sub'   => ''
+                            ],
+                            'bansos'      => [
+                                'label' => 'Belanja Bantuan Sosial',
+                                'sub'   => ''
+                            ],
+                            'modal'       => [
+                                'label' => 'Belanja Modal',
+                                'sub'   => ''
+                            ],
                         ];
                         $totalAnggaran = 0;
                         $totalRealisasi = 0;
