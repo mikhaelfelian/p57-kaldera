@@ -221,6 +221,27 @@ $routes->group('pbj', ['namespace' => 'App\\Controllers', 'filter' => 'auth'], f
     $routes->get('rekap/progres', 'PbjProgres::rekap_progres', ['as' => 'pbj.rekap.progres']);
 });
 
+// ==================== Bantuan ====================
+$routes->group('bantuan', ['namespace' => 'App\\Controllers', 'filter' => 'auth'], function ($routes) {
+    $routes->get('hibah', 'BanmasHibah::hibah', ['as' => 'bantuan.hibah']);
+    $routes->post('hibah/save', 'BanmasHibah::save', ['as' => 'bantuan.hibah.save']);
+    $routes->post('hibah/upload', 'BanmasHibah::upload', ['as' => 'bantuan.hibah.upload']);
+    $routes->get('hibah/preview/(:num)', 'BanmasHibah::preview/$1', ['as' => 'bantuan.hibah.preview']);
+    $routes->get('hibah/download/(:num)', 'BanmasHibah::download/$1', ['as' => 'bantuan.hibah.download']);
+    
+    $routes->get('bansos', 'BanmasBansos::bansos', ['as' => 'bantuan.bansos']);
+    $routes->post('bansos/save', 'BanmasBansos::save', ['as' => 'bantuan.bansos.save']);
+    $routes->post('bansos/upload', 'BanmasBansos::upload', ['as' => 'bantuan.bansos.upload']);
+    $routes->get('bansos/preview/(:num)', 'BanmasBansos::preview/$1', ['as' => 'bantuan.bansos.preview']);
+    $routes->get('bansos/download/(:num)', 'BanmasBansos::download/$1', ['as' => 'bantuan.bansos.download']);
+    
+    $routes->get('barang', 'BanmasBs::barang', ['as' => 'bantuan.barang']);
+    $routes->post('barang/save', 'BanmasBs::save', ['as' => 'bantuan.barang.save']);
+    $routes->post('barang/upload', 'BanmasBs::upload', ['as' => 'bantuan.barang.upload']);
+    $routes->get('barang/preview/(:num)', 'BanmasBs::preview/$1', ['as' => 'bantuan.barang.preview']);
+    $routes->get('barang/download/(:num)', 'BanmasBs::download/$1', ['as' => 'bantuan.barang.download']);
+});
+
 // ==================== Settings (Pengaturan) ====================
 $routes->group('pengaturan', ['namespace' => 'App\Controllers', 'filter' => 'auth'], function ($routes) {
     // App settings
