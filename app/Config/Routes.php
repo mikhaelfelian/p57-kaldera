@@ -199,6 +199,9 @@ $routes->group('indikator', ['namespace' => 'App\\Controllers', 'filter' => 'aut
     $routes->get('input/preview/(:num)', 'IndikatorInput::preview/$1', ['as' => 'indikator.input.preview']);
     $routes->get('input/download-catatan/(:num)', 'IndikatorInput::downloadCatatan/$1', ['as' => 'indikator.input.download_catatan']);
     $routes->get('input/download-rencana/(:num)', 'IndikatorInput::downloadRencana/$1', ['as' => 'indikator.input.download_rencana']);
+    
+    // Rekap routes
+    $routes->get('rekap', 'IndikatorInput::rekap', ['as' => 'indikator.rekap']);
 });
 
 // ==================== Settings (Pengaturan) ====================

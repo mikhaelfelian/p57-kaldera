@@ -279,6 +279,51 @@ class IndikatorInput extends BaseController
         ];
     }
 
+    public function rekap()
+    {
+        $tahun = (int)($this->request->getGet('year') ?: date('Y'));
+        $triwulan = (int)($this->request->getGet('triwulan') ?: 1);
+        
+        $data = [
+            'title' => 'Rekap Indikator',
+            'tahun' => $tahun,
+            'triwulan' => $triwulan,
+            'indikatorList' => $this->getIndikatorList(),
+            'existingData' => $this->getExistingData($tahun, $triwulan),
+            'chartData' => $this->getChartData($tahun, $triwulan)
+        ];
+
+        return $this->view($this->theme->getThemePath() . '/indikator/rekap', $data);
+    }
+
+    private function getChartData($tahun, $triwulan)
+    {
+        $data = $this->indikatorInputModel->where([
+            'tahun' => $tahun,
+            'triwulan' => $triwulan
+        ])->findAll();
+        
+        $totalData = count($data);
+        $completedData = 0;
+        $hasFiles = 0;
+        
+        foreach ($data as $row) {
+            if (!empty($row['catatan_indikator']) || !empty($row['rencana_tindak_lanjut'])) {
+                $completedData++;
+            }
+            if (!empty($row['file_catatan_path']) || !empty($row['file_rencana_path'])) {
+                $hasFiles++;
+            }
+        }
+        
+        return [
+            'total' => $totalData,
+            'completed' => $completedData,
+            'files' => $hasFiles,
+            'remaining' => $totalData - $completedData
+        ];
+    }
+
     private function getExistingData($tahun, $triwulan)
     {
         $data = $this->indikatorInputModel->where([
