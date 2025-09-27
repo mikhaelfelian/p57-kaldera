@@ -112,8 +112,8 @@
                             </li>
                         </ul>
                     </li>
-                    <li class="nav-item has-treeview">
-                        <a href="#" class="nav-link">
+                    <li class="nav-item has-treeview <?= isMenuActive(['pendapatan/master','pendapatan/input','pendapatan/rekap'], true) ? 'menu-open' : '' ?>">
+                        <a href="#" class="nav-link <?= isMenuActive(['pendapatan/master','pendapatan/input','pendapatan/rekap'], true) ? 'active' : '' ?>">
                             <i class="nav-icon fas fa-wallet"></i>
                             <p>
                                 Pendapatan

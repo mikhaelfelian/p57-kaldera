@@ -99,6 +99,18 @@ $routes->group('belanja', ['namespace' => 'App\\Controllers', 'filter' => 'auth'
     $routes->post('master/update', 'TargetFisikKeu::belanjaMasterUpdate', ['as' => 'belanja.master.update']);
 });
 
+// ==================== Pendapatan ====================
+$routes->group('pendapatan', ['namespace' => 'App\\Controllers', 'filter' => 'auth'], function ($routes) {
+    $routes->get('master', 'Pendapatan::master', ['as' => 'pendapatan.master']);
+    $routes->get('master/get', 'Pendapatan::pendapatanMasterGet', ['as' => 'pendapatan.master.get']);
+    $routes->post('master/update', 'Pendapatan::pendapatanMasterUpdate', ['as' => 'pendapatan.master.update']);
+    $routes->get('input', 'PendapatanInput::input', ['as' => 'pendapatan.input']);
+    $routes->post('input/save', 'PendapatanInput::inputSave', ['as' => 'pendapatan.input.save']);
+    $routes->get('rekap', 'PendapatanInput::rekap', ['as' => 'pendapatan.rekap']);
+    $routes->get('rekap/export-excel', 'PendapatanInput::rekapExportExcel', ['as' => 'pendapatan.rekap.export_excel']);
+    $routes->get('rekap/export-pdf', 'PendapatanInput::rekapExportPDF', ['as' => 'pendapatan.rekap.export_pdf']);
+});
+
 // ==================== AJAX Routes (No CSRF) ====================
 $routes->post('tfk/update-cell', 'TargetFisikKeu::updateCell', ['as' => 'tfk.update_cell']);
 
