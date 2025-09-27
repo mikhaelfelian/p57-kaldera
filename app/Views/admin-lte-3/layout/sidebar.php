@@ -122,17 +122,24 @@
                         </a>
                         <ul class="nav nav-treeview">
                             <li class="nav-item">
-                                <a href="<?= base_url('pendapatan') ?>" class="nav-link <?= isMenuActive('pendapatan') ? 'active' : '' ?>">
+                                <a href="<?= base_url('pendapatan/master') ?>" class="nav-link <?= isMenuActive('pendapatan/master') ? 'active' : '' ?>">
+                                    <?= nbs(3) ?>
+                                    <i class="fas fa-list nav-icon"></i>
+                                    <p>Master Data</p>
+                                </a>
+                            </li>
+                            <li class="nav-item">
+                                <a href="<?= base_url('pendapatan/input') ?>" class="nav-link <?= isMenuActive('pendapatan/input') ? 'active' : '' ?>">
                                     <?= nbs(3) ?>
                                     <i class="fas fa-plus nav-icon"></i>
                                     <p>Input</p>
                                 </a>
                             </li>
                             <li class="nav-item">
-                                <a href="<?= base_url('gender') ?>" class="nav-link <?= isMenuActive('gender') ? 'active' : '' ?>">
+                                <a href="<?= base_url('pendapatan/rekap') ?>" class="nav-link <?= isMenuActive('pendapatan/rekap') ? 'active' : '' ?>">
                                     <?= nbs(3) ?>
-                                    <i class="fas fa-list nav-icon"></i>
-                                    <p>Data</p>
+                                    <i class="fas fa-chart-bar nav-icon"></i>
+                                    <p>Rekap</p>
                                 </a>
                             </li>
                         </ul>

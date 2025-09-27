@@ -11,7 +11,7 @@ class BelanjaInputModel extends Model
     protected $returnType = 'array';
     protected $useTimestamps = true;
     protected $allowedFields = [
-        'tahun', 'tahapan', 'bulan',
+        'id_belanja', 'tahun', 'tahapan', 'bulan',
         'pegawai_anggaran', 'pegawai_realisasi',
         'barang_jasa_anggaran', 'barang_jasa_realisasi',
         'hibah_anggaran', 'hibah_realisasi',
@@ -53,6 +53,17 @@ class BelanjaInputModel extends Model
     }
 
     /**
+     * Get data by id_belanja and bulan
+     */
+    public function getByIdBelanjaBulan($id_belanja, $bulan)
+    {
+        return $this->where([
+            'id_belanja' => $id_belanja,
+            'bulan' => $bulan
+        ])->first();
+    }
+
+    /**
      * Upsert data for a specific tahun, tahapan, bulan
      */
     public function upsert($tahun, $tahapan, $bulan, $data)
@@ -65,6 +76,23 @@ class BelanjaInputModel extends Model
         } else {
             $data['tahun'] = $tahun;
             $data['tahapan'] = $tahapan;
+            $data['bulan'] = $bulan;
+            return $this->insert($data);
+        }
+    }
+
+    /**
+     * Upsert data for a specific id_belanja and bulan
+     */
+    public function upsertByIdBelanja($id_belanja, $bulan, $data)
+    {
+        $existing = $this->getByIdBelanjaBulan($id_belanja, $bulan);
+
+        if ($existing) {
+            $this->update($existing['id'], $data);
+            return $existing['id'];
+        } else {
+            $data['id_belanja'] = $id_belanja;
             $data['bulan'] = $bulan;
             return $this->insert($data);
         }

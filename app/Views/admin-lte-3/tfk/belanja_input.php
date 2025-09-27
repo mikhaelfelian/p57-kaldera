@@ -16,19 +16,19 @@
     $existing = $existingData ?? [];
     $master = $masterData ?? [];
 ?>
-<div class="card">
-    <div class="card-header d-flex align-items-center justify-content-between">
-        <h3 class="card-title mb-0">Metode: Input manual</h3>
+<div class="card rounded-0">
+    <div class="card-header d-flex align-items-center justify-content-between rounded-0">
+        <h3 class="card-title mb-0">BELANJA</h3>
         <div class="d-flex align-items-center">
-            <span class="text-success font-weight-bold mr-3">Target Fisik dan Keuangan-Input</span>
+            <span class="text-success font-weight-bold mr-3"></span>
         </div>
     </div>
-    <div class="card-body">
+    <div class="card-body rounded-0">
         <form id="belanjaInputForm" method="post">
             <div class="row mb-3">
                 <div class="col-md-4">
                     <label class="font-weight-bold">Tahapan</label>
-                    <select name="tahapan" class="form-control" onchange="this.form.submit()">
+                    <select name="tahapan" class="form-control rounded-0" onchange="this.form.submit()">
                         <?php foreach ($tahapanList as $key => $label): ?>
                         <option value="<?= $key ?>" <?= ($tahapan === $key) ? 'selected' : '' ?>><?= $label ?></option>
                         <?php endforeach; ?>
@@ -36,7 +36,7 @@
                 </div>
                 <div class="col-md-4">
                     <label class="font-weight-bold">Bulan :</label>
-                    <select name="bulan" class="form-control" onchange="this.form.submit()">
+                    <select name="bulan" class="form-control rounded-0" onchange="this.form.submit()">
                         <?php foreach ($bulanList as $key => $label): ?>
                         <option value="<?= $key ?>" <?= ($bulan == $key) ? 'selected' : '' ?>><?= $label ?></option>
                         <?php endforeach; ?>
@@ -47,8 +47,8 @@
                 </div>
             </div>
 
-            <div class="table-responsive">
-                <table class="table table-bordered">
+            <div class="table-responsive rounded-0">
+                <table class="table table-bordered rounded-0">
                     <thead style="background-color: #3b6ea8; color: white;">
                         <tr>
                             <th style="width: 200px;">Jenis Belanja</th>
@@ -80,7 +80,8 @@
                         
                         <?php foreach ($rows as $key => $row): ?>
                         <?php 
-                            $anggaran = (float)($existing[$key.'_anggaran'] ?? $master[$key] ?? 0);
+                            // Get anggaran from master data, fallback to existing data
+                            $anggaran = (float)($master[$key] ?? $existing[$key.'_anggaran'] ?? 0);
                             $realisasi = (float)($existing[$key.'_realisasi'] ?? 0);
                             $sisa = $anggaran - $realisasi;
                             $persen = $anggaran > 0 ? ($realisasi / $anggaran) * 100 : 0;
@@ -139,12 +140,9 @@
 
             <div class="row mt-3">
                 <div class="col-md-6">
-                    <div class="alert alert-info">
-                        <strong>Rumus :</strong> Total = Jumlah Anggaran pada masing-masing kolom
-                    </div>
                 </div>
                 <div class="col-md-6 text-right">
-                    <button type="button" id="btnSave" class="btn btn-success">
+                    <button type="button" id="btnSave" class="btn btn-success rounded-0">
                         <i class="fas fa-save"></i> Simpan
                     </button>
                 </div>

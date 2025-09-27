@@ -88,7 +88,7 @@ class TargetFisikKeu extends BaseController
         ];
 
         return view($this->theme->getThemePath() . '/tfk/input', $data);
-    }
+	}
 
 	public function index($masterId = null)
 	{
@@ -156,7 +156,7 @@ class TargetFisikKeu extends BaseController
 			// Log all POST data for debugging
 			log_message('debug', 'updateCell POST data: ' . json_encode($this->request->getPost()));
 			
-            $id = (int)$this->request->getPost('id');
+			$id = (int)$this->request->getPost('id');
 			$masterId = (int)$this->request->getPost('master_id');
 			$bulan = $this->request->getPost('bulan');
 			$field = $this->request->getPost('field'); // fisik | keu
@@ -187,7 +187,7 @@ class TargetFisikKeu extends BaseController
 			}
 
 			// Map field names to database columns
-            $fieldMap = [
+			$fieldMap = [
 				'fisik' => 'target_fisik',
                 'keu' => 'target_keuangan',
                 'real_fisik' => 'realisasi_fisik',
@@ -200,7 +200,7 @@ class TargetFisikKeu extends BaseController
 			$dbField = $fieldMap[$field] ?? $field;
 
 			// Get existing record or create new one
-            $existing = $this->fiskalModel->where([
+			$existing = $this->fiskalModel->where([
 				'master_id' => $masterId,
 				'tipe' => '1',
 				'tahun' => $year,
@@ -226,7 +226,7 @@ class TargetFisikKeu extends BaseController
 				$data['master_id'] = $masterId;
 				$data['tipe'] = '1';
 				$data['tahun'] = $year;
-                $data['bulan'] = $bulan;
+				$data['bulan'] = $bulan;
                 $data['tahapan'] = $tahapan;
 				$this->fiskalModel->skipValidation(true);
 				$id = $this->fiskalModel->insert($data);
@@ -256,51 +256,51 @@ class TargetFisikKeu extends BaseController
 
 	public function rekap()
 	{
-        $year = (int)($this->request->getGet('year') ?: date('Y'));
+		$year = (int)($this->request->getGet('year') ?: date('Y'));
         // Use first master automatically (no selector in UI)
         $masters = $this->masterModel->orderBy('id', 'DESC')->findAll();
         $masterId = !empty($masters) ? (int)$masters[0]['id'] : 0;
-
-        $selectedMaster = null;
-        $details = [];
-        $chartData = [];
-
-        if ($masterId) {
-            $selectedMaster = $this->masterModel->find($masterId);
-            if ($selectedMaster) {
+		
+		$selectedMaster = null;
+		$details = [];
+		$chartData = [];
+		
+		if ($masterId) {
+			$selectedMaster = $this->masterModel->find($masterId);
+			if ($selectedMaster) {
                 $rows = $this->fiskalModel->getByMasterTipeYear($masterId, '1', $year);
-                foreach ($rows as $r) {
-                    $details[$r['bulan']] = $r;
-                }
-
-                $months = ['jan','feb','mar','apr','mei','jun','jul','ags','sep','okt','nov','des'];
-                $monthNames = ['Jan','Feb','Mar','Apr','Mei','Jun','Jul','Ags','Sep','Okt','Nov','Des'];
+				foreach ($rows as $r) {
+					$details[$r['bulan']] = $r;
+				}
+				
+				$months = ['jan','feb','mar','apr','mei','jun','jul','ags','sep','okt','nov','des'];
+				$monthNames = ['Jan','Feb','Mar','Apr','Mei','Jun','Jul','Ags','Sep','Okt','Nov','Des'];
                 foreach ($months as $i => $m) {
                     $d = $details[$m] ?? [];
-                    $chartData[] = [
-                        'month' => $monthNames[$i],
+					$chartData[] = [
+						'month' => $monthNames[$i],
                         'target_fisik' => (float)($d['target_fisik'] ?? 0),
-                        'realisasi_fisik' => (float)($d['realisasi_fisik'] ?? 0),
+						'realisasi_fisik' => (float)($d['realisasi_fisik'] ?? 0),
                         'target_keuangan' => (float)($d['target_keuangan'] ?? 0),
                         'realisasi_keuangan' => (float)($d['realisasi_keuangan'] ?? 0),
-                    ];
-                }
-            }
-        }
+					];
+				}
+			}
+		}
 
         $data = [
-            'title' => 'Target Fisik & Keuangan - Rekap',
-            'Pengaturan' => $this->pengaturan,
-            'user' => $this->ionAuth->user()->row(),
+			'title' => 'Target Fisik & Keuangan - Rekap',
+			'Pengaturan' => $this->pengaturan,
+			'user' => $this->ionAuth->user()->row(),
             'masters' => $masters, // kept for completeness although not shown in UI
-            'selectedMaster' => $selectedMaster,
-            'masterId' => $masterId,
-            'year' => $year,
-            'details' => $details,
-            'chartData' => $chartData,
-        ];
+			'selectedMaster' => $selectedMaster,
+			'masterId' => $masterId,
+			'year' => $year,
+			'details' => $details,
+			'chartData' => $chartData,
+		];
 
-        return view($this->theme->getThemePath() . '/tfk/rekap', $data);
+		return view($this->theme->getThemePath() . '/tfk/rekap', $data);
 	}
 
     /**
@@ -451,10 +451,10 @@ class TargetFisikKeu extends BaseController
         $pdf->writeHTML($html, true, false, true, false, '');
         $pdf->Output('rekap_tfk_' . $year . '_' . $tahapan . '.pdf', 'I');
         exit;
-    }
+	}
 
-    public function master()
-    {
+	public function master()
+	{
         $year = (int)($this->request->getGet('year') ?: date('Y'));
         $tahapan = (string)($this->request->getGet('tahapan') ?: 'penetapan');
 
@@ -474,16 +474,16 @@ class TargetFisikKeu extends BaseController
             foreach ($rows as $r) { $details[$r['bulan']] = $r; }
         }
 
-        $data = [
-            'title' => 'TFK - Master Data',
-            'Pengaturan' => $this->pengaturan,
-            'user' => $this->ionAuth->user()->row(),
+		$data = [
+			'title' => 'TFK - Master Data',
+			'Pengaturan' => $this->pengaturan,
+			'user' => $this->ionAuth->user()->row(),
             'year' => $year,
             'tahapan' => $tahapan,
             'details' => $details,
-        ];
-        return view($this->theme->getThemePath() . '/tfk/master', $data);
-    }
+		];
+		return view($this->theme->getThemePath() . '/tfk/master', $data);
+	}
 
 	public function masterStore()
 	{
@@ -498,14 +498,14 @@ class TargetFisikKeu extends BaseController
 
         $this->anggaranModel->insert([
             'tahun' => $tahun,
-            'tahapan' => $tahapan,
+			'tahapan' => $tahapan,
             'pegawai' => $pegawai,
             'barang_jasa' => $barang,
             'hibah' => $hibah,
             'bansos' => $bansos,
             'modal' => $modal,
             'total' => $total,
-        ]);
+		]);
 		return redirect()->route('tfk.master')->with('message', 'Master ditambahkan');
 	}
 
@@ -590,11 +590,14 @@ class TargetFisikKeu extends BaseController
 		$tahapan = (string)($this->request->getGet('tahapan') ?: 'penetapan');
 		$bulan = (int)($this->request->getGet('bulan') ?: 9); // Default to September
 
-		// Get existing data
-		$existingData = $this->belanjaInputModel->getByTahunTahapanBulan($year, $tahapan, $bulan);
-		
 		// Get master data for anggaran values
 		$masterData = $this->belanjaModel->where(['tahun' => $year, 'tahapan' => $tahapan])->first();
+		
+		// Get existing data using id_belanja if master data exists
+		$existingData = null;
+		if ($masterData) {
+			$existingData = $this->belanjaInputModel->getByIdBelanjaBulan($masterData['id'], $bulan);
+		}
 		
 		$data = [
 			'title' => 'Belanja - Input',
@@ -620,16 +623,29 @@ class TargetFisikKeu extends BaseController
 			$tahapan = (string)$this->request->getPost('tahapan');
 			$bulan = (int)$this->request->getPost('bulan');
 			
+			// Get master data to get id_belanja
+			$masterData = $this->belanjaModel->where(['tahun' => $tahun, 'tahapan' => $tahapan])->first();
+			if (!$masterData) {
+				return $this->response->setJSON([
+					'ok' => false,
+					'message' => 'Master data tidak ditemukan. Silakan isi Master Data terlebih dahulu.',
+					'csrf_token' => csrf_token(),
+					'csrf_hash' => csrf_hash(),
+				]);
+			}
+			
 			$inputData = [
-				'pegawai_anggaran' => (float)$this->request->getPost('pegawai_anggaran'),
+				'tahun' => $tahun,
+				'tahapan' => $tahapan,
+				'pegawai_anggaran' => (float)$masterData['pegawai'],
 				'pegawai_realisasi' => (float)$this->request->getPost('pegawai_realisasi'),
-				'barang_jasa_anggaran' => (float)$this->request->getPost('barang_jasa_anggaran'),
+				'barang_jasa_anggaran' => (float)$masterData['barang_jasa'],
 				'barang_jasa_realisasi' => (float)$this->request->getPost('barang_jasa_realisasi'),
-				'hibah_anggaran' => (float)$this->request->getPost('hibah_anggaran'),
+				'hibah_anggaran' => (float)$masterData['hibah'],
 				'hibah_realisasi' => (float)$this->request->getPost('hibah_realisasi'),
-				'bansos_anggaran' => (float)$this->request->getPost('bansos_anggaran'),
+				'bansos_anggaran' => (float)$masterData['bansos'],
 				'bansos_realisasi' => (float)$this->request->getPost('bansos_realisasi'),
-				'modal_anggaran' => (float)$this->request->getPost('modal_anggaran'),
+				'modal_anggaran' => (float)$masterData['modal'],
 				'modal_realisasi' => (float)$this->request->getPost('modal_realisasi'),
 			];
 
@@ -639,7 +655,7 @@ class TargetFisikKeu extends BaseController
 			$inputData['total_realisasi'] = $inputData['pegawai_realisasi'] + $inputData['barang_jasa_realisasi'] + 
 											$inputData['hibah_realisasi'] + $inputData['bansos_realisasi'] + $inputData['modal_realisasi'];
 
-			$this->belanjaInputModel->upsert($tahun, $tahapan, $bulan, $inputData);
+			$this->belanjaInputModel->upsertByIdBelanja($masterData['id'], $bulan, $inputData);
 
 			return $this->response->setJSON([
 				'ok' => true,
@@ -656,6 +672,217 @@ class TargetFisikKeu extends BaseController
 				'csrf_hash' => csrf_hash(),
 			]);
 		}
+	}
+
+	/**
+	 * Belanja Rekap page (read-only with chart and export)
+	 */
+	public function belanjaRekap()
+	{
+		$year = (int)($this->request->getGet('year') ?: date('Y'));
+		$tahapan = (string)($this->request->getGet('tahapan') ?: 'penetapan');
+		$bulan = (int)($this->request->getGet('bulan') ?: 9); // Default to September
+
+		// Get data directly from tbl_belanja_input using tahun and bulan
+		$existingData = $this->belanjaInputModel->getByTahunTahapanBulan($year, $tahapan, $bulan);
+
+		// Prepare chart data
+		$chartData = [];
+		if ($existingData) {
+			$totalAnggaran = (float)($existingData['total_anggaran'] ?? 0);
+			$totalRealisasi = (float)($existingData['total_realisasi'] ?? 0);
+			$totalSisa = $totalAnggaran - $totalRealisasi;
+			
+			$chartData = [
+				'realisasi' => $totalRealisasi,
+				'sisa' => $totalSisa,
+				'total' => $totalAnggaran
+			];
+		}
+		
+		$data = [
+			'title' => 'Belanja - Rekap',
+			'Pengaturan' => $this->pengaturan,
+			'user' => $this->ionAuth->user()->row(),
+			'year' => $year,
+			'tahapan' => $tahapan,
+			'bulan' => $bulan,
+			'existingData' => $existingData,
+			'masterData' => null, // Not needed for direct search
+			'chartData' => $chartData,
+		];
+
+		return view($this->theme->getThemePath() . '/tfk/belanja_rekap', $data);
+	}
+
+	/**
+	 * Export Belanja Rekap to Excel
+	 */
+	public function belanjaRekapExportExcel()
+	{
+		$year = (int)($this->request->getGet('year') ?: date('Y'));
+		$tahapan = (string)($this->request->getGet('tahapan') ?: 'penetapan');
+		$bulan = (int)($this->request->getGet('bulan') ?: 9);
+
+		// Get data directly from tbl_belanja_input using tahun and bulan
+		$existingData = $this->belanjaInputModel->getByTahunTahapanBulan($year, $tahapan, $bulan);
+
+		// Create Excel file using PhpSpreadsheet
+		$spreadsheet = new \PhpOffice\PhpSpreadsheet\Spreadsheet();
+		$sheet = $spreadsheet->getActiveSheet();
+		
+		// Set headers
+		$sheet->setCellValue('A1', 'REKAP BELANJA - ' . bulan_ke_str($bulan) . ' ' . $year);
+		$sheet->setCellValue('A2', 'Tahapan: ' . ucfirst($tahapan));
+		
+		// Table headers
+		$sheet->setCellValue('A4', 'Jenis Belanja');
+		$sheet->setCellValue('B4', 'Anggaran (Rp)');
+		$sheet->setCellValue('C4', 'Realisasi (Rp)');
+		$sheet->setCellValue('D4', 'Realisasi (%)');
+		$sheet->setCellValue('E4', 'Sisa Anggaran (Rp)');
+		$sheet->setCellValue('F4', 'Sisa Anggaran (%)');
+
+		// Data rows
+		$rows = ['pegawai', 'barang_jasa', 'hibah', 'bansos', 'modal'];
+		$labels = [
+			'pegawai' => 'Belanja Pegawai',
+			'barang_jasa' => 'Belanja Barang dan Jasa',
+			'hibah' => 'Belanja Hibah',
+			'bansos' => 'Belanja Bantuan Sosial',
+			'modal' => 'Belanja Modal'
+		];
+
+		$row = 5;
+		$totalAnggaran = 0;
+		$totalRealisasi = 0;
+
+		foreach ($rows as $key) {
+			$anggaran = (float)($existingData[$key.'_anggaran'] ?? 0);
+			$realisasi = (float)($existingData[$key.'_realisasi'] ?? 0);
+			$sisa = $anggaran - $realisasi;
+			$persen = $anggaran > 0 ? ($realisasi / $anggaran) * 100 : 0;
+			$sisaPersen = $anggaran > 0 ? ($sisa / $anggaran) * 100 : 0;
+
+			$sheet->setCellValue('A' . $row, $labels[$key]);
+			$sheet->setCellValue('B' . $row, $anggaran);
+			$sheet->setCellValue('C' . $row, $realisasi);
+			$sheet->setCellValue('D' . $row, $persen);
+			$sheet->setCellValue('E' . $row, $sisa);
+			$sheet->setCellValue('F' . $row, $sisaPersen);
+
+			$totalAnggaran += $anggaran;
+			$totalRealisasi += $realisasi;
+			$row++;
+		}
+
+		// Total row
+		$totalSisa = $totalAnggaran - $totalRealisasi;
+		$totalPersen = $totalAnggaran > 0 ? ($totalRealisasi / $totalAnggaran) * 100 : 0;
+		$totalSisaPersen = $totalAnggaran > 0 ? ($totalSisa / $totalAnggaran) * 100 : 0;
+
+		$sheet->setCellValue('A' . $row, 'TOTAL');
+		$sheet->setCellValue('B' . $row, $totalAnggaran);
+		$sheet->setCellValue('C' . $row, $totalRealisasi);
+		$sheet->setCellValue('D' . $row, $totalPersen);
+		$sheet->setCellValue('E' . $row, $totalSisa);
+		$sheet->setCellValue('F' . $row, $totalSisaPersen);
+
+		// Set response headers
+		$filename = 'Rekap_Belanja_' . bulan_ke_str($bulan) . '_' . $year . '.xlsx';
+		header('Content-Type: application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
+		header('Content-Disposition: attachment; filename="' . $filename . '"');
+		header('Cache-Control: max-age=0');
+
+		$writer = new \PhpOffice\PhpSpreadsheet\Writer\Xlsx($spreadsheet);
+		$writer->save('php://output');
+		exit;
+	}
+
+	/**
+	 * Export Belanja Rekap to PDF
+	 */
+	public function belanjaRekapExportPDF()
+	{
+		$year = (int)($this->request->getGet('year') ?: date('Y'));
+		$tahapan = (string)($this->request->getGet('tahapan') ?: 'penetapan');
+		$bulan = (int)($this->request->getGet('bulan') ?: 9);
+
+		// Get data directly from tbl_belanja_input using tahun and bulan
+		$existingData = $this->belanjaInputModel->getByTahunTahapanBulan($year, $tahapan, $bulan);
+
+		// Create PDF using TCPDF
+		$pdf = new \TCPDF('L', 'mm', 'A4', true, 'UTF-8', false);
+		$pdf->SetCreator('Belanja Rekap System');
+		$pdf->SetTitle('Rekap Belanja - ' . bulan_ke_str($bulan) . ' ' . $year);
+		$pdf->SetHeaderData('', 0, 'REKAP BELANJA', 'Tahapan: ' . ucfirst($tahapan));
+		$pdf->setHeaderFont(Array('helvetica', '', 12));
+		$pdf->setFooterFont(Array('helvetica', '', 8));
+		$pdf->SetMargins(15, 25, 15);
+		$pdf->SetHeaderMargin(5);
+		$pdf->SetFooterMargin(10);
+		$pdf->SetAutoPageBreak(TRUE, 25);
+		$pdf->AddPage();
+
+		// Table data
+		$rows = ['pegawai', 'barang_jasa', 'hibah', 'bansos', 'modal'];
+		$labels = [
+			'pegawai' => 'Belanja Pegawai',
+			'barang_jasa' => 'Belanja Barang dan Jasa',
+			'hibah' => 'Belanja Hibah',
+			'bansos' => 'Belanja Bantuan Sosial',
+			'modal' => 'Belanja Modal'
+		];
+
+		$html = '<table border="1" cellpadding="5">
+			<tr style="background-color:#3b6ea8; color:white; font-weight:bold;">
+				<th width="25%">Jenis Belanja</th>
+				<th width="15%">Anggaran (Rp)</th>
+				<th width="15%">Realisasi (Rp)</th>
+				<th width="10%">Realisasi (%)</th>
+				<th width="15%">Sisa Anggaran (Rp)</th>
+				<th width="10%">Sisa Anggaran (%)</th>
+			</tr>';
+
+		$totalAnggaran = 0;
+		$totalRealisasi = 0;
+
+		foreach ($rows as $key) {
+			$anggaran = (float)($existingData[$key.'_anggaran'] ?? 0);
+			$realisasi = (float)($existingData[$key.'_realisasi'] ?? 0);
+			$sisa = $anggaran - $realisasi;
+			$persen = $anggaran > 0 ? ($realisasi / $anggaran) * 100 : 0;
+			$sisaPersen = $anggaran > 0 ? ($sisa / $anggaran) * 100 : 0;
+
+			$html .= '<tr>
+				<td>' . $labels[$key] . '</td>
+				<td align="right">' . number_format($anggaran, 0, ',', '.') . '</td>
+				<td align="right">' . number_format($realisasi, 0, ',', '.') . '</td>
+				<td align="right">' . number_format($persen, 2) . '%</td>
+				<td align="right">' . number_format($sisa, 0, ',', '.') . '</td>
+				<td align="right">' . number_format($sisaPersen, 2) . '%</td>
+			</tr>';
+
+			$totalAnggaran += $anggaran;
+			$totalRealisasi += $realisasi;
+		}
+
+		// Total row
+		$totalSisa = $totalAnggaran - $totalRealisasi;
+		$totalPersen = $totalAnggaran > 0 ? ($totalRealisasi / $totalAnggaran) * 100 : 0;
+		$totalSisaPersen = $totalAnggaran > 0 ? ($totalSisa / $totalAnggaran) * 100 : 0;
+
+		$html .= '<tr style="background-color:#3b6ea8; color:white; font-weight:bold;">
+			<td>TOTAL</td>
+			<td align="right">' . number_format($totalAnggaran, 0, ',', '.') . '</td>
+			<td align="right">' . number_format($totalRealisasi, 0, ',', '.') . '</td>
+			<td align="right">' . number_format($totalPersen, 2) . '%</td>
+			<td align="right">' . number_format($totalSisa, 0, ',', '.') . '</td>
+			<td align="right">' . number_format($totalSisaPersen, 2) . '%</td>
+		</tr></table>';
+
+		$pdf->writeHTML($html, true, false, true, false, '');
+		$pdf->Output('Rekap_Belanja_' . bulan_ke_str($bulan) . '_' . $year . '.pdf', 'D');
 	}
 }
 

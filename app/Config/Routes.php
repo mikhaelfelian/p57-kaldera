@@ -93,7 +93,9 @@ $routes->group('belanja', ['namespace' => 'App\\Controllers', 'filter' => 'auth'
     $routes->get('master/get', 'TargetFisikKeu::belanjaMasterGet', ['as' => 'belanja.master.get']);
     $routes->get('input', 'TargetFisikKeu::belanjaInput', ['as' => 'belanja.input']);
     $routes->post('input/save', 'TargetFisikKeu::belanjaInputSave', ['as' => 'belanja.input.save']);
-    $routes->get('rekap', 'TargetFisikKeu::rekap', ['as' => 'belanja.rekap']);
+    $routes->get('rekap', 'TargetFisikKeu::belanjaRekap', ['as' => 'belanja.rekap']);
+    $routes->get('rekap/export-excel', 'TargetFisikKeu::belanjaRekapExportExcel', ['as' => 'belanja.rekap.export_excel']);
+    $routes->get('rekap/export-pdf', 'TargetFisikKeu::belanjaRekapExportPDF', ['as' => 'belanja.rekap.export_pdf']);
     $routes->post('master/update', 'TargetFisikKeu::belanjaMasterUpdate', ['as' => 'belanja.master.update']);
 });
 
