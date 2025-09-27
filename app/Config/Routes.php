@@ -242,6 +242,26 @@ $routes->group('bantuan', ['namespace' => 'App\\Controllers', 'filter' => 'auth'
     $routes->get('barang/download/(:num)', 'BanmasBs::download/$1', ['as' => 'bantuan.barang.download']);
 });
 
+// ==================== PK (Rancangan Aksi Perubahan) ====================
+$routes->group('pk', ['namespace' => 'App\\Controllers', 'filter' => 'auth'], function ($routes) {
+    $routes->get('/', 'Pg::pk', ['as' => 'pk.index']);
+    $routes->post('save', 'Pg::save', ['as' => 'pk.save']);
+    $routes->post('upload', 'Pg::upload', ['as' => 'pk.upload']);
+    $routes->get('preview/(:num)', 'Pg::preview/$1', ['as' => 'pk.preview']);
+    $routes->get('download/(:num)', 'Pg::download/$1', ['as' => 'pk.download']);
+});
+
+// ==================== PT Master UKP ====================
+$routes->group('pt', ['namespace' => 'App\\Controllers', 'filter' => 'auth'], function ($routes) {
+    $routes->group('master', function ($routes) {
+        $routes->get('ukp', 'Ukp::master', ['as' => 'pt.master.ukp']);
+        $routes->post('ukp/create', 'Ukp::create', ['as' => 'pt.master.ukp.create']);
+        $routes->post('ukp/update/(:num)', 'Ukp::update/$1', ['as' => 'pt.master.ukp.update']);
+        $routes->post('ukp/delete/(:num)', 'Ukp::delete/$1', ['as' => 'pt.master.ukp.delete']);
+        $routes->get('ukp/get/(:num)', 'Ukp::get/$1', ['as' => 'pt.master.ukp.get']);
+    });
+});
+
 // ==================== Settings (Pengaturan) ====================
 $routes->group('pengaturan', ['namespace' => 'App\Controllers', 'filter' => 'auth'], function ($routes) {
     // App settings

@@ -293,7 +293,7 @@
                         </a>
                         <ul class="nav nav-treeview">
                             <li class="nav-item">
-                                <a href="#" class="nav-link">
+                                <a href="<?= base_url('pk') ?>" class="nav-link <?= isMenuActive('pk') ? 'active' : '' ?>">
                                     <?= nbs(3) ?>
                                     <i class="fas fa-plus nav-icon"></i>
                                     <p>Input</p>
@@ -301,8 +301,8 @@
                             </li>
                         </ul>
                     </li>
-                    <li class="nav-item has-treeview">
-                        <a href="#" class="nav-link">
+                    <li class="nav-item has-treeview <?= isMenuActive(['pt-minerba', 'pt-gat', 'pt-gatrik', 'pt-ebt'], true) ? 'menu-open' : '' ?>">
+                        <a href="#" class="nav-link <?= isMenuActive(['pt-minerba', 'pt-gat', 'pt-gatrik', 'pt-ebt'], true) ? 'active' : '' ?>">
                             <i class="nav-icon fas fa-check-circle"></i>
                             <p>
                                 Persetujuan Teknis
@@ -310,18 +310,79 @@
                             </p>
                         </a>
                         <ul class="nav nav-treeview">
+                        <li class="nav-header font-weight-bold"><?= nbs(2) ?>Sektor Minerba</li>
                             <li class="nav-item">
-                                <a href="#" class="nav-link">
-                                    <?= nbs(3) ?>
-                                    <i class="fas fa-plus nav-icon"></i>
-                                    <p>Input</p>
+                                <a href="<?= base_url('pt-minerba/input') ?>" class="nav-link <?= isMenuActive('pt-minerba/input') ? 'active' : '' ?>">
+                                    <?= nbs(5) ?>
+                                    <i class="fas fa-edit nav-icon"></i>
+                                    <p class="font-weight-bold">Master Unit Kerja</p>
+                                </a>
+                            </li>
+                            <!-- Sektor Minerba -->
+                            <li class="nav-header font-weight-bold"><?= nbs(2) ?>Sektor Minerba</li>
+                            <li class="nav-item">
+                                <a href="<?= base_url('pt-minerba/input') ?>" class="nav-link <?= isMenuActive('pt-minerba/input') ? 'active' : '' ?>">
+                                    <?= nbs(5) ?>
+                                    <i class="fas fa-edit nav-icon"></i>
+                                    <p class="font-weight-bold">Input</p>
                                 </a>
                             </li>
                             <li class="nav-item">
-                                <a href="#" class="nav-link">
-                                    <?= nbs(3) ?>
-                                    <i class="fas fa-list nav-icon"></i>
-                                    <p>Data</p>
+                                <a href="<?= base_url('pt-minerba/rekap') ?>" class="nav-link <?= isMenuActive('pt-minerba/rekap') ? 'active' : '' ?>">
+                                    <?= nbs(5) ?>
+                                    <i class="fas fa-table nav-icon"></i>
+                                    <p class="font-weight-bold">Rekap</p>
+                                </a>
+                            </li>
+
+                            <!-- Sektor GAT -->
+                            <li class="nav-header font-weight-bold"><?= nbs(2) ?>Sektor GAT</li>
+                            <li class="nav-item">
+                                <a href="<?= base_url('pt-gat/input') ?>" class="nav-link <?= isMenuActive('pt-gat/input') ? 'active' : '' ?>">
+                                    <?= nbs(5) ?>
+                                    <i class="fas fa-edit nav-icon"></i>
+                                    <p class="font-weight-bold">Input</p>
+                                </a>
+                            </li>
+                            <li class="nav-item">
+                                <a href="<?= base_url('pt-gat/rekap') ?>" class="nav-link <?= isMenuActive('pt-gat/rekap') ? 'active' : '' ?>">
+                                    <?= nbs(5) ?>
+                                    <i class="fas fa-table nav-icon"></i>
+                                    <p class="font-weight-bold">Rekap</p>
+                                </a>
+                            </li>
+
+                            <!-- Sektor Gatrik -->
+                            <li class="nav-header font-weight-bold"><?= nbs(2) ?>Sektor Gatrik</li>
+                            <li class="nav-item">
+                                <a href="<?= base_url('pt-gatrik/input') ?>" class="nav-link <?= isMenuActive('pt-gatrik/input') ? 'active' : '' ?>">
+                                    <?= nbs(5) ?>
+                                    <i class="fas fa-edit nav-icon"></i>
+                                    <p class="font-weight-bold">Input</p>
+                                </a>
+                            </li>
+                            <li class="nav-item">
+                                <a href="<?= base_url('pt-gatrik/rekap') ?>" class="nav-link <?= isMenuActive('pt-gatrik/rekap') ? 'active' : '' ?>">
+                                    <?= nbs(5) ?>
+                                    <i class="fas fa-table nav-icon"></i>
+                                    <p class="font-weight-bold">Rekap</p>
+                                </a>
+                            </li>
+
+                            <!-- Sektor EBT -->
+                            <li class="nav-header font-weight-bold"><?= nbs(2) ?>Sektor EBT</li>
+                            <li class="nav-item">
+                                <a href="<?= base_url('pt-ebt/input') ?>" class="nav-link <?= isMenuActive('pt-ebt/input') ? 'active' : '' ?>">
+                                    <?= nbs(5) ?>
+                                    <i class="fas fa-edit nav-icon"></i>
+                                    <p class="font-weight-bold">Input</p>
+                                </a>
+                            </li>
+                            <li class="nav-item">
+                                <a href="<?= base_url('pt-ebt/rekap') ?>" class="nav-link <?= isMenuActive('pt-ebt/rekap') ? 'active' : '' ?>">
+                                    <?= nbs(5) ?>
+                                    <i class="fas fa-table nav-icon"></i>
+                                    <p class="font-weight-bold">Rekap</p>
                                 </a>
                             </li>
                         </ul>

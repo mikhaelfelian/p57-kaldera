@@ -14,20 +14,20 @@ class Pg extends BaseController
         helper(['form']);
     }
 
-    public function pengawasan()
+    public function pk()
     {
         $tahun = (int)($this->request->getGet('year') ?: date('Y'));
         $bulan = (int)($this->request->getGet('bulan') ?: date('n'));
         
         $data = [
-            'title' => 'Pengawasan',
+            'title' => 'RANCANGAN AKSI PERUBAHAN',
             'tahun' => $tahun,
             'bulan' => $bulan,
             'existingData' => $this->getExistingData($tahun, $bulan),
             'indikatorList' => $this->getIndikatorList()
         ];
 
-        return $this->view($this->theme->getThemePath() . '/pk/pengawasan', $data);
+        return $this->view($this->theme->getThemePath() . '/pk/index', $data);
     }
 
     public function save()
@@ -48,7 +48,6 @@ class Pg extends BaseController
                 'tahun' => $tahun,
                 'bulan' => $bulan,
                 'indikator' => $this->request->getPost('indikator'),
-                'deskripsi' => $this->request->getPost('deskripsi'),
                 'status' => $this->request->getPost('status') ?: 'Belum Diperiksa',
                 'catatan_kendala' => $this->request->getPost('catatan_kendala'),
                 'rencana_tindak_lanjut' => $this->request->getPost('rencana_tindak_lanjut'),
@@ -57,11 +56,10 @@ class Pg extends BaseController
                 'uploaded_at' => date('Y-m-d H:i:s')
             ];
 
-            // Check if data exists for this year, month, and indikator
+            // Check if data exists for this year and month
             $existing = $this->pgModel->where([
                 'tahun' => $tahun,
-                'bulan' => $bulan,
-                'indikator' => $data['indikator']
+                'bulan' => $bulan
             ])->first();
 
             if ($existing) {
@@ -74,7 +72,7 @@ class Pg extends BaseController
 
             return $this->response->setJSON([
                 'ok' => true, 
-                'message' => 'Data pengawasan berhasil disimpan',
+                'message' => 'Data rancangan aksi perubahan berhasil disimpan',
                 'csrf_token' => csrf_token(),
                 'csrf_hash' => csrf_hash()
             ]);
@@ -96,9 +94,8 @@ class Pg extends BaseController
 
         $tahun = (int)$this->request->getPost('tahun');
         $bulan = (int)$this->request->getPost('bulan');
-        $indikator = $this->request->getPost('indikator');
 
-        if (!$tahun || !$bulan || !$indikator) {
+        if (!$tahun || !$bulan) {
             return $this->response->setJSON(['ok' => false, 'message' => 'Data tidak lengkap']);
         }
 
@@ -107,7 +104,7 @@ class Pg extends BaseController
             
             if ($file && $file->isValid() && !$file->hasMoved()) {
                 // Create upload directory if not exists
-                $uploadPath = FCPATH . 'file/pk/pengawasan/';
+                $uploadPath = FCPATH . 'file/pk/';
                 if (!is_dir($uploadPath)) {
                     mkdir($uploadPath, 0755, true);
                 }
@@ -118,9 +115,8 @@ class Pg extends BaseController
                 $data = [
                     'tahun' => $tahun,
                     'bulan' => $bulan,
-                    'indikator' => $indikator,
-                    'deskripsi' => $this->request->getPost('deskripsi'),
-                    'file_path' => 'file/pk/pengawasan/' . $newName,
+                    'indikator' => $this->request->getPost('indikator'),
+                    'file_path' => 'file/pk/' . $newName,
                     'file_name' => $file->getClientName(),
                     'file_size' => $file->getSize(),
                     'uploaded_by' => $this->ionAuth->user()->row()->id ?? null,
@@ -130,8 +126,7 @@ class Pg extends BaseController
                 // Check if data exists
                 $existing = $this->pgModel->where([
                     'tahun' => $tahun,
-                    'bulan' => $bulan,
-                    'indikator' => $indikator
+                    'bulan' => $bulan
                 ])->first();
 
                 if ($existing) {
@@ -210,26 +205,21 @@ class Pg extends BaseController
         $data = $this->pgModel->where([
             'tahun' => $tahun,
             'bulan' => $bulan
-        ])->findAll();
+        ])->first();
         
-        $result = [];
-        foreach ($data as $row) {
-            if ($row['feedback_unit_kerja']) {
-                $row['feedback_unit_kerja'] = json_decode($row['feedback_unit_kerja'], true);
-            }
-            $result[$row['indikator']] = $row;
+        if ($data && $data['feedback_unit_kerja']) {
+            $data['feedback_unit_kerja'] = json_decode($data['feedback_unit_kerja'], true);
         }
         
-        return $result;
+        return $data;
     }
 
     private function getIndikatorList()
     {
         return [
-            'monitoring_belanja_konsultansi' => 'Monitoring Progres Belanja Konsultansi, dll',
-            'monitoring_belanja_operasional' => 'Monitoring Progres Belanja Operasional',
-            'monitoring_belanja_modal' => 'Monitoring Progres Belanja Modal',
-            'monitoring_lainnya' => 'Monitoring Progres Lainnya'
+            'monitoring_progres_belanja' => 'Monitoring Progres Belanja Konsultansi, dll',
+            'monitoring_progres_barang' => 'Monitoring Progres Barang yang diserahkan kepada masyarakat',
+            'monitoring_progres_lainnya' => 'Monitoring Progres Lainnya'
         ];
     }
 }
