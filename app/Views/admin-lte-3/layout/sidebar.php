@@ -283,8 +283,8 @@
                             </li>
                         </ul>
                     </li>
-                    <li class="nav-item has-treeview">
-                        <a href="#" class="nav-link">
+                    <li class="nav-item has-treeview <?= isMenuActive(['pk']) ? 'menu-open' : '' ?>">
+                        <a href="#" class="nav-link <?= isMenuActive(['pk']) ? 'active' : '' ?>">
                             <i class="nav-icon fas fa-project-diagram"></i>
                             <p>
                                 Progres Konsultansi
