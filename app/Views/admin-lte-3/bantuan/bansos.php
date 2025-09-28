@@ -86,18 +86,32 @@
                             <?= $label ?>
                         </td>
                         <td class="text-center">
-                            <button type="button" class="btn btn-success btn-sm rounded-0 upload-data-btn" 
-                                    data-jenis="<?= $key ?>" data-label="<?= $label ?>"
-                                    style="background-color: #28a745; border-color: #28a745;">
-                                <i class="fas fa-upload"></i>
-                            </button>
+                            <div class="d-flex flex-column align-items-center">
+                                <button type="button" class="btn btn-success btn-sm rounded-0 upload-data-btn mb-1" 
+                                        data-jenis="<?= $key ?>" data-label="<?= $label ?>"
+                                        style="background-color: #28a745; border-color: #28a745;">
+                                    <i class="fas fa-upload"></i>
+                                </button>
+                                <?php if ($hasData && !empty($data['nama_bansos'])): ?>
+                                <small class="text-success font-weight-bold" style="font-size: 10px; max-width: 120px; word-wrap: break-word;">
+                                    <?= $data['nama_bansos'] ?>
+                                </small>
+                                <?php endif; ?>
+                            </div>
                         </td>
                         <td class="text-center">
-                            <button type="button" class="btn btn-info btn-sm rounded-0 upload-nilai-btn" 
-                                    data-jenis="<?= $key ?>" data-label="<?= $label ?>"
-                                    style="background-color: #17a2b8; border-color: #17a2b8;">
-                                <i class="fas fa-money-bill"></i>
-                            </button>
+                            <div class="d-flex flex-column align-items-center">
+                                <button type="button" class="btn btn-info btn-sm rounded-0 upload-nilai-btn mb-1" 
+                                        data-jenis="<?= $key ?>" data-label="<?= $label ?>"
+                                        style="background-color: #17a2b8; border-color: #17a2b8;">
+                                    <i class="fas fa-money-bill"></i>
+                                </button>
+                                <?php if ($hasData && !empty($data['nilai_bansos'])): ?>
+                                <small class="text-info font-weight-bold" style="font-size: 10px;">
+                                    <?= format_angka_rp($data['nilai_bansos']) ?>
+                                </small>
+                                <?php endif; ?>
+                            </div>
                         </td>
                         <td class="text-center">
                             <button type="button" class="btn btn-success btn-sm rounded-0" disabled>
@@ -215,8 +229,8 @@
                     </div>
                     <div class="form-group">
                         <label class="font-weight-bold">Nilai Bantuan Sosial (Rp)</label>
-                        <input type="number" class="form-control rounded-0" id="nilai_bansos" name="nilai_bansos" 
-                               step="0.01" min="0" required>
+                        <input type="text" class="form-control rounded-0" id="nilai_bansos" name="nilai_bansos" 
+                               placeholder="0" required>
                     </div>
                 </div>
                 <div class="modal-footer">
@@ -500,6 +514,17 @@
     var csrfTokenName = '<?= config('Security')->tokenName ?>';
     var currentDataId = null;
     
+    // Initialize AutoNumeric formatting
+    $('#nilai_bansos').autoNumeric('init', {
+        aSep: '.',
+        aDec: ',',
+        aSign: '',
+        vMax: '999999999999999.99',
+        vMin: '0',
+        mDec: 0,
+        dGroup: 3
+    });
+    
     // Upload Data button click
     $(document).on('click', '.upload-data-btn', function(){
         var jenis = $(this).data('jenis');
@@ -605,7 +630,28 @@
             if(res && res.ok){
                 if(window.toastr){ toastr.success(res.message || 'Data berhasil disimpan'); }
                 $('#uploadDataModal').modal('hide');
-                location.reload();
+                
+                // Update table dynamically
+                var jenisBansos = formData.jenis_bansos;
+                var namaBansos = formData.nama_bansos;
+                
+                // Find the row and update the nama bansos display
+                var $row = $('button[data-jenis="' + jenisBansos + '"].upload-data-btn').closest('tr');
+                var $namaCell = $row.find('td:nth-child(2)');
+                
+                // Update the nama bansos display
+                var $namaDisplay = $namaCell.find('small.text-success');
+                if($namaDisplay.length > 0) {
+                    $namaDisplay.text(namaBansos);
+                } else {
+                    $namaCell.find('div').append('<small class="text-success font-weight-bold" style="font-size: 10px; max-width: 120px; word-wrap: break-word;">' + namaBansos + '</small>');
+                }
+                
+                // Enable preview button
+                var $previewBtn = $row.find('.preview-btn');
+                $previewBtn.removeClass('btn-secondary').addClass('btn-primary').prop('disabled', false);
+                $previewBtn.attr('data-id', res.data ? res.data.id : '');
+                
             } else {
                 if(window.toastr){ toastr.error(res.message || 'Gagal menyimpan data'); }
             }
@@ -628,7 +674,7 @@
             tahun: <?= $tahun ?>,
             bulan: <?= $bulan ?>,
             jenis_bansos: $('#nilai_jenis_bansos').val(),
-            nilai_bansos: $('#nilai_bansos').val()
+            nilai_bansos: $('#nilai_bansos').autoNumeric('get') // Get raw number using AutoNumeric
         };
         formData[csrfTokenName] = csrfHash;
         
@@ -637,7 +683,38 @@
             if(res && res.ok){
                 if(window.toastr){ toastr.success(res.message || 'Nilai bantuan sosial berhasil disimpan'); }
                 $('#uploadNilaiModal').modal('hide');
-                location.reload();
+                
+                // Update table dynamically
+                var jenisBansos = formData.jenis_bansos;
+                var nilaiBansos = parseFloat(formData.nilai_bansos) || 0;
+                
+                // Find the row and update the nilai bansos display
+                var $row = $('button[data-jenis="' + jenisBansos + '"].upload-nilai-btn').closest('tr');
+                var $nilaiCell = $row.find('td:nth-child(3)');
+                
+                // Format currency using AutoNumeric
+                var $tempInput = $('<input type="text">');
+                $tempInput.autoNumeric('init', {
+                    aSep: '.',
+                    aDec: ',',
+                    aSign: 'Rp ',
+                    vMax: '999999999999999.99',
+                    vMin: '0',
+                    mDec: 0,
+                    dGroup: 3
+                });
+                $tempInput.autoNumeric('set', nilaiBansos);
+                var formattedNilai = 'Rp ' + new Intl.NumberFormat('id-ID').format(nilaiBansos);
+                $tempInput.autoNumeric('destroy');
+                
+                // Update the nilai bansos display
+                var $nilaiDisplay = $nilaiCell.find('small.text-info');
+                if($nilaiDisplay.length > 0) {
+                    $nilaiDisplay.text(formattedNilai);
+                } else {
+                    $nilaiCell.find('div').append('<small class="text-info font-weight-bold" style="font-size: 10px;">' + formattedNilai + '</small>');
+                }
+                
             } else {
                 if(window.toastr){ toastr.error(res.message || 'Gagal menyimpan nilai'); }
             }

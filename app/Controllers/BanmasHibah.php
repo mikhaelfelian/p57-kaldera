@@ -38,45 +38,72 @@ class BanmasHibah extends BaseController
 
         $tahun = (int)$this->request->getPost('tahun');
         $bulan = (int)$this->request->getPost('bulan');
+        $jenis_hibah = $this->request->getPost('jenis_hibah');
 
-        if (!$tahun || !$bulan) {
-            return $this->response->setJSON(['ok' => false, 'message' => 'Tahun dan bulan harus diisi']);
+        if (!$tahun || !$bulan || !$jenis_hibah) {
+            return $this->response->setJSON(['ok' => false, 'message' => 'Data tidak lengkap']);
         }
 
         try {
-            $data = [
-                'tahun' => $tahun,
-                'bulan' => $bulan,
-                'jenis_hibah' => $this->request->getPost('jenis_hibah'),
-                'nama_hibah' => $this->request->getPost('nama_hibah'),
-                'deskripsi' => $this->request->getPost('deskripsi'),
-                'nilai_hibah' => (int)($this->request->getPost('nilai_hibah') ?: 0),
-                'status' => $this->request->getPost('status') ?: 'Belum Diperiksa',
-                'catatan_kendala' => $this->request->getPost('catatan_kendala'),
-                'rencana_tindak_lanjut' => $this->request->getPost('rencana_tindak_lanjut'),
-                'feedback_unit_kerja' => json_encode($this->request->getPost('feedback_unit_kerja') ?: []),
-                'uploaded_by' => $this->ionAuth->user()->row()->id ?? null,
-                'uploaded_at' => date('Y-m-d H:i:s')
-            ];
-
             // Check if data exists for this year, month, and jenis_hibah
             $existing = $this->banmasHibahModel->where([
                 'tahun' => $tahun,
                 'bulan' => $bulan,
-                'jenis_hibah' => $data['jenis_hibah']
+                'jenis_hibah' => $jenis_hibah
             ])->first();
 
+            $data = [
+                'tahun' => $tahun,
+                'bulan' => $bulan,
+                'jenis_hibah' => $jenis_hibah
+            ];
+
+            // Only update fields that are provided
+            if ($this->request->getPost('nama_hibah')) {
+                $data['nama_hibah'] = $this->request->getPost('nama_hibah');
+            }
+            if ($this->request->getPost('deskripsi')) {
+                $data['deskripsi'] = $this->request->getPost('deskripsi');
+            }
+            if ($this->request->getPost('nilai_hibah')) {
+                $data['nilai_hibah'] = (float)$this->request->getPost('nilai_hibah');
+            }
+            if ($this->request->getPost('status')) {
+                $data['status'] = $this->request->getPost('status');
+            }
+            if ($this->request->getPost('catatan_kendala')) {
+                $data['catatan_kendala'] = $this->request->getPost('catatan_kendala');
+            }
+            if ($this->request->getPost('rencana_tindak_lanjut')) {
+                $data['rencana_tindak_lanjut'] = $this->request->getPost('rencana_tindak_lanjut');
+            }
+            if ($this->request->getPost('feedback_unit_kerja')) {
+                $data['feedback_unit_kerja'] = json_encode($this->request->getPost('feedback_unit_kerja'));
+            }
+
             if ($existing) {
-                // Update existing data
+                // Update only provided fields
                 $this->banmasHibahModel->update($existing['id'], $data);
             } else {
-                // Insert new data
+                // Insert new data with default values
+                $data = array_merge($data, [
+                    'nama_hibah' => $this->request->getPost('nama_hibah') ?: '',
+                    'deskripsi' => $this->request->getPost('deskripsi') ?: '',
+                    'nilai_hibah' => (float)($this->request->getPost('nilai_hibah') ?: 0),
+                    'status' => $this->request->getPost('status') ?: 'Belum Diperiksa',
+                    'catatan_kendala' => $this->request->getPost('catatan_kendala') ?: '',
+                    'rencana_tindak_lanjut' => $this->request->getPost('rencana_tindak_lanjut') ?: '',
+                    'feedback_unit_kerja' => json_encode($this->request->getPost('feedback_unit_kerja') ?: []),
+                    'uploaded_by' => $this->ionAuth->user()->row()->id ?? null,
+                    'uploaded_at' => date('Y-m-d H:i:s')
+                ]);
                 $this->banmasHibahModel->insert($data);
             }
 
             return $this->response->setJSON([
                 'ok' => true, 
                 'message' => 'Data hibah berhasil disimpan',
+                'data' => $existing ? $existing : ['id' => $this->banmasHibahModel->getInsertID()],
                 'csrf_token' => csrf_token(),
                 'csrf_hash' => csrf_hash()
             ]);
@@ -123,7 +150,7 @@ class BanmasHibah extends BaseController
                     'jenis_hibah' => $jenisHibah,
                     'nama_hibah' => $this->request->getPost('nama_hibah'),
                     'deskripsi' => $this->request->getPost('deskripsi'),
-                    'nilai_hibah' => (int)($this->request->getPost('nilai_hibah') ?: 0),
+                    'nilai_hibah' => (float)($this->request->getPost('nilai_hibah') ?: 0),
                     'file_path' => 'file/bantuan/hibah/' . $newName,
                     'file_name' => $file->getClientName(),
                     'file_size' => $file->getSize(),

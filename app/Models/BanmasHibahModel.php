@@ -33,8 +33,7 @@ class BanmasHibahModel extends Model
         'tahun' => 'required|integer|min_length[4]|max_length[4]',
         'bulan' => 'required|integer|min_length[1]|max_length[2]',
         'jenis_hibah' => 'required|max_length[100]',
-        'nama_hibah' => 'required|max_length[255]',
-        'nilai_hibah' => 'permit_empty|integer',
+        'nama_hibah' => 'permit_empty|max_length[255]',
         'status' => 'permit_empty|in_list[Sesuai,Tidak Sesuai,Belum Diperiksa]',
     ];
 
@@ -51,17 +50,6 @@ class BanmasHibahModel extends Model
             'min_length' => 'Bulan harus 1-2 digit',
             'max_length' => 'Bulan harus 1-2 digit'
         ],
-        'jenis_hibah' => [
-            'required' => 'Jenis hibah harus diisi',
-            'max_length' => 'Jenis hibah maksimal 100 karakter'
-        ],
-        'nama_hibah' => [
-            'required' => 'Nama hibah harus diisi',
-            'max_length' => 'Nama hibah maksimal 255 karakter'
-        ],
-        'status' => [
-            'in_list' => 'Status harus Sesuai, Tidak Sesuai, atau Belum Diperiksa'
-        ]
     ];
 
     protected $skipValidation = false;

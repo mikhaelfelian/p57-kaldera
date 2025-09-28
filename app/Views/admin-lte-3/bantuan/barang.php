@@ -500,6 +500,17 @@
     var csrfTokenName = '<?= config('Security')->tokenName ?>';
     var currentDataId = null;
     
+    // Initialize AutoNumeric formatting
+    $('#nilai_barang').autoNumeric('init', {
+        aSep: '.',
+        aDec: ',',
+        aSign: '',
+        vMax: '999999999999999.99',
+        vMin: '0',
+        mDec: 0,
+        dGroup: 3
+    });
+    
     // Upload Data button click
     $(document).on('click', '.upload-data-btn', function(){
         var jenis = $(this).data('jenis');
@@ -628,7 +639,7 @@
             tahun: <?= $tahun ?>,
             bulan: <?= $bulan ?>,
             jenis_barang: $('#nilai_jenis_barang').val(),
-            nilai_barang: $('#nilai_barang').val()
+            nilai_barang: $('#nilai_barang').autoNumeric('get') // Get raw number using AutoNumeric
         };
         formData[csrfTokenName] = csrfHash;
         

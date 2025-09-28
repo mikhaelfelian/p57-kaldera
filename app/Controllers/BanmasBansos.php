@@ -38,45 +38,72 @@ class BanmasBansos extends BaseController
 
         $tahun = (int)$this->request->getPost('tahun');
         $bulan = (int)$this->request->getPost('bulan');
+        $jenis_bansos = $this->request->getPost('jenis_bansos');
 
-        if (!$tahun || !$bulan) {
-            return $this->response->setJSON(['ok' => false, 'message' => 'Tahun dan bulan harus diisi']);
+        if (!$tahun || !$bulan || !$jenis_bansos) {
+            return $this->response->setJSON(['ok' => false, 'message' => 'Data tidak lengkap']);
         }
 
         try {
-            $data = [
-                'tahun' => $tahun,
-                'bulan' => $bulan,
-                'jenis_bansos' => $this->request->getPost('jenis_bansos'),
-                'nama_bansos' => $this->request->getPost('nama_bansos'),
-                'deskripsi' => $this->request->getPost('deskripsi'),
-                'nilai_bansos' => (int)($this->request->getPost('nilai_bansos') ?: 0),
-                'status' => $this->request->getPost('status') ?: 'Belum Diperiksa',
-                'catatan_kendala' => $this->request->getPost('catatan_kendala'),
-                'rencana_tindak_lanjut' => $this->request->getPost('rencana_tindak_lanjut'),
-                'feedback_unit_kerja' => json_encode($this->request->getPost('feedback_unit_kerja') ?: []),
-                'uploaded_by' => $this->ionAuth->user()->row()->id ?? null,
-                'uploaded_at' => date('Y-m-d H:i:s')
-            ];
-
             // Check if data exists for this year, month, and jenis_bansos
             $existing = $this->banmasBansosModel->where([
                 'tahun' => $tahun,
                 'bulan' => $bulan,
-                'jenis_bansos' => $data['jenis_bansos']
+                'jenis_bansos' => $jenis_bansos
             ])->first();
 
+            $data = [
+                'tahun' => $tahun,
+                'bulan' => $bulan,
+                'jenis_bansos' => $jenis_bansos
+            ];
+
+            // Only update fields that are provided
+            if ($this->request->getPost('nama_bansos')) {
+                $data['nama_bansos'] = $this->request->getPost('nama_bansos');
+            }
+            if ($this->request->getPost('deskripsi')) {
+                $data['deskripsi'] = $this->request->getPost('deskripsi');
+            }
+            if ($this->request->getPost('nilai_bansos')) {
+                $data['nilai_bansos'] = (float)$this->request->getPost('nilai_bansos');
+            }
+            if ($this->request->getPost('status')) {
+                $data['status'] = $this->request->getPost('status');
+            }
+            if ($this->request->getPost('catatan_kendala')) {
+                $data['catatan_kendala'] = $this->request->getPost('catatan_kendala');
+            }
+            if ($this->request->getPost('rencana_tindak_lanjut')) {
+                $data['rencana_tindak_lanjut'] = $this->request->getPost('rencana_tindak_lanjut');
+            }
+            if ($this->request->getPost('feedback_unit_kerja')) {
+                $data['feedback_unit_kerja'] = json_encode($this->request->getPost('feedback_unit_kerja'));
+            }
+
             if ($existing) {
-                // Update existing data
+                // Update only provided fields
                 $this->banmasBansosModel->update($existing['id'], $data);
             } else {
-                // Insert new data
+                // Insert new data with default values
+                $data = array_merge($data, [
+                    'nama_bansos' => $this->request->getPost('nama_bansos') ?: '',
+                    'deskripsi' => $this->request->getPost('deskripsi') ?: '',
+                    'nilai_bansos' => (float)($this->request->getPost('nilai_bansos') ?: 0),
+                    'status' => $this->request->getPost('status') ?: 'Belum Diperiksa',
+                    'catatan_kendala' => $this->request->getPost('catatan_kendala') ?: '',
+                    'rencana_tindak_lanjut' => $this->request->getPost('rencana_tindak_lanjut') ?: '',
+                    'feedback_unit_kerja' => json_encode($this->request->getPost('feedback_unit_kerja') ?: []),
+                    'uploaded_by' => $this->ionAuth->user()->row()->id ?? null,
+                    'uploaded_at' => date('Y-m-d H:i:s')
+                ]);
                 $this->banmasBansosModel->insert($data);
             }
 
             return $this->response->setJSON([
                 'ok' => true, 
                 'message' => 'Data bantuan sosial berhasil disimpan',
+                'data' => $existing ? $existing : ['id' => $this->banmasBansosModel->getInsertID()],
                 'csrf_token' => csrf_token(),
                 'csrf_hash' => csrf_hash()
             ]);

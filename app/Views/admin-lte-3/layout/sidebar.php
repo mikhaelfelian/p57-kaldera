@@ -310,12 +310,12 @@
                             </p>
                         </a>
                         <ul class="nav nav-treeview">
-                        <li class="nav-header font-weight-bold"><?= nbs(2) ?>Sektor Minerba</li>
+                        <li class="nav-header"><?= nbs(2) ?>Sektor Minerba</li>
                             <li class="nav-item">
                                 <a href="<?= base_url('pt-minerba/input') ?>" class="nav-link <?= isMenuActive('pt-minerba/input') ? 'active' : '' ?>">
                                     <?= nbs(5) ?>
                                     <i class="fas fa-edit nav-icon"></i>
-                                    <p class="font-weight-bold">Master Unit Kerja</p>
+                                    Master Unit Kerja
                                 </a>
                             </li>
                             <!-- Sektor Minerba -->

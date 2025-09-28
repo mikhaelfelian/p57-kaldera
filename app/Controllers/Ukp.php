@@ -16,15 +16,25 @@ class Ukp extends BaseController
 
     public function master()
     {
+        $search = $this->request->getGet('search') ?? '';
+        $page = (int)($this->request->getGet('page') ?? 1);
+        $limit = 10;
+        $offset = ($page - 1) * $limit;
+
         $data = [
-            'title' => 'Master Unit Kerja (UKP)',
-            'ukpList' => $this->ukpModel->orderBy('nama_ukp', 'ASC')->findAll()
+            'title' => 'Master Unit Kerja Pemerintah (UKP)',
+            'search' => $search,
+            'ukpList' => $this->ukpModel->getUkpList($search, $limit, $offset),
+            'totalRecords' => $this->ukpModel->getUkpCount($search),
+            'currentPage' => $page,
+            'limit' => $limit,
+            'totalPages' => ceil($this->ukpModel->getUkpCount($search) / $limit)
         ];
 
         return $this->view($this->theme->getThemePath() . '/ukp/master', $data);
     }
 
-    public function create()
+    public function store()
     {
         if (!$this->request->isAJAX()) {
             return $this->response->setJSON(['ok' => false, 'message' => 'Invalid request']);
@@ -33,8 +43,14 @@ class Ukp extends BaseController
         $rules = [
             'kode_ukp' => 'required|max_length[50]|is_unique[tbl_m_ukp.kode_ukp]',
             'nama_ukp' => 'required|max_length[255]',
-            'deskripsi' => 'permit_empty',
-            'status' => 'required|in_list[aktif,tidak_aktif]'
+            'alamat' => 'permit_empty',
+            'telepon' => 'permit_empty|max_length[20]',
+            'email' => 'permit_empty|valid_email|max_length[100]',
+            'website' => 'permit_empty|valid_url|max_length[255]',
+            'kepala_ukp' => 'permit_empty|max_length[255]',
+            'nip_kepala' => 'permit_empty|max_length[50]',
+            'status' => 'required|in_list[Aktif,Tidak Aktif]',
+            'keterangan' => 'permit_empty'
         ];
 
         if (!$this->validate($rules)) {
@@ -48,22 +64,29 @@ class Ukp extends BaseController
         $data = [
             'kode_ukp' => $this->request->getPost('kode_ukp'),
             'nama_ukp' => $this->request->getPost('nama_ukp'),
-            'deskripsi' => $this->request->getPost('deskripsi'),
-            'status' => $this->request->getPost('status')
+            'alamat' => $this->request->getPost('alamat'),
+            'telepon' => $this->request->getPost('telepon'),
+            'email' => $this->request->getPost('email'),
+            'website' => $this->request->getPost('website'),
+            'kepala_ukp' => $this->request->getPost('kepala_ukp'),
+            'nip_kepala' => $this->request->getPost('nip_kepala'),
+            'status' => $this->request->getPost('status'),
+            'keterangan' => $this->request->getPost('keterangan')
         ];
 
-        try {
-            $this->ukpModel->insert($data);
+        if ($this->ukpModel->insert($data)) {
             return $this->response->setJSON([
                 'ok' => true,
-                'message' => 'Data berhasil disimpan',
+                'message' => 'Data UKP berhasil disimpan',
                 'csrf_token' => csrf_token(),
                 'csrf_hash' => csrf_hash()
             ]);
-        } catch (\Exception $e) {
+        } else {
             return $this->response->setJSON([
                 'ok' => false,
-                'message' => 'Gagal menyimpan data: ' . $e->getMessage()
+                'message' => 'Gagal menyimpan data UKP',
+                'csrf_token' => csrf_token(),
+                'csrf_hash' => csrf_hash()
             ]);
         }
     }
@@ -74,16 +97,17 @@ class Ukp extends BaseController
             return $this->response->setJSON(['ok' => false, 'message' => 'Invalid request']);
         }
 
-        $ukp = $this->ukpModel->find($id);
-        if (!$ukp) {
-            return $this->response->setJSON(['ok' => false, 'message' => 'Data tidak ditemukan']);
-        }
-
         $rules = [
             'kode_ukp' => "required|max_length[50]|is_unique[tbl_m_ukp.kode_ukp,id,{$id}]",
             'nama_ukp' => 'required|max_length[255]',
-            'deskripsi' => 'permit_empty',
-            'status' => 'required|in_list[aktif,tidak_aktif]'
+            'alamat' => 'permit_empty',
+            'telepon' => 'permit_empty|max_length[20]',
+            'email' => 'permit_empty|valid_email|max_length[100]',
+            'website' => 'permit_empty|valid_url|max_length[255]',
+            'kepala_ukp' => 'permit_empty|max_length[255]',
+            'nip_kepala' => 'permit_empty|max_length[50]',
+            'status' => 'required|in_list[Aktif,Tidak Aktif]',
+            'keterangan' => 'permit_empty'
         ];
 
         if (!$this->validate($rules)) {
@@ -97,22 +121,29 @@ class Ukp extends BaseController
         $data = [
             'kode_ukp' => $this->request->getPost('kode_ukp'),
             'nama_ukp' => $this->request->getPost('nama_ukp'),
-            'deskripsi' => $this->request->getPost('deskripsi'),
-            'status' => $this->request->getPost('status')
+            'alamat' => $this->request->getPost('alamat'),
+            'telepon' => $this->request->getPost('telepon'),
+            'email' => $this->request->getPost('email'),
+            'website' => $this->request->getPost('website'),
+            'kepala_ukp' => $this->request->getPost('kepala_ukp'),
+            'nip_kepala' => $this->request->getPost('nip_kepala'),
+            'status' => $this->request->getPost('status'),
+            'keterangan' => $this->request->getPost('keterangan')
         ];
 
-        try {
-            $this->ukpModel->update($id, $data);
+        if ($this->ukpModel->update($id, $data)) {
             return $this->response->setJSON([
                 'ok' => true,
-                'message' => 'Data berhasil diupdate',
+                'message' => 'Data UKP berhasil diupdate',
                 'csrf_token' => csrf_token(),
                 'csrf_hash' => csrf_hash()
             ]);
-        } catch (\Exception $e) {
+        } else {
             return $this->response->setJSON([
                 'ok' => false,
-                'message' => 'Gagal mengupdate data: ' . $e->getMessage()
+                'message' => 'Gagal mengupdate data UKP',
+                'csrf_token' => csrf_token(),
+                'csrf_hash' => csrf_hash()
             ]);
         }
     }
@@ -123,23 +154,19 @@ class Ukp extends BaseController
             return $this->response->setJSON(['ok' => false, 'message' => 'Invalid request']);
         }
 
-        $ukp = $this->ukpModel->find($id);
-        if (!$ukp) {
-            return $this->response->setJSON(['ok' => false, 'message' => 'Data tidak ditemukan']);
-        }
-
-        try {
-            $this->ukpModel->delete($id);
+        if ($this->ukpModel->delete($id)) {
             return $this->response->setJSON([
                 'ok' => true,
-                'message' => 'Data berhasil dihapus',
+                'message' => 'Data UKP berhasil dihapus',
                 'csrf_token' => csrf_token(),
                 'csrf_hash' => csrf_hash()
             ]);
-        } catch (\Exception $e) {
+        } else {
             return $this->response->setJSON([
                 'ok' => false,
-                'message' => 'Gagal menghapus data: ' . $e->getMessage()
+                'message' => 'Gagal menghapus data UKP',
+                'csrf_token' => csrf_token(),
+                'csrf_hash' => csrf_hash()
             ]);
         }
     }
@@ -151,15 +178,21 @@ class Ukp extends BaseController
         }
 
         $ukp = $this->ukpModel->find($id);
-        if (!$ukp) {
-            return $this->response->setJSON(['ok' => false, 'message' => 'Data tidak ditemukan']);
+        
+        if ($ukp) {
+            return $this->response->setJSON([
+                'ok' => true,
+                'data' => $ukp,
+                'csrf_token' => csrf_token(),
+                'csrf_hash' => csrf_hash()
+            ]);
+        } else {
+            return $this->response->setJSON([
+                'ok' => false,
+                'message' => 'Data UKP tidak ditemukan',
+                'csrf_token' => csrf_token(),
+                'csrf_hash' => csrf_hash()
+            ]);
         }
-
-        return $this->response->setJSON([
-            'ok' => true,
-            'data' => $ukp,
-            'csrf_token' => csrf_token(),
-            'csrf_hash' => csrf_hash()
-        ]);
     }
 }
