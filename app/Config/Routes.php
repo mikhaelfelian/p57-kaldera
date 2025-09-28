@@ -54,6 +54,12 @@ $routes->group('auth', ['namespace' => 'App\Controllers'], static function ($rou
     // Forgot password (form and submit)
     $routes->get('forgot-password', 'Auth::forgot_password', ['as' => 'auth.forgot']);
     $routes->post('forgot-password', 'Auth::forgot_password', ['as' => 'auth.forgot.submit']);
+    
+    // Profile routes
+    $routes->get('profile', 'Profile::index', ['as' => 'auth.profile']);
+    $routes->post('profile/update', 'Profile::update', ['as' => 'auth.profile.update']);
+    $routes->post('profile/change-password', 'Profile::changePassword', ['as' => 'auth.profile.change_password']);
+    $routes->post('profile/upload-avatar', 'Profile::uploadAvatar', ['as' => 'auth.profile.upload_avatar']);
 });
 
 // ==================== Dashboard ====================
@@ -259,6 +265,17 @@ $routes->group('pt', ['namespace' => 'App\\Controllers', 'filter' => 'auth'], fu
         $routes->post('ukp/update/(:num)', 'Ukp::update/$1', ['as' => 'pt.master.ukp.update']);
         $routes->post('ukp/delete/(:num)', 'Ukp::delete/$1', ['as' => 'pt.master.ukp.delete']);
         $routes->get('ukp/get/(:num)', 'Ukp::get/$1', ['as' => 'pt.master.ukp.get']);
+    });
+});
+
+// ==================== UKP (Unit Kerja Pemerintah) ====================
+$routes->group('pt', ['namespace' => 'App\\Controllers', 'filter' => 'auth'], function ($routes) {
+    $routes->group('master', function ($routes) {
+        $routes->get('ukp', 'Ukp::master', ['as' => 'ukp.master']);
+        $routes->post('ukp/store', 'Ukp::store', ['as' => 'ukp.store']);
+        $routes->post('ukp/update/(:num)', 'Ukp::update/$1', ['as' => 'ukp.update']);
+        $routes->post('ukp/delete/(:num)', 'Ukp::delete/$1', ['as' => 'ukp.delete']);
+        $routes->get('ukp/get/(:num)', 'Ukp::get/$1', ['as' => 'ukp.get']);
     });
 });
 
