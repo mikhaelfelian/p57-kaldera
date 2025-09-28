@@ -80,8 +80,8 @@
                             <tr>
                                 <th style="width: 200px;">Jenis Belanja</th>
                                 <th class="text-center">Anggaran (Rp)</th>
-                                <th class="text-center">Realisasi</th>
-                                <th class="text-center">Sisa Anggaran</th>
+                                <th class="text-center" colspan="2">Realisasi</th>
+                                <th class="text-center" colspan="2">Sisa Anggaran</th>
                             </tr>
                             <tr>
                                 <th></th>
@@ -122,10 +122,10 @@
                                     <?= $row['label'] ?><?= $row['sub'] ? '<br><small>'.$row['sub'].'</small>' : '' ?>
                                 </td>
                                 <td class="text-right"><?= format_angka_rp($anggaran) ?></td>
-                                <td class="text-right" style="color: #dc3545;"><?= format_angka_rp($realisasi) ?></td>
-                                <td class="text-right" style="color: #dc3545;"><?= format_angka($persen, 2) ?>%</td>
-                                <td class="text-right" style="color: #dc3545;"><?= format_angka_rp($sisa) ?></td>
-                                <td class="text-right" style="color: #dc3545;"><?= format_angka($sisaPersen, 2) ?>%</td>
+                                <td class="text-right"><?= format_angka_rp($realisasi) ?></td>
+                                <td class="text-right"><?= format_angka($persen, 2) ?>%</td>
+                                <td class="text-right"><?= format_angka_rp($sisa) ?></td>
+                                <td class="text-right"><?= format_angka($sisaPersen, 2) ?>%</td>
                             </tr>
                             <?php endforeach; ?>
                             

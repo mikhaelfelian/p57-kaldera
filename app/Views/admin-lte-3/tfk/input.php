@@ -13,8 +13,8 @@
             </select>
             <input type="hidden" name="year" value="<?= $current ?>">
             <label class="mr-2">Tahapan</label>
-            <select name="tahapan" class="form-control form-control-sm" onchange="this.form.submit()">
-                <?php $opt = ['penetapan' => 'Penetapan APBD', 'pergeseran' => 'Pergeseran', 'perubahan' => 'Perubahan APBD']; foreach($opt as $k=>$o): ?>
+            <select name="tahapan" class="form-control form-control-sm" id="tahapanSelect">
+                <?php foreach(($tahapanOptions ?? ['penetapan'=>'Penetapan APBD','pergeseran'=>'Pergeseran','perubahan'=>'Perubahan APBD']) as $k=>$o): ?>
                 <option value="<?= $k ?>" <?= ($tahapan===$k)?'selected':'' ?>><?= $o ?></option>
                 <?php endforeach; ?>
             </select>
@@ -39,7 +39,7 @@
                         <td><span class="static" data-bulan="<?= $k ?>" data-field="fisik" data-value="<?= $val ?>"><?= format_angka($val) ?></span></td>
                         <?php endforeach; ?>
                     </tr>
-                    <tr>
+                    <tr class="sep-top">
                         <td><strong>Realisasi Fisik (%)</strong></td>
                         <?php foreach ($months as $k=>$label): $d = $map[$k] ?? []; $val = (float)($d['realisasi_fisik'] ?? 0); ?>
                         <td><span class="editable" data-bulan="<?= $k ?>" data-field="real_fisik" data-id="<?= (int)($d['id'] ?? 0) ?>" data-value="<?= $val ?>"><?= format_angka($val, 2) ?></span> <i class="fas fa-pencil-alt text-muted ml-1 edit-icon"></i></td>
@@ -58,7 +58,7 @@
                         <?php endforeach; ?>
                     </tr>
 
-                    <tr>
+                    <tr class="sep-top">
                         <td class="red-box"><strong>Target Keuangan (%)</strong></td>
                         <?php foreach ($months as $k=>$label): $d = $map[$k] ?? []; $val = (float)($d['target_keuangan'] ?? 0); ?>
                         <td><span class="static" data-bulan="<?= $k ?>" data-field="keu" data-value="<?= $val ?>"><?= format_angka($val) ?></span></td>
@@ -100,12 +100,23 @@
 
 <?= $this->section('css') ?>
 <style>
+    #tfkInput { border-color: #1f4986; }
+    #tfkInput th {
+        background-color: #275a9a;
+        color: #fff;
+        text-align: center;
+    }
     #tfkInput td { vertical-align: middle; }
+    #tfkInput tbody tr td { background: #e6eef8; }
+    #tfkInput tbody tr:nth-child(odd) td { background: #f3f7fc; }
     #tfkInput .editable, #tfkInput .editable-text { cursor: pointer; }
     #tfkInput td.red-box {
-        border: 3px solid #dc3545 !important; /* Bootstrap danger red */
+        border: 3px solid #d9534f !important;
         background-color: #fff;
+        color: #d9534f;
     }
+    #tfkInput td:first-child { font-weight: 600; }
+    #tfkInput .sep-top td { border-top: 4px solid #000 !important; }
 </style>
 <?= $this->endSection() ?>
 
@@ -187,6 +198,106 @@
         })();
         <?php endforeach; ?>
     }
+
+    // Load data when tahapan changes
+    function loadDataByTahapan() {
+        var tahun = $('#tfkInput').data('year');
+        var tahapan = $('#tahapanSelect').val();
+        var masterId = $('#tfkInput').data('master-id');
+        
+        console.log('Loading data for tahun:', tahun, 'tahapan:', tahapan, 'masterId:', masterId);
+        
+        $.get('<?= base_url('tfk/get-data') ?>', {
+            tahun: tahun,
+            tahapan: tahapan,
+            master_id: masterId,
+            _: Date.now() // cache buster
+        }, function(res) {
+            console.log('Received response:', res);
+            if (res && res.ok && res.data && Object.keys(res.data).length > 0) {
+                updateTableWithData(res.data);
+                console.log('Data loaded successfully');
+            } else {
+                console.log('No data found for tahun:', tahun, 'tahapan:', tahapan);
+                // Reset all editable cells to 0 if no data found
+                $('#tfkInput .editable, #tfkInput .editable-text').each(function(){
+                    $(this).data('value', 0).text('0');
+                });
+                recalc();
+            }
+        }, 'json').fail(function(xhr) {
+            console.error('Failed to load data:', xhr.responseText);
+            toastr.error('Gagal memuat data dari database');
+        });
+    }
+    
+    // Update table with loaded data
+    function updateTableWithData(data) {
+        console.log('Updating table with data:', data);
+        
+        // Update static target rows first
+        $('#tfkInput .static').each(function(){
+            var $span = $(this);
+            var bulan = $span.data('bulan');
+            var field = $span.data('field'); // 'fisik' or 'keu'
+            var dbField = field === 'fisik' ? 'target_fisik' : 'target_keuangan';
+            if(data[bulan] && data[bulan][dbField] !== undefined){
+                var value = parseFloat(data[bulan][dbField]) || 0;
+                $span.data('value', value);
+                try { $span.text(new Intl.NumberFormat('id-ID').format(value)); } catch(e){ $span.text(value); }
+            } else {
+                $span.data('value', 0).text('0');
+            }
+        });
+
+        // Update all editable cells with loaded data
+        $('#tfkInput .editable').each(function(){
+            var $span = $(this);
+            var bulan = $span.data('bulan');
+            var field = $span.data('field');
+            
+            // Map field names to database fields
+            var dbField = field;
+            if (field === 'real_fisik') dbField = 'realisasi_fisik';
+            if (field === 'real_keu') dbField = 'realisasi_keuangan';
+            if (field === 'real_fisik_prov') dbField = 'realisasi_fisik_prov';
+            if (field === 'real_keu_prov') dbField = 'realisasi_keuangan_prov';
+            
+            if(data[bulan] && data[bulan][dbField] !== undefined) {
+                var value = parseFloat(data[bulan][dbField]) || 0;
+                $span.data('value', value);
+                try {
+                    $span.text(new Intl.NumberFormat('id-ID', {minimumFractionDigits: 2, maximumFractionDigits: 2}).format(value));
+                } catch(e) {
+                    $span.text(value.toFixed(2));
+                }
+            }
+        });
+        
+        // Update editable-text cells (analisa)
+        $('#tfkInput .editable-text').each(function(){
+            var $span = $(this);
+            var bulan = $span.data('bulan');
+            var field = $span.data('field');
+            
+            if(data[bulan] && data[bulan][field] !== undefined) {
+                var value = data[bulan][field] || '';
+                $span.data('value', value).text(value);
+            }
+        });
+        
+        // Recalculate deviations
+        recalc();
+    }
+    
+    // Bind tahapan change event
+    $(document).on('change', '#tahapanSelect', function(){
+        console.log('Tahapan changed to:', $(this).val());
+        loadDataByTahapan();
+    });
+    
+    // Load data on page load
+    loadDataByTahapan();
 
     $('#btnSaveInput').on('click', function(){
         // nothing extra; values are saved per-cell on edit

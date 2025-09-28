@@ -91,6 +91,9 @@ $routes->group('tfk', ['namespace' => 'App\\Controllers', 'filter' => 'auth'], f
     
     // CSRF refresh
     $routes->get('refresh-csrf', 'TargetFisikKeu::refreshCSRF', ['as' => 'tfk.refresh_csrf']);
+    $routes->get('get-data', 'TargetFisikKeu::getData', ['as' => 'tfk.get_data']);
+    $routes->post('save-all', 'TargetFisikKeu::saveAll', ['as' => 'tfk.save_all']);
+    $routes->get('test', 'TargetFisikKeu::test', ['as' => 'tfk.test']);
 });
 
 // ==================== Belanja (alias routes to TFK controller) ====================
@@ -103,6 +106,7 @@ $routes->group('belanja', ['namespace' => 'App\\Controllers', 'filter' => 'auth'
     $routes->get('rekap/export-excel', 'TargetFisikKeu::belanjaRekapExportExcel', ['as' => 'belanja.rekap.export_excel']);
     $routes->get('rekap/export-pdf', 'TargetFisikKeu::belanjaRekapExportPDF', ['as' => 'belanja.rekap.export_pdf']);
     $routes->post('master/update', 'TargetFisikKeu::belanjaMasterUpdate', ['as' => 'belanja.master.update']);
+    $routes->post('master/update-batch', 'TargetFisikKeu::belanjaMasterUpdateBatch', ['as' => 'belanja.master.update_batch', 'filter' => 'nocsrf']);
 });
 
 // ==================== Pendapatan ====================
@@ -283,6 +287,17 @@ $routes->group('pt', ['namespace' => 'App\\Controllers', 'filter' => 'auth'], fu
 $routes->group('pengaturan', ['namespace' => 'App\Controllers', 'filter' => 'auth'], function ($routes) {
     // App settings
     $routes->get('app', 'Pengaturan::index');
+});
+
+// ==================== PT Minerba ====================
+$routes->group('pt-minerba', ['namespace' => 'App\Controllers', 'filter' => 'auth'], function ($routes) {
+    // Unit Kerja routes
+    $routes->get('input', 'UnitKerja::index', ['as' => 'pt-minerba.unit-kerja.index']);
+    $routes->post('unit-kerja/create', 'UnitKerja::create', ['as' => 'pt-minerba.unit-kerja.create']);
+    $routes->post('unit-kerja/update/(:num)', 'UnitKerja::update/$1', ['as' => 'pt-minerba.unit-kerja.update']);
+    $routes->post('unit-kerja/delete/(:num)', 'UnitKerja::delete/$1', ['as' => 'pt-minerba.unit-kerja.delete']);
+    $routes->get('unit-kerja/get/(:num)', 'UnitKerja::get/$1', ['as' => 'pt-minerba.unit-kerja.get']);
+    $routes->post('unit-kerja/search', 'UnitKerja::search', ['as' => 'pt-minerba.unit-kerja.search']);
 });
 
 // ==================== Utility/Test ====================

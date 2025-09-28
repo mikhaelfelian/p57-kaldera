@@ -1,3 +1,6 @@
+<?php
+    helper(['general']);
+?>
 <aside class="main-sidebar sidebar-light-primary elevation-0">
     <!-- Brand Logo -->
     <a href="<?= base_url() ?>" class="brand-link">
@@ -310,28 +313,27 @@
                             </p>
                         </a>
                         <ul class="nav nav-treeview">
-                        <li class="nav-header"><?= nbs(2) ?>Sektor Minerba</li>
-                            <li class="nav-item">
-                                <a href="<?= base_url('pt-minerba/input') ?>" class="nav-link <?= isMenuActive('pt-minerba/input') ? 'active' : '' ?>">
-                                    <?= nbs(5) ?>
-                                    <i class="fas fa-edit nav-icon"></i>
-                                    Master Unit Kerja
-                                </a>
-                            </li>
                             <!-- Sektor Minerba -->
                             <li class="nav-header font-weight-bold"><?= nbs(2) ?>Sektor Minerba</li>
                             <li class="nav-item">
                                 <a href="<?= base_url('pt-minerba/input') ?>" class="nav-link <?= isMenuActive('pt-minerba/input') ? 'active' : '' ?>">
                                     <?= nbs(5) ?>
                                     <i class="fas fa-edit nav-icon"></i>
-                                    <p class="font-weight-bold">Input</p>
+                                    <p>Master Unit Kerja</p>
+                                </a>
+                            </li>
+                            <li class="nav-item">
+                                <a href="<?= base_url('pt-minerba/input') ?>" class="nav-link <?= isMenuActive('pt-minerba/input') ? 'active' : '' ?>">
+                                    <?= nbs(5) ?>
+                                    <i class="fas fa-edit nav-icon"></i>
+                                    <p>Input</p>
                                 </a>
                             </li>
                             <li class="nav-item">
                                 <a href="<?= base_url('pt-minerba/rekap') ?>" class="nav-link <?= isMenuActive('pt-minerba/rekap') ? 'active' : '' ?>">
                                     <?= nbs(5) ?>
                                     <i class="fas fa-table nav-icon"></i>
-                                    <p class="font-weight-bold">Rekap</p>
+                                    <p>Rekap</p>
                                 </a>
                             </li>
 
@@ -341,14 +343,14 @@
                                 <a href="<?= base_url('pt-gat/input') ?>" class="nav-link <?= isMenuActive('pt-gat/input') ? 'active' : '' ?>">
                                     <?= nbs(5) ?>
                                     <i class="fas fa-edit nav-icon"></i>
-                                    <p class="font-weight-bold">Input</p>
+                                    <p>Input</p>
                                 </a>
                             </li>
                             <li class="nav-item">
                                 <a href="<?= base_url('pt-gat/rekap') ?>" class="nav-link <?= isMenuActive('pt-gat/rekap') ? 'active' : '' ?>">
                                     <?= nbs(5) ?>
                                     <i class="fas fa-table nav-icon"></i>
-                                    <p class="font-weight-bold">Rekap</p>
+                                    <p>Rekap</p>
                                 </a>
                             </li>
 
@@ -358,14 +360,14 @@
                                 <a href="<?= base_url('pt-gatrik/input') ?>" class="nav-link <?= isMenuActive('pt-gatrik/input') ? 'active' : '' ?>">
                                     <?= nbs(5) ?>
                                     <i class="fas fa-edit nav-icon"></i>
-                                    <p class="font-weight-bold">Input</p>
+                                    <p>Input</p>
                                 </a>
                             </li>
                             <li class="nav-item">
                                 <a href="<?= base_url('pt-gatrik/rekap') ?>" class="nav-link <?= isMenuActive('pt-gatrik/rekap') ? 'active' : '' ?>">
                                     <?= nbs(5) ?>
                                     <i class="fas fa-table nav-icon"></i>
-                                    <p class="font-weight-bold">Rekap</p>
+                                    <p>Rekap</p>
                                 </a>
                             </li>
 
@@ -375,14 +377,14 @@
                                 <a href="<?= base_url('pt-ebt/input') ?>" class="nav-link <?= isMenuActive('pt-ebt/input') ? 'active' : '' ?>">
                                     <?= nbs(5) ?>
                                     <i class="fas fa-edit nav-icon"></i>
-                                    <p class="font-weight-bold">Input</p>
+                                    <p>Input</p>
                                 </a>
                             </li>
                             <li class="nav-item">
                                 <a href="<?= base_url('pt-ebt/rekap') ?>" class="nav-link <?= isMenuActive('pt-ebt/rekap') ? 'active' : '' ?>">
                                     <?= nbs(5) ?>
                                     <i class="fas fa-table nav-icon"></i>
-                                    <p class="font-weight-bold">Rekap</p>
+                                    <p>Rekap</p>
                                 </a>
                             </li>
                         </ul>

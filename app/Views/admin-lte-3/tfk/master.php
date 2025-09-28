@@ -98,7 +98,7 @@
 <?= $this->section('js') ?>
 <script>
 (function(){
-    var csrfToken = '<?= csrf_token() ?>';
+    var csrfToken = '<?= config('Security')->tokenName ?>';
     var csrfHash = '<?= csrf_hash() ?>';
     
     function formatCurrency(n){ 
@@ -164,12 +164,11 @@
             payload[csrfToken] = csrfHash;
             
             $.post('<?= base_url('belanja/master/update') ?>', payload, function(res){
+                if(res && res.csrf_hash){ csrfHash = res.csrf_hash; }
                 if(res && res.ok){
                     $span.data('value', newVal).text(formatCurrency(newVal));
-                    if(res.csrf_hash){ csrfHash = res.csrf_hash; }
                     if(window.toastr){ toastr.success('Tersimpan'); }
                 } else {
-                    if(res && res.csrf_hash){ csrfHash = res.csrf_hash; }
                     if(window.toastr){ toastr.error(res && res.message ? res.message : 'Gagal menyimpan'); }
                 }
                 $input.remove(); 
@@ -210,33 +209,40 @@
         this.form && this.form.submit ? this.form.submit() : loadExisting();
     });
     
-    // Batch save (sequential to avoid CSRF rotation 403)
+    // Batch save (single request to avoid CSRF issues)
     $('#btnBelanjaSave').on('click', function(){
         var tahun = $('#belanjaCard').data('year');
         var tahapan = $('select[name="tahapan"]').val();
-        var fields = [];
+        var data = {tahun: tahun, tahapan: tahapan};
+        
+        // Collect all field values
         $('#belanjaBody span.editable').each(function(){
-            fields.push({field: $(this).data('field'), value: parseVal(this)||0});
+            var field = $(this).data('field');
+            var value = parseVal(this) || 0;
+            data[field] = value;
         });
-        if(fields.length===0){ if(window.toastr){ toastr.info('Tidak ada perubahan'); } return; }
-        var okCount = 0; var failCount = 0; var i = 0;
-
-        function next(){
-            if(i>=fields.length){
-                if(failCount===0){ if(window.toastr){ toastr.success('Semua data tersimpan'); } }
-                else { if(window.toastr){ toastr.error('Sebagian gagal disimpan'); } }
+        
+        if(Object.keys(data).length <= 2){ if(window.toastr){ toastr.info('Tidak ada perubahan'); } return; }
+        
+        data[csrfToken] = csrfHash;
+        
+        $.post('<?= base_url('belanja/master/update-batch') ?>', data, function(res){
+            if(res && res.csrf_hash){ csrfHash = res.csrf_hash; }
+            if(res && res.ok){
+                if(window.toastr){ toastr.success('Data berhasil disimpan'); }
                 loadExisting();
-                return;
+            } else {
+                if(window.toastr){ toastr.error(res && res.message ? res.message : 'Gagal menyimpan data'); }
             }
-            var it = fields[i++];
-            var payload = {tahun:tahun, tahapan:tahapan, field:it.field, value:it.value}; payload[csrfToken] = csrfHash;
-            $.post('<?= base_url('belanja/master/update') ?>', payload, function(res){
-                if(res && res.csrf_hash){ csrfHash = res.csrf_hash; }
-                if(res && res.ok){ okCount++; } else { failCount++; }
-                next();
-            }, 'json').fail(function(){ failCount++; next(); });
-        }
-        next();
+        }, 'json').fail(function(xhr){ 
+            try{
+                var data = JSON.parse(xhr.responseText);
+                if(data && data.csrf_hash){ csrfHash = data.csrf_hash; }
+                if(window.toastr){ toastr.error(data && data.message ? data.message : 'Gagal menyimpan data'); }
+            }catch(e){
+                if(window.toastr){ toastr.error('Gagal menyimpan data'); }
+            }
+        });
     });
 
     recalcTotal();

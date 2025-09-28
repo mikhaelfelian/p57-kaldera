@@ -24,7 +24,7 @@
         </div>
     </div>
     <div class="card-body rounded-0">
-        <form id="belanjaInputForm" method="post">
+        <form id="belanjaInputForm" method="get">
             <div class="row mb-3">
                 <div class="col-md-4">
                     <label class="font-weight-bold">Tahapan</label>
@@ -53,8 +53,8 @@
                         <tr>
                             <th style="width: 200px;">Jenis Belanja</th>
                             <th class="text-center">Anggaran (Rp)</th>
-                            <th class="text-center">Realisasi</th>
-                            <th class="text-center">Sisa Anggaran</th>
+                            <th class="text-center" colspan="2">Realisasi</th>
+                            <th class="text-center" colspan="2">Sisa Anggaran</th>
                         </tr>
                         <tr>
                             <th></th>
@@ -109,17 +109,19 @@
                             <td class="font-weight-bold" style="background-color: #2f5f93; color: white;">
                                 <?= $row['label'] ?><?= $row['sub'] ? '<br><small>'.$row['sub'].'</small>' : '' ?>
                             </td>
-                            <td class="text-right"><?= format_angka_rp($anggaran) ?></td>
+                            <td class="text-right"><?= format_angka($anggaran) ?></td>
                             <td class="text-right">
-                                <input type="number" name="<?= $key ?>_realisasi" value="<?= $realisasi ?>" 
-                                       class="form-control form-control-sm text-right editable-input" 
-                                       data-field="<?= $key ?>_realisasi" step="0.01">
+                                <input type="text" id="angka<?= $key ?>" name="<?= $key ?>_realisasi" value="<?= (float)$realisasi ?>" 
+                                       class="form-control form-control-sm text-right number-format rounded-0" 
+                                       data-field="<?= $key ?>_realisasi" data-original-value="<?= (float)$realisasi ?>">
                             </td>
                             <td class="text-right">
                                 <span class="calculated-percent"><?= format_angka($persen, 2) ?></span>%
                             </td>
                             <td class="text-right">
-                                <span class="calculated-sisa"><?= format_angka_rp($sisa) ?></span>
+                            <input id="angka<?= $key ?>" type="text" name="<?= $key ?>_sisa" value="<?= (float)$sisa ?>" 
+                                       class="form-control form-control-sm text-right number-format rounded-0" 
+                                       data-field="<?= $key ?>_sisa" data-original-value="<?= (float)$sisa ?>">
                             </td>
                             <td class="text-right">
                                 <span class="calculated-sisa-percent"><?= format_angka($sisaPersen, 2) ?></span>%
@@ -135,15 +137,15 @@
                         ?>
                         <tr style="background-color: #3b6ea8; color: white;">
                             <td class="font-weight-bold">TOTAL</td>
-                            <td class="text-right font-weight-bold"><?= format_angka_rp($totalAnggaran) ?></td>
+                            <td class="text-right font-weight-bold"><?= format_angka($totalAnggaran) ?></td>
                             <td class="text-right font-weight-bold">
-                                <span id="totalRealisasi"><?= format_angka_rp($totalRealisasi) ?></span>
+                                <span id="totalRealisasi"><?= format_angka($totalRealisasi) ?></span>
                             </td>
                             <td class="text-right font-weight-bold">
                                 <span id="totalPersen"><?= format_angka($totalPersen, 2) ?></span>%
                             </td>
                             <td class="text-right font-weight-bold">
-                                <span id="totalSisa"><?= format_angka_rp($totalSisa) ?></span>
+                                <span id="totalSisa"><?= format_angka($totalSisa) ?></span>
                             </td>
                             <td class="text-right font-weight-bold">
                                 <span id="totalSisaPersen"><?= format_angka($totalSisaPersen, 2) ?></span>%
@@ -187,6 +189,12 @@
 <?= $this->section('js') ?>
 <script>
 (function(){
+
+    $(document).ready(function(){
+        // $("input[id=jml], input[id=harga], input[id=diskon], input[id=potongan]").autoNumeric({ aSep: '.', aDec: ',', aPad: false });
+        $('input[id^="angka"]').autoNumeric({ aSep: '.', aDec: ',', aPad: false });
+    });
+
     var csrfToken = '<?= csrf_token() ?>';
     var csrfHash = '<?= csrf_hash() ?>';
     
@@ -198,14 +206,18 @@
         } 
     }
     
-    function formatCurrencyRp(n){ 
-        try { 
-            return 'Rp ' + new Intl.NumberFormat('id-ID').format(Number(n)); 
-        } catch(e){ 
-            return 'Rp ' + Number(n).toLocaleString('id-ID'); 
-        } 
+    // Use .autoNumeric({ aSep: '.', aDec: ',', aPad: false }); for formatting
+    function formatCurrencyRp(n){
+        // Create a temporary input to use autoNumeric formatting
+        var $input = $('<input type="text" />');
+        $input.val(n);
+        $input.autoNumeric({ aSep: '.', aDec: ',', aPad: false });
+        $input.autoNumeric('set', n);
+        var formatted = $input.val();
+        $input.remove();
+        return formatted;
     }
-    
+
     function recalculateAll(){
         var totalRealisasi = 0;
         var totalAnggaran = 0;
@@ -218,10 +230,11 @@
             var anggaran = parseFloat(anggaranText) || 0;
             totalAnggaran += anggaran;
             
-            // Get realisasi input
-            var $realisasiInput = $row.find('input[type="number"]');
+            // Get realisasi input (jquery.number formatted)
+            var $realisasiInput = $row.find('.number-format');
             if($realisasiInput.length > 0){
-                var realisasi = parseFloat($realisasiInput.val()) || 0;
+                var raw = ($realisasiInput.val() || '').replace(/[^0-9\-]/g,'');
+                var realisasi = parseFloat(raw) || 0;
                 totalRealisasi += realisasi;
                 
                 // Calculate percentages and sisa
@@ -247,8 +260,20 @@
         $('#totalSisaPersen').text(totalSisaPersen.toFixed(2));
     }
     
+    // Initialize jQuery number formatting for inputs (library loaded in main layout)
+    function initNumberFormat(){
+        if ($.isFunction($.fn.number)) {
+            $('.number-format').each(function(){
+                var $el = $(this);
+                var val = parseFloat($el.val()) || 0;
+                $el.val(val);
+                $el.number(true, 0, ',', '.');
+            });
+        }
+    }
+
     // Recalculate on input change
-    $(document).on('input', 'input[type="number"]', function(){
+    $(document).on('input change', '.number-format', function(){
         recalculateAll();
     });
     
@@ -260,10 +285,11 @@
             bulan: $('select[name="bulan"]').val(),
         };
         
-        // Add all input values
-        $('input[type="number"]').each(function(){
+        // Add all input values (parse formatted with jquery.number)
+        $('.number-format').each(function(){
             var name = $(this).attr('name');
-            var value = parseFloat($(this).val()) || 0;
+            var raw = ($(this).val() || '').replace(/[^0-9\-]/g,'');
+            var value = parseFloat(raw) || 0;
             formData[name] = value;
         });
         
@@ -273,6 +299,10 @@
             if(res && res.csrf_hash){ csrfHash = res.csrf_hash; }
             if(res && res.ok){
                 if(window.toastr){ toastr.success(res.message || 'Data berhasil disimpan'); }
+                // Reload page after 2 seconds
+                setTimeout(function() {
+                    location.reload();
+                }, 2000);
             } else {
                 if(window.toastr){ toastr.error(res.message || 'Gagal menyimpan data'); }
             }
@@ -289,6 +319,7 @@
     
     // Initial calculation
     recalculateAll();
+    initNumberFormat();
 })();
 </script>
 <?= $this->endSection() ?>

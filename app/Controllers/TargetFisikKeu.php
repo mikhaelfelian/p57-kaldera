@@ -76,6 +76,25 @@ class TargetFisikKeu extends BaseController
             }
         }
 
+        // Build tahapan options from existing fiskal rows for this master+year
+        $tahapanOptions = ['penetapan' => 'Penetapan APBD', 'pergeseran' => 'Pergeseran', 'perubahan' => 'Perubahan APBD'];
+        if ($sourceMaster) {
+            $distinctTahapan = $this->fiskalModel
+                ->distinct()
+                ->select('tahapan')
+                ->where(['master_id' => $sourceMaster['id'], 'tipe' => '1', 'tahun' => $year])
+                ->findColumn('tahapan');
+            if (!empty($distinctTahapan)) {
+                $mapNames = ['penetapan' => 'Penetapan APBD', 'pergeseran' => 'Pergeseran', 'perubahan' => 'Perubahan APBD'];
+                $tahapanOptions = [];
+                foreach ($distinctTahapan as $t) { $tahapanOptions[$t] = $mapNames[$t] ?? ucfirst($t); }
+                if (!array_key_exists($tahapan, $tahapanOptions)) {
+                    $firstKey = array_key_first($tahapanOptions);
+                    if ($firstKey) { $tahapan = $firstKey; }
+                }
+            }
+        }
+
         $data = [
             'title' => 'Target Fisik & Keuangan - Input Manual',
             'Pengaturan' => $this->pengaturan,
@@ -85,6 +104,7 @@ class TargetFisikKeu extends BaseController
             'masters' => $masters,
             'sourceMaster' => $sourceMaster,
             'detailsMap' => $detailsMap,
+            'tahapanOptions' => $tahapanOptions,
         ];
 
         return view($this->theme->getThemePath() . '/tfk/input', $data);
@@ -199,21 +219,24 @@ class TargetFisikKeu extends BaseController
 
 			$dbField = $fieldMap[$field] ?? $field;
 
-			// Get existing record or create new one
-			$existing = $this->fiskalModel->where([
-				'master_id' => $masterId,
-				'tipe' => '1',
-				'tahun' => $year,
+            // Get existing record or create new one
+            // NOTE: Unique key is on (master_id, tipe, tahun, bulan) so we must
+            // search without filtering by 'tahapan' to avoid duplicate key errors
+            $existing = $this->fiskalModel->where([
+                'master_id' => $masterId,
+                'tipe' => '1',
+                'tahun' => $year,
                 'bulan' => $bulan,
-                'tahapan' => $tahapan
-			])->first();
+            ])->first();
 			
 			log_message('debug', 'Looking for existing record: master_id=' . $masterId . ', tipe=1, tahun=' . $year . ', bulan=' . $bulan);
 			log_message('debug', 'Existing record found: ' . json_encode($existing));
 
-			$data = [
-				$dbField => $value
-			];
+            $data = [
+                $dbField => $value,
+                // Always keep latest tahapan value on the row
+                'tahapan' => $tahapan,
+            ];
 
 			if ($existing) {
 				// Update existing record
@@ -252,6 +275,158 @@ class TargetFisikKeu extends BaseController
 			log_message('error', 'updateCell stack trace: ' . $e->getTraceAsString());
 			return $this->response->setJSON(['ok' => false, 'message' => 'Server error: ' . $e->getMessage()]);
 		}
+	}
+
+	public function getData()
+	{
+		try {
+			$tahun = (int)$this->request->getGet('tahun') ?: date('Y');
+			$tahapan = $this->request->getGet('tahapan') ?: 'penetapan';
+			
+			log_message('debug', 'getData called with tahun: ' . $tahun . ', tahapan: ' . $tahapan);
+			
+            // Get data from database based on tahun, tahapan and master
+            $masterId = (int)($this->request->getGet('master_id') ?: 1);
+            $rows = $this->fiskalModel->where([
+                'tahun' => $tahun,
+                'tahapan' => $tahapan,
+                'tipe' => '1',
+                'master_id' => $masterId
+            ])->findAll();
+
+            // Fallback: if no rows found for specific master, try without master filter
+            if (empty($rows)) {
+                $rows = $this->fiskalModel->where([
+                    'tahun' => $tahun,
+                    'tahapan' => $tahapan,
+                    'tipe' => '1',
+                ])->findAll();
+                log_message('debug', 'Fallback query without master_id returned ' . count($rows) . ' rows');
+            }
+			
+            log_message('debug', 'Found ' . count($rows) . ' records for tahun: ' . $tahun . ', tahapan: ' . $tahapan . ', master_id: ' . $masterId);
+			log_message('debug', 'Raw rows data: ' . json_encode($rows));
+			
+			// Organize data by bulan
+			$data = [];
+			foreach ($rows as $row) {
+				$data[$row['bulan']] = [
+					'id' => $row['id'],
+					'target_fisik' => (float)$row['target_fisik'],
+					'target_keuangan' => (float)$row['target_keuangan'],
+					'realisasi_fisik' => (float)$row['realisasi_fisik'],
+					'realisasi_keuangan' => (float)$row['realisasi_keuangan'],
+					'realisasi_fisik_prov' => (float)$row['realisasi_fisik_prov'],
+					'realisasi_keuangan_prov' => (float)$row['realisasi_keuangan_prov'],
+					'deviasi_fisik' => (float)$row['deviasi_fisik'],
+					'deviasi_keuangan' => (float)$row['deviasi_keuangan'],
+					'analisa' => (string)$row['analisa']
+				];
+			}
+			
+			log_message('debug', 'Organized data: ' . json_encode($data));
+			
+			return $this->response->setJSON([
+				'ok' => true,
+				'data' => $data,
+				'csrf_hash' => csrf_hash()
+			]);
+			
+		} catch (\Exception $e) {
+			log_message('error', 'getData error: ' . $e->getMessage());
+			return $this->response->setJSON(['ok' => false, 'message' => 'Server error: ' . $e->getMessage()]);
+		}
+	}
+
+	public function saveAll()
+	{
+		try {
+			$tahun = (int)$this->request->getPost('tahun') ?: date('Y');
+			$tahapan = $this->request->getPost('tahapan') ?: 'penetapan';
+			$data = $this->request->getPost('data');
+			
+			log_message('debug', 'saveAll called with tahun: ' . $tahun . ', tahapan: ' . $tahapan);
+			log_message('debug', 'Data received: ' . json_encode($data));
+			
+			if (empty($data) || !is_array($data)) {
+				return $this->response->setJSON(['ok' => false, 'message' => 'No data provided']);
+			}
+			
+			$savedCount = 0;
+			$errors = [];
+			
+			// Process each month's data
+			foreach ($data as $bulan => $monthData) {
+				if (!in_array($bulan, ['jan','feb','mar','apr','mei','jun','jul','ags','sep','okt','nov','des'])) {
+					continue; // Skip invalid bulan
+				}
+				
+                // Check if record exists using unique key columns only
+                $existing = $this->fiskalModel->where([
+                    'master_id' => 1,
+                    'tipe' => '1',
+                    'tahun' => $tahun,
+                    'bulan' => $bulan,
+                ])->first();
+				
+                $recordData = [
+					'master_id' => 1,
+					'tipe' => '1',
+					'tahun' => $tahun,
+					'bulan' => $bulan,
+                    // Keep latest tahapan value on the row
+                    'tahapan' => $tahapan,
+					'target_fisik' => isset($monthData['fisik']) ? (float)$monthData['fisik'] : 0,
+					'target_keuangan' => isset($monthData['keu']) ? (float)$monthData['keu'] : 0
+				];
+				
+				$this->fiskalModel->skipValidation(true);
+				
+				if ($existing) {
+					// Update existing record
+					$result = $this->fiskalModel->update($existing['id'], $recordData);
+					if ($result) {
+						$savedCount++;
+						log_message('debug', 'Updated record for bulan: ' . $bulan);
+					} else {
+						$errors[] = 'Failed to update bulan: ' . $bulan;
+					}
+				} else {
+					// Create new record
+					$id = $this->fiskalModel->insert($recordData);
+					if ($id) {
+						$savedCount++;
+						log_message('debug', 'Created new record for bulan: ' . $bulan . ' with ID: ' . $id);
+					} else {
+						$errors[] = 'Failed to create record for bulan: ' . $bulan;
+					}
+				}
+			}
+			
+			log_message('debug', 'saveAll completed. Saved: ' . $savedCount . ', Errors: ' . count($errors));
+			
+			return $this->response->setJSON([
+				'ok' => true,
+				'message' => 'Data saved successfully',
+				'saved_count' => $savedCount,
+				'errors' => $errors,
+				'csrf_hash' => csrf_hash()
+			]);
+			
+		} catch (\Exception $e) {
+			log_message('error', 'saveAll error: ' . $e->getMessage());
+			return $this->response->setJSON(['ok' => false, 'message' => 'Server error: ' . $e->getMessage()]);
+		}
+	}
+
+	public function test()
+	{
+		return $this->response->setJSON([
+			'ok' => true,
+			'message' => 'TFK controller is working',
+			'time' => date('Y-m-d H:i:s'),
+			'csrf_hash' => csrf_hash()
+		]);
 	}
 
 	public function rekap()
@@ -550,17 +725,27 @@ class TargetFisikKeu extends BaseController
 		}
 			$row = $this->belanjaModel->where(['tahun'=>$tahun,'tahapan'=>$tahapan])->first();
 			if ($row) {
-				$row[$field] = $value;
-				$row['total'] = (float)($row['pegawai'] + $row['barang_jasa'] + $row['hibah'] + $row['bansos'] + $row['modal']);
-				$this->belanjaModel->update($row['id'], $row);
+				// Only update the specific field, preserve all other existing data
+				$updateData = [
+					$field => $value
+				];
+				$this->belanjaModel->update($row['id'], $updateData);
+				
+				// Recalculate total after update
+				$updatedRow = $this->belanjaModel->find($row['id']);
+				$newTotal = (float)($updatedRow['pegawai'] + $updatedRow['barang_jasa'] + $updatedRow['hibah'] + $updatedRow['bansos'] + $updatedRow['modal']);
+				$this->belanjaModel->update($row['id'], ['total' => $newTotal]);
+				
+				$row = $this->belanjaModel->find($row['id']);
 			} else {
+				// Create new record with default values, only set the specific field
 				$data = [
 					'tahun'=>$tahun,
 					'tahapan'=>$tahapan,
 					'pegawai'=>0,'barang_jasa'=>0,'hibah'=>0,'bansos'=>0,'modal'=>0,
 				];
 				$data[$field] = $value;
-				$data['total'] = (float)($data['pegawai'] + $data['barang_jasa'] + $data['hibah'] + $data['bansos'] + $data['modal']);
+				$data['total'] = (float)$value; // For new record, total equals the single field value
 				$id = $this->belanjaModel->insert($data);
 				$row = $this->belanjaModel->find($id);
 			}
@@ -572,6 +757,66 @@ class TargetFisikKeu extends BaseController
             ]);
 		} catch (\Exception $e) {
 			log_message('error', 'BelanjaMasterUpdate Error: ' . $e->getMessage());
+            return $this->response->setJSON([
+                'ok'=>false,
+                'message'=>$e->getMessage(),
+                'csrf_token' => csrf_token(),
+                'csrf_hash' => csrf_hash(),
+            ]);
+		}
+	}
+
+	/**
+	 * Batch update belanja master data
+	 */
+	public function belanjaMasterUpdateBatch()
+	{
+		try {
+			$tahun = (int)$this->request->getPost('tahun');
+			$tahapan = (string)$this->request->getPost('tahapan');
+			
+			if (!$tahun) { $tahun = (int)date('Y'); }
+            if (!in_array($tahapan, ['penetapan','pergeseran','perubahan'])) {
+                $tahapan = 'penetapan';
+            }
+
+			// Get all field values
+			$allowed = ['pegawai','barang_jasa','hibah','bansos','modal'];
+			$data = ['tahun' => $tahun, 'tahapan' => $tahapan];
+			
+			foreach ($allowed as $field) {
+				$value = $this->request->getPost($field);
+				if ($value !== null) {
+					$data[$field] = (float)$value;
+				}
+			}
+			
+			$row = $this->belanjaModel->where(['tahun'=>$tahun,'tahapan'=>$tahapan])->first();
+			if ($row) {
+				// Update existing record
+				$this->belanjaModel->update($row['id'], $data);
+				
+				// Recalculate total
+				$updatedRow = $this->belanjaModel->find($row['id']);
+				$newTotal = (float)($updatedRow['pegawai'] + $updatedRow['barang_jasa'] + $updatedRow['hibah'] + $updatedRow['bansos'] + $updatedRow['modal']);
+				$this->belanjaModel->update($row['id'], ['total' => $newTotal]);
+				
+				$row = $this->belanjaModel->find($row['id']);
+			} else {
+				// Create new record
+				$data['total'] = (float)($data['pegawai'] + $data['barang_jasa'] + $data['hibah'] + $data['bansos'] + $data['modal']);
+				$id = $this->belanjaModel->insert($data);
+				$row = $this->belanjaModel->find($id);
+			}
+			
+            return $this->response->setJSON([
+                'ok'=>true,
+                'row'=>$row,
+                'csrf_token' => csrf_token(),
+                'csrf_hash' => csrf_hash(),
+            ]);
+		} catch (\Exception $e) {
+			log_message('error', 'BelanjaMasterUpdateBatch Error: ' . $e->getMessage());
             return $this->response->setJSON([
                 'ok'=>false,
                 'message'=>$e->getMessage(),
@@ -622,6 +867,18 @@ class TargetFisikKeu extends BaseController
 			$tahun = (int)$this->request->getPost('tahun');
 			$tahapan = (string)$this->request->getPost('tahapan');
 			$bulan = (int)$this->request->getPost('bulan');
+
+			// Ensure helper available for format_angka_db
+			helper(['angka']);
+			if (!function_exists('format_angka_db')) {
+				// Fallback parser: strip non-digits except minus
+				function format_angka_db($angka) {
+					if (is_null($angka)) return 0;
+					if (is_numeric($angka)) return (float)$angka;
+					$raw = preg_replace('/[^0-9\-]/', '', (string)$angka);
+					return (float)$raw;
+				}
+			}
 			
 			// Get master data to get id_belanja
 			$masterData = $this->belanjaModel->where(['tahun' => $tahun, 'tahapan' => $tahapan])->first();
@@ -638,15 +895,15 @@ class TargetFisikKeu extends BaseController
 				'tahun' => $tahun,
 				'tahapan' => $tahapan,
 				'pegawai_anggaran' => (float)$masterData['pegawai'],
-				'pegawai_realisasi' => (float)$this->request->getPost('pegawai_realisasi'),
+				'pegawai_realisasi' => (float)format_angka_db($this->request->getPost('pegawai_realisasi')),
 				'barang_jasa_anggaran' => (float)$masterData['barang_jasa'],
-				'barang_jasa_realisasi' => (float)$this->request->getPost('barang_jasa_realisasi'),
+				'barang_jasa_realisasi' => (float)format_angka_db($this->request->getPost('barang_jasa_realisasi')),
 				'hibah_anggaran' => (float)$masterData['hibah'],
-				'hibah_realisasi' => (float)$this->request->getPost('hibah_realisasi'),
+				'hibah_realisasi' => (float)format_angka_db($this->request->getPost('hibah_realisasi')),
 				'bansos_anggaran' => (float)$masterData['bansos'],
-				'bansos_realisasi' => (float)$this->request->getPost('bansos_realisasi'),
+				'bansos_realisasi' => (float)format_angka_db($this->request->getPost('bansos_realisasi')),
 				'modal_anggaran' => (float)$masterData['modal'],
-				'modal_realisasi' => (float)$this->request->getPost('modal_realisasi'),
+				'modal_realisasi' => (float)format_angka_db($this->request->getPost('modal_realisasi')),
 			];
 
 			// Calculate totals

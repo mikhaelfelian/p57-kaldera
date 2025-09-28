@@ -2,7 +2,12 @@
 
 <?= $this->section('content') ?>
 <?php helper('angka'); ?>
-<?php $months = ['jan' => 'Januari', 'feb' => 'Februari', 'mar' => 'Maret', 'apr' => 'April', 'mei' => 'Mei', 'jun' => 'Juni', 'jul' => 'Juli', 'ags' => 'Agustus', 'sep' => 'September', 'okt' => 'Oktober', 'nov' => 'November', 'des' => 'Desember']; ?>
+<?php 
+$months = ['jan' => 'Januari', 'feb' => 'Februari', 'mar' => 'Maret', 'apr' => 'April', 'mei' => 'Mei', 'jun' => 'Juni', 'jul' => 'Juli', 'ags' => 'Agustus', 'sep' => 'September', 'okt' => 'Oktober', 'nov' => 'November', 'des' => 'Desember'];
+$tahapan = $tahapan ?? '';
+$year = $year ?? date('Y');
+?>
+
 <div class="card">
 	<div class="card-header d-flex align-items-center justify-content-between">
 		<h3 class="card-title">Target Fisik & Keuangan</h3>
@@ -13,25 +18,21 @@
 		$start = $current - 5;
 		$end = $current + 5;
 		$tahapanList = [
-			'' => '- Pilih Tahapan -',
-			'penetapan' => 'Penetapan APBD',
-			'pergeseran' => 'Pergeseran',
-			'perubahan' => 'Perubahan APBD'
+					'penetapan'   => 'Penetapan APBD',
+					'pergeseran'  => 'Pergeseran',
+					'perubahan'   => 'Perubahan APBD',
 		];
 		$currentTahapan = $tahapan ?? '';
 		?>
 		<label class="mr-2">Tahun</label>
-		<select name="year" class="form-control form-control-sm mr-2" onchange="this.form.submit()"
-			<?= $current == date('Y') ? 'readonly disabled' : '' ?>>
+				<select name="year" class="form-control form-control-sm mr-3" disabled readonly>
 			<?php for ($y = $start; $y <= $end; $y++): ?>
 				<option value="<?= $y ?>" <?= $y === $current ? 'selected' : '' ?>><?= $y ?></option>
 			<?php endfor; ?>
 		</select>
-		<?php if ($current == date('Y')): ?>
 			<input type="hidden" name="year" value="<?= $current ?>">
-		<?php endif; ?>
-		<label class="mr-2 ml-3">Tahapan</label>
-		<select name="tahapan" class="form-control form-control-sm mr-2" onchange="this.form.submit()">
+				<label class="mr-2">Tahapan</label>
+				<select name="tahapan" class="form-control form-control-sm">
 			<?php foreach ($tahapanList as $key => $label): ?>
 				<option value="<?= $key ?>" <?= $key === $currentTahapan ? 'selected' : '' ?>><?= $label ?></option>
 			<?php endforeach; ?>
@@ -39,45 +40,43 @@
 		<?= form_close() ?>
 	</div>
 	<div class="card-body">
-		<?php if (!empty($items)): ?>
 			<div class="table-responsive mt-2">
 				<table class="table table-bordered mb-0 rounded-0" id="tfkTable"
-					data-year="<?= (int) ($year ?? $current) ?>">
+						data-year="<?= (int) ($year ?? $current) ?>" data-tahapan="<?= esc($currentTahapan) ?>">
 					<thead>
-						<tr>
+							<tr style="background-color: #3b6ea8; color: white;">
 							<th>Kumulatif</th>
 							<?php foreach ($months as $label): ?>
-								<th><?= $label ?></th>
+									<th class="text-center"><?= $label ?></th>
 							<?php endforeach; ?>
 						</tr>
 					</thead>
 					<tbody>
+							<tr>
+								<td><strong>Target Fisik (%)</strong></td>
 						<?php
-						// Use the first master data set for rendering the table
-						$firstMaster = $mastersWithData[0] ?? null;
-						$map = $firstMaster ? ($firstMaster['details'] ?? []) : [];
-						$masterId = $firstMaster ? (int) ($firstMaster['master']['id'] ?? 0) : 0;
-						?>
-						<tr data-master-id="<?= $masterId ?>">
-							<td><strong>Target Keuangan (%)</strong></td>
-							<?php foreach ($months as $k => $label):
-								$d = $map[$k] ?? ['id' => null];
-								$val = isset($d['target_keuangan']) ? (float) $d['target_keuangan'] : 0; ?>
-								<td><span class="editable" data-bulan="<?= $k ?>" data-field="keu"
-										data-id="<?= (int) ($d['id'] ?? 0) ?>"
-										data-value="<?= $val ?>"><?= format_angka($val) ?></span> <i
-										class="fas fa-pencil-alt text-muted ml-1 edit-icon"></i></td>
+								$defaultValues = [5, 10, 15, 20, 30, 40, 50, 60, 70, 80, 90, 100];
+								foreach ($months as $k => $label):
+									$val = $defaultValues[array_search($k, array_keys($months))] ?? 0;
+								?>
+									<td class="text-center">
+										<span class="editable" data-bulan="<?= $k ?>" data-field="fisik"
+											data-id="0" data-value="<?= $val ?>"><?= format_angka($val) ?></span> 
+										<i class="fas fa-pencil-alt text-muted ml-1 edit-icon"></i>
+									</td>
 							<?php endforeach; ?>
 						</tr>
-						<tr data-master-id="<?= $masterId ?>">
-							<td><strong>Target Fisik (%)</strong></td>
-							<?php foreach ($months as $k => $label):
-								$d = $map[$k] ?? ['id' => null];
-								$val = isset($d['target_fisik']) ? (float) $d['target_fisik'] : 0; ?>
-								<td><span class="editable" data-bulan="<?= $k ?>" data-field="fisik"
-										data-id="<?= (int) ($d['id'] ?? 0) ?>"
-										data-value="<?= $val ?>"><?= format_angka($val) ?></span> <i
-										class="fas fa-pencil-alt text-muted ml-1 edit-icon"></i></td>
+							<tr>
+								<td><strong>Target Keuangan (%)</strong></td>
+								<?php 
+								foreach ($months as $k => $label):
+									$val = $defaultValues[array_search($k, array_keys($months))] ?? 0;
+								?>
+									<td class="text-center">
+										<span class="editable" data-bulan="<?= $k ?>" data-field="keu"
+											data-id="0" data-value="<?= $val ?>"><?= format_angka($val) ?></span> 
+										<i class="fas fa-pencil-alt text-muted ml-1 edit-icon"></i>
+									</td>
 							<?php endforeach; ?>
 						</tr>
 					</tbody>
@@ -86,17 +85,44 @@
 					<button type="button" class="btn btn-success rounded-0" id="btnDummySave">Simpan</button>
 				</div>
 			</div>
-		<?php elseif (empty($items)): ?>
-			<div class="alert alert-info mb-0">Belum ada master. Buat melalui aksi terpisah.</div>
-		<?php else: ?>
-			<div class="alert alert-warning mb-0">Pilih master dari dropdown di atas untuk mengedit data.</div>
-		<?php endif; ?>
 	</div>
 </div>
 <?= $this->endSection() ?>
 
 <?= $this->section('css') ?>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.css">
+<style>
+#tfkTable th {
+    background-color: #3b6ea8 !important;
+    color: white !important;
+    text-align: center;
+}
+#tfkTable td {
+    text-align: center;
+    vertical-align: middle;
+}
+.editable {
+    cursor: pointer;
+    padding: 4px 8px;
+    border-radius: 3px;
+    transition: background-color 0.2s ease;
+}
+.editable.has-changes {
+    background-color: #fff3cd !important;
+    border: 1px solid #ffeaa7;
+}
+.editable:hover {
+    background-color: #f8f9fa;
+}
+.edit-icon {
+    cursor: pointer;
+    opacity: 0.6;
+    transition: opacity 0.2s ease;
+}
+.edit-icon:hover {
+    opacity: 1;
+}
+</style>
 <?= $this->endSection() ?>
 
 <?= $this->section('js') ?>
@@ -107,22 +133,74 @@
 		var csrfToken = '<?= csrf_token() ?>';
 		var csrfHash = '<?= csrf_hash() ?>';
 
-		// Test if we can make a simple AJAX call
-		console.log('Page loaded, testing AJAX capability');
+		// Format number similar to format_angka() helper
+		function formatAngka(num) {
+			if (num === null || num === undefined || isNaN(num)) return '0';
+			return new Intl.NumberFormat('id-ID').format(parseFloat(num));
+		}
 
-		// Test AJAX call to see if it works
-		$.post('<?= base_url('tfk/update-cell') ?>', {
-			id: 0,
-			master_id: 1,
-			bulan: 'feb',
-			field: 'fisik',
-			value: 123.45,
-			year: 2025
-		}, function (response) {
-			console.log('Test AJAX successful:', response);
-		}, 'json').fail(function (xhr, status, error) {
-			console.error('Test AJAX failed:', xhr.responseText, status, error);
-		});
+		// Load existing data function (following master.php pattern)
+		function loadExisting() {
+			var tahun = $('#tfkTable').data('year');
+			var tahapan = $('select[name="tahapan"]').val();
+			
+			console.log('Loading data for tahun:', tahun, 'tahapan:', tahapan);
+			
+			// Update table data attribute
+			$('#tfkTable').data('tahapan', tahapan);
+			
+			// Load data from database based on tahun and tahapan
+			$.get('<?= base_url('tfk/get-data') ?>', {
+				tahun: tahun,
+				tahapan: tahapan
+			}, function(res) {
+				console.log('Received response:', res);
+				if (res && res.ok && res.data && Object.keys(res.data).length > 0) {
+					// Update table with loaded data
+					updateTableWithData(res.data);
+					if (res.csrf_hash) { csrfHash = res.csrf_hash; }
+					console.log('Data loaded successfully');
+				} else {
+					console.log('No data found for tahun:', tahun, 'tahapan:', tahapan);
+					console.log('Response data:', res.data);
+					// Reset all cells to 0 if no data found
+					$('#tfkTable .editable').each(function(){
+						$(this).data('value', 0).removeData('staged').removeClass('has-changes').text('0');
+					});
+				}
+			}, 'json').fail(function(xhr) {
+				console.error('Failed to load data:', xhr.responseText);
+				toastr.error('Gagal memuat data dari database');
+				// Reset all cells to 0 on error
+				$('#tfkTable .editable').each(function(){
+					$(this).data('value', 0).removeData('staged').removeClass('has-changes').text('0');
+				});
+			});
+		}
+
+		// Update table with loaded data
+        function updateTableWithData(data) {
+			console.log('Updating table with data:', data);
+			
+			// Update Target Fisik row (first row)
+			$('#tfkTable tbody tr:first-child .editable').each(function() {
+				var bulan = $(this).data('bulan');
+				var value = data[bulan] ? data[bulan].target_fisik || 0 : 0;
+                $(this).data('value', value).text(formatAngka(value));
+                $(this).removeClass('has-changes').removeData('staged');
+				console.log('Updated fisik for bulan:', bulan, 'value:', value, 'formatted:', formatAngka(value));
+			});
+
+			// Update Target Keuangan row (second row)
+			$('#tfkTable tbody tr:last-child .editable').each(function() {
+				var bulan = $(this).data('bulan');
+				var value = data[bulan] ? data[bulan].target_keuangan || 0 : 0;
+                $(this).data('value', value).text(formatAngka(value));
+                $(this).removeClass('has-changes').removeData('staged');
+				console.log('Updated keuangan for bulan:', bulan, 'value:', value, 'formatted:', formatAngka(value));
+			});
+		}
+
 		function makeInput(span) {
 			var value = (span.data('value') !== undefined) ? span.data('value') : span.text().trim();
 			var input = $('<input type="number" step="0.01" min="0" max="100" class="form-control form-control-sm rounded-0" />');
@@ -132,51 +210,12 @@
 			input.focus();
 			function commit() {
 				var newVal = parseFloat(input.val() || 0);
-				var masterId = span.closest('tr').data('master-id');
-
-				// Check if master is selected
-				if (!masterId || masterId <= 0) {
-					toastr.error('Master ID tidak ditemukan!');
+                // Stage locally and update displayed text to show the input value
+                span.data('staged', newVal);
+                span.addClass('has-changes');
+                span.text(formatAngka(newVal)); // Show the formatted input value in the yellow cell
 					input.remove();
 					span.show();
-					return;
-				}
-
-				var payload = {
-					id: span.data('id') || 0,
-					master_id: masterId,
-					bulan: span.data('bulan'),
-					year: $('#tfkTable').data('year'),
-					field: span.data('field'),
-					value: newVal,
-					tahapan: $('select[name="tahapan"]').val() || ''
-				};
-				console.log('Sending AJAX request to:', '<?= base_url('tfk/update-cell') ?>');
-				console.log('Payload:', payload);
-				$.post('<?= base_url('tfk/update-cell') ?>', payload, function (res) {
-					console.log('Response received:', res);
-					if (res && res.ok) {
-						span.data('id', res.id);
-						span.data('value', newVal);
-						try { span.text(new Intl.NumberFormat('id-ID').format(newVal)); } catch (e) { span.text(newVal); }
-						toastr.success('Data berhasil disimpan!');
-					} else {
-						console.error('Save failed:', res);
-						toastr.error('Gagal menyimpan: ' + (res.message || 'Unknown error'));
-					}
-					input.remove(); span.show();
-				}, 'json').fail(function (xhr, status, error) {
-					input.remove();
-					span.show();
-					console.error('AJAX Error:', xhr.responseText);
-					console.error('Status:', status, 'Error:', error);
-					if (xhr.status === 403 || xhr.responseText.includes('Forbidden')) {
-						toastr.error('Session expired. Please refresh the page.');
-						setTimeout(function () { location.reload(); }, 2000);
-					} else {
-						toastr.error('Gagal menyimpan: ' + error);
-					}
-				});
 			}
 			input.on('blur', commit);
 			input.on('keydown', function (e) { if (e.key === 'Enter') { e.preventDefault(); commit(); } });
@@ -184,71 +223,71 @@
 		$(document).on('click', '#tfkTable .editable', function () { makeInput($(this)); });
 		$(document).on('click', '#tfkTable .edit-icon', function () { var span = $(this).siblings('span.editable').first(); if (span.length) { makeInput(span); } });
 
-		// Save button functionality
+		// Bind dropdown change events (following master.php pattern)
+		loadExisting();
+		$('select[name="tahapan"]').on('change', function(){
+			console.log('Tahapan dropdown changed to:', $(this).val());
+			loadExisting();
+		});
+
+        // Save button functionality - save only staged changes to database organized by year and tahapan
 		$('#btnDummySave').on('click', function () {
 			var $btn = $(this);
 			var originalText = $btn.text();
-
-			console.log('Save button clicked');
-
-			$btn.prop('disabled', true).text('Menyimpan...');
-
-			// Collect all editable values
-			var updates = [];
+			var tahun = $('#tfkTable').data('year');
+			var tahapan = $('#tfkTable').data('tahapan');
+			
+            // Collect only staged changes
+            var allData = {};
+            var stagedCount = 0;
 			$('#tfkTable .editable').each(function () {
 				var $span = $(this);
-				var $row = $span.closest('tr');
-				var masterId = $row.data('master-id');
-				var dataVal = $span.data('value');
-				var value = (dataVal !== undefined) ? parseFloat(dataVal) : (parseFloat(($span.text().trim() || '').replace(/\./g, '').replace(',', '.')) || 0);
-
-				console.log('Processing cell:', {
-					masterId: masterId,
-					bulan: $span.data('bulan'),
-					field: $span.data('field'),
-					value: value,
-					textValue: $span.text().trim()
-				});
-
-				if (masterId && masterId > 0) {
-					updates.push({
-						id: $span.data('id') || 0,
-						master_id: masterId,
-						bulan: $span.data('bulan'),
-						year: $('#tfkTable').data('year'),
-						field: $span.data('field'),
-						value: value,
-						tahapan: $('select[name="tahapan"]').val() || ''
-					});
-				}
-			});
-
-			console.log('Total updates to process:', updates.length);
-
-			// Save all updates
-			var promises = updates.map(function (update) {
+                var staged = $span.data('staged');
+                if(staged !== undefined){
+                    var bulan = $span.data('bulan');
+                    var field = $span.data('field');
+                    if (!allData[bulan]) {
+                        allData[bulan] = {};
+                    }
+                    allData[bulan][field] = parseFloat(staged)||0;
+                    stagedCount++;
+                }
+            });
+            if(stagedCount===0){ toastr.info('Tidak ada perubahan'); return; }
+			
+			// Save all data to database
 				var payload = {
-					id: update.id,
-					master_id: update.master_id,
-					bulan: update.bulan,
-					year: update.year,
-					field: update.field,
-					value: update.value,
-					tahapan: $('select[name="tahapan"]').val() || ''
-				};
-
-				console.log('Bulk save - Sending to:', '<?= base_url('tfk/update-cell') ?>', 'Payload:', payload);
-				return $.post('<?= base_url('tfk/update-cell') ?>', payload, null, 'json');
-			});
-
-			Promise.all(promises).then(function (results) {
-				console.log('Bulk save results:', results);
+				tahun: tahun,
+				tahapan: tahapan,
+				data: allData
+			};
+			payload[csrfToken] = csrfHash;
+			
+			$btn.prop('disabled', true).text('Menyimpan...');
+			
+			$.post('<?= base_url('tfk/save-all') ?>', payload, function (res) {
 				$btn.prop('disabled', false).text(originalText);
-				toastr.success('Semua data berhasil disimpan!');
-			}).catch(function (error) {
+				if (res && res.csrf_hash) { csrfHash = res.csrf_hash; }
+				
+				if (res && res.ok) {
+                    toastr.success('Semua data berhasil disimpan ke database!');
+                    // Apply staged values to UI and clear staging
+                    $('#tfkTable .editable').each(function(){
+                        var $span = $(this);
+                        var staged = $span.data('staged');
+                        if(staged !== undefined){
+                            $span.data('value', parseFloat(staged)||0).text(formatAngka(staged));
+                            $span.removeData('staged');
+                        }
+                        $span.removeClass('has-changes');
+                    });
+				} else {
+					toastr.error('Gagal menyimpan: ' + (res.message || 'Unknown error'));
+				}
+			}, 'json').fail(function (xhr) {
 				$btn.prop('disabled', false).text(originalText);
-				console.error('Bulk Save Error:', error);
-				toastr.error('Gagal menyimpan data!');
+				console.error('Save all error:', xhr.responseText);
+				toastr.error('Gagal menyimpan data ke database!');
 			});
 		});
 	})();
