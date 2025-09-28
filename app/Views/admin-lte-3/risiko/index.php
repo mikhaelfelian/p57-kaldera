@@ -56,7 +56,7 @@
                         <tbody>
                             <?php if (!empty($items)): foreach ($items as $row): ?>
                                 <tr>
-                                    <td class="text-center"><small><?= (int)($row['month'] ?? 1) ?> = <?= bulan_ke_str((int)($row['month'] ?? 1)) ?></small></td>
+                                    <td class="text-center"><small><?= bulan_ke_str((int)($row['month'] ?? 1)) ?></small></td>
                                     <td>
                                         <div><?= esc($row['uraian']) ?></div>
                                     </td>
