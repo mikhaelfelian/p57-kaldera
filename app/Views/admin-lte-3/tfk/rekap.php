@@ -2,8 +2,13 @@
 
 <?= $this->section('content') ?>
 <?php 
+helper(['angka']);
 $months = ['jan'=>'Januari','feb'=>'Februari','mar'=>'Maret','apr'=>'April','mei'=>'Mei','jun'=>'Juni','jul'=>'Juli','ags'=>'Agustus','sep'=>'September','okt'=>'Oktober','nov'=>'November','des'=>'Desember'];
-$tahapan = ['Penetapan APBD', 'Pergeseran', 'Perubahan APBD'];
+$tahapanList = [
+    'penetapan' => 'Penetapan APBD',
+    'pergeseran' => 'Pergeseran', 
+    'perubahan' => 'Perubahan APBD'
+];
 ?>
 
 <div class="row">
@@ -20,6 +25,14 @@ $tahapan = ['Penetapan APBD', 'Pergeseran', 'Perubahan APBD'];
                             <option value="<?= $current ?>" selected><?= $current ?></option>
                         </select>
                         <input type="hidden" name="year" value="<?= $current ?>">
+                        
+                        <label class="mr-2 ml-3">Tahapan:</label>
+                        <?php $currentTahapan = $tahapan ?? 'penetapan'; ?>
+                        <select name="tahapan" class="form-control form-control-sm">
+                            <?php foreach ($tahapanList as $key => $label): ?>
+                                <option value="<?= $key ?>" <?= $key === $currentTahapan ? 'selected' : '' ?>><?= $label ?></option>
+                            <?php endforeach; ?>
+                        </select>
 					</form>
                     <div class="btn-group">
                         <a class="btn btn-success btn-sm" id="btnExportPdf">Export PDF</a>
@@ -28,7 +41,7 @@ $tahapan = ['Penetapan APBD', 'Pergeseran', 'Perubahan APBD'];
 				</div>
 			</div>
 			<div class="card-body">
-				<?php if ($selectedMaster): ?>
+				<?php if (!empty($details)): ?>
 				<div class="row">
 					<!-- Data Table -->
 					<div class="col-md-7">
@@ -48,21 +61,21 @@ $tahapan = ['Penetapan APBD', 'Pergeseran', 'Perubahan APBD'];
                                     <tr>
                                         <td class="red-box"><strong>Target Fisik (%)</strong></td>
                                         <?php foreach ($months as $k=>$label): $d = $map[$k] ?? []; $val = isset($d['target_fisik']) ? (float)$d['target_fisik'] : 0; ?>
-                                        <td class="text-center"><?= number_format($val, 1) ?></td>
+                                        <td class="text-center"><?= format_angka($val, 0) ?></td>
 										<?php endforeach; ?>
 									</tr>
 									<!-- Realisasi Fisik -->
 									<tr>
 										<td><strong>Realisasi Fisik (%)</strong></td>
 										<?php foreach ($months as $k=>$label): $d = $map[$k] ?? []; $val = isset($d['realisasi_fisik']) ? (float)$d['realisasi_fisik'] : 0; ?>
-										<td class="text-center"><?= number_format($val, 1) ?></td>
+										<td class="text-center"><?= format_angka($val, 0) ?></td>
 										<?php endforeach; ?>
 									</tr>
 									<!-- Realisasi Fisik Prov -->
 									<tr>
 										<td><strong>Realisasi Fisik Prov (%)</strong></td>
                                         <?php foreach ($months as $k=>$label): $d = $map[$k] ?? []; $val = isset($d['realisasi_fisik_prov']) ? (float)$d['realisasi_fisik_prov'] : 0; ?>
-										<td class="text-center"><?= number_format($val, 1) ?></td>
+										<td class="text-center"><?= format_angka($val, 0) ?></td>
 										<?php endforeach; ?>
 									</tr>
 									<!-- Deviasi Fisik -->
@@ -75,7 +88,7 @@ $tahapan = ['Penetapan APBD', 'Pergeseran', 'Perubahan APBD'];
 											$deviasi = $realisasi - $target;
 										?>
 										<td class="text-center <?= $deviasi < 0 ? 'text-danger' : ($deviasi > 0 ? 'text-success' : '') ?>">
-											<?= number_format($deviasi, 1) ?>
+											<?= format_angka($deviasi, 0) ?>
 										</td>
 										<?php endforeach; ?>
 									</tr>
@@ -83,21 +96,21 @@ $tahapan = ['Penetapan APBD', 'Pergeseran', 'Perubahan APBD'];
 									<tr>
                                         <td class="red-box"><strong>Target Keuangan (%)</strong></td>
                                         <?php foreach ($months as $k=>$label): $d = $map[$k] ?? []; $val = isset($d['target_keuangan']) ? (float)$d['target_keuangan'] : 0; ?>
-										<td class="text-center"><?= number_format($val, 1) ?></td>
+										<td class="text-center"><?= format_angka($val, 0) ?></td>
 										<?php endforeach; ?>
 									</tr>
 									<!-- Realisasi Keuangan -->
 									<tr>
 										<td><strong>Realisasi Keuangan (%)</strong></td>
                                         <?php foreach ($months as $k=>$label): $d = $map[$k] ?? []; $val = isset($d['realisasi_keuangan']) ? (float)$d['realisasi_keuangan'] : 0; ?>
-										<td class="text-center"><?= number_format($val, 1) ?></td>
+										<td class="text-center"><?= format_angka($val, 0) ?></td>
 										<?php endforeach; ?>
 									</tr>
 									<!-- Realisasi Keu Prov -->
 									<tr>
 										<td><strong>Realisasi Keu Prov (%)</strong></td>
                                         <?php foreach ($months as $k=>$label): $d = $map[$k] ?? []; $val = isset($d['realisasi_keuangan_prov']) ? (float)$d['realisasi_keuangan_prov'] : 0; ?>
-										<td class="text-center"><?= number_format($val, 1) ?></td>
+										<td class="text-center"><?= format_angka($val, 0) ?></td>
 										<?php endforeach; ?>
 									</tr>
 									<!-- Deviasi Keuangan -->
@@ -110,7 +123,7 @@ $tahapan = ['Penetapan APBD', 'Pergeseran', 'Perubahan APBD'];
 											$deviasi = $realisasi - $target;
 										?>
 										<td class="text-center <?= $deviasi < 0 ? 'text-danger' : ($deviasi > 0 ? 'text-success' : '') ?>">
-											<?= number_format($deviasi, 1) ?>
+											<?= format_angka($deviasi, 0) ?>
 										</td>
 										<?php endforeach; ?>
 									</tr>
@@ -139,9 +152,11 @@ $tahapan = ['Penetapan APBD', 'Pergeseran', 'Perubahan APBD'];
 					</div>
 				</div>
 				<?php else: ?>
-				<div class="alert alert-info text-center">
-					<h4>Pilih Master Data untuk melihat rekap</h4>
-					<p>Gunakan dropdown di atas untuk memilih master data yang ingin dilihat rekapnya.</p>
+				<div class="alert alert-warning text-center">
+					<h4>Tidak Ada Data</h4>
+					<p>Belum ada data untuk tahun <strong><?= $year ?></strong> dan tahapan <strong><?= $tahapanList[$tahapan] ?? $tahapan ?></strong>.</p>
+					<p>Silakan input data terlebih dahulu di halaman <a href="<?= base_url('tfk/input') ?>" class="btn btn-primary btn-sm">Input Data</a></p>
+					<p><small><strong>Debug Info:</strong> Master ID: <?= $masterId ?>, Records Found: <?= $recordCount ?? 0 ?></small></p>
 				</div>
 				<?php endif; ?>
 			</div>
@@ -155,6 +170,12 @@ $tahapan = ['Penetapan APBD', 'Pergeseran', 'Perubahan APBD'];
 <style>
 .bg-warning-light {
 	background-color: #fff3cd !important;
+}
+.red-box {
+    border: 3px solid #d9534f !important;
+    background-color: #fff;
+    color: #d9534f;
+    font-weight: bold;
 }
 </style>
 <?= $this->endSection() ?>
@@ -173,29 +194,29 @@ const chart = new Chart(ctx, {
         labels: chartData.map(d => d.month),
         datasets: [
             {
-                label: 'T.Fisik',
+                label: 'Target Fisik',
                 data: chartData.map(d => d.target_fisik),
                 borderColor: 'rgb(75, 192, 192)',
                 backgroundColor: 'rgba(75, 192, 192, 0.2)',
                 tension: 0.1
             },
             {
-                label: 'R.Fisik',
+                label: 'Realisasi Fisik',
                 data: chartData.map(d => d.realisasi_fisik),
                 borderColor: 'rgb(255, 99, 132)',
                 backgroundColor: 'rgba(255, 99, 132, 0.2)',
                 tension: 0.1
             },
             {
-                label: 'T.Keuangan',
-                data: chartData.map(d => d.target_keu),
+                label: 'Target Keuangan',
+                data: chartData.map(d => d.target_keuangan),
                 borderColor: 'rgb(54, 162, 235)',
                 backgroundColor: 'rgba(54, 162, 235, 0.2)',
                 tension: 0.1
             },
             {
-                label: 'R.Keuangan',
-                data: chartData.map(d => d.realisasi_keu),
+                label: 'Realisasi Keuangan',
+                data: chartData.map(d => d.realisasi_keuangan),
                 borderColor: 'rgb(255, 205, 86)',
                 backgroundColor: 'rgba(255, 205, 86, 0.2)',
                 tension: 0.1
@@ -217,6 +238,13 @@ const chart = new Chart(ctx, {
             }
         }
     }
+});
+
+// Handle tahapan dropdown change
+document.querySelector('select[name="tahapan"]').addEventListener('change', function(){
+    var params = new URLSearchParams(window.location.search);
+    params.set('tahapan', this.value);
+    window.location.href = window.location.pathname + '?' + params.toString();
 });
 
 // Export: build URLs to backend endpoints

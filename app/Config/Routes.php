@@ -95,6 +95,7 @@ $routes->group('tfk', ['namespace' => 'App\\Controllers', 'filter' => 'auth'], f
     $routes->post('save-all', 'TargetFisikKeu::saveAll', ['as' => 'tfk.save_all']);
     $routes->post('save-tahapan', 'TargetFisikKeu::saveTahapan', ['as' => 'tfk.save_tahapan']);
     $routes->get('test', 'TargetFisikKeu::test', ['as' => 'tfk.test']);
+    $routes->get('test-data', 'TargetFisikKeu::testData', ['as' => 'tfk.test_data']);
 });
 
 // ==================== Belanja (alias routes to TFK controller) ====================

@@ -418,50 +418,114 @@ class TargetFisikKeu extends BaseController
 	public function rekap()
 	{
 		$year = (int)($this->request->getGet('year') ?: date('Y'));
-        // Use first master automatically (no selector in UI)
-        $masters = $this->masterModel->orderBy('id', 'DESC')->findAll();
-        $masterId = !empty($masters) ? (int)$masters[0]['id'] : 0;
+		$tahapan = (string)($this->request->getGet('tahapan') ?: 'penetapan');
+        
+        // Use master_id = 1 as default (like in input page)
+        $masterId = 1;
 		
 		$selectedMaster = null;
 		$details = [];
 		$chartData = [];
 		
-		if ($masterId) {
-			$selectedMaster = $this->masterModel->find($masterId);
-			if ($selectedMaster) {
-                $rows = $this->fiskalModel->getByMasterTipeYear($masterId, '1', $year);
-				foreach ($rows as $r) {
-					$details[$r['bulan']] = $r;
-				}
+		// Get data from tbl_fiskal with master_id = 1
+		$rows = $this->fiskalModel->where([
+			'master_id' => $masterId,
+			'tipe' => '1',
+			'tahun' => $year,
+			'tahapan' => $tahapan
+		])->orderBy('bulan', 'ASC')->findAll();
+		
+		// Debug: Log the query results
+		log_message('debug', 'TFK Rekap - Year: ' . $year . ', Tahapan: ' . $tahapan . ', Master ID: ' . $masterId);
+		log_message('debug', 'TFK Rekap - Found ' . count($rows) . ' records');
+		
+		// If no data found, try to find any data for this year without tahapan filter
+		if (empty($rows)) {
+			$allRows = $this->fiskalModel->where([
+				'master_id' => $masterId,
+				'tipe' => '1',
+				'tahun' => $year
+			])->findAll();
+			log_message('debug', 'TFK Rekap - Found ' . count($allRows) . ' records without tahapan filter');
+			
+			// If still no data, try without master_id filter
+			if (empty($allRows)) {
+				$anyRows = $this->fiskalModel->where([
+					'tipe' => '1',
+					'tahun' => $year
+				])->findAll();
+				log_message('debug', 'TFK Rekap - Found ' . count($anyRows) . ' records without master_id filter');
 				
-				$months = ['jan','feb','mar','apr','mei','jun','jul','ags','sep','okt','nov','des'];
-				$monthNames = ['Jan','Feb','Mar','Apr','Mei','Jun','Jul','Ags','Sep','Okt','Nov','Des'];
-                foreach ($months as $i => $m) {
-                    $d = $details[$m] ?? [];
-					$chartData[] = [
-						'month' => $monthNames[$i],
-                        'target_fisik' => (float)($d['target_fisik'] ?? 0),
-						'realisasi_fisik' => (float)($d['realisasi_fisik'] ?? 0),
-                        'target_keuangan' => (float)($d['target_keuangan'] ?? 0),
-                        'realisasi_keuangan' => (float)($d['realisasi_keuangan'] ?? 0),
-					];
+				// If still no data, try to find ANY data in the table
+				if (empty($anyRows)) {
+					$anyData = $this->fiskalModel->findAll();
+					log_message('debug', 'TFK Rekap - Found ' . count($anyData) . ' total records in tbl_fiskal');
+					if (!empty($anyData)) {
+						$sample = $anyData[0];
+						log_message('debug', 'TFK Rekap - Sample record: Master ID: ' . $sample['master_id'] . ', Tipe: ' . $sample['tipe'] . ', Tahun: ' . $sample['tahun'] . ', Bulan: ' . $sample['bulan'] . ', Tahapan: ' . $sample['tahapan']);
+					}
 				}
 			}
+		}
+		
+		foreach ($rows as $r) {
+			$details[$r['bulan']] = $r;
+			log_message('debug', 'TFK Rekap - Month: ' . $r['bulan'] . ', Target Fisik: ' . $r['target_fisik'] . ', Realisasi Fisik: ' . $r['realisasi_fisik']);
+		}
+		
+		$months = ['jan','feb','mar','apr','mei','jun','jul','ags','sep','okt','nov','des'];
+		$monthNames = ['Jan','Feb','Mar','Apr','Mei','Jun','Jul','Ags','Sep','Okt','Nov','Des'];
+		foreach ($months as $i => $m) {
+			$d = $details[$m] ?? [];
+			$chartData[] = [
+				'month' => $monthNames[$i],
+				'target_fisik' => (float)($d['target_fisik'] ?? 0),
+				'realisasi_fisik' => (float)($d['realisasi_fisik'] ?? 0),
+				'target_keuangan' => (float)($d['target_keuangan'] ?? 0),
+				'realisasi_keuangan' => (float)($d['realisasi_keuangan'] ?? 0),
+			];
 		}
 
         $data = [
 			'title' => 'Target Fisik & Keuangan - Rekap',
 			'Pengaturan' => $this->pengaturan,
 			'user' => $this->ionAuth->user()->row(),
-            'masters' => $masters, // kept for completeness although not shown in UI
 			'selectedMaster' => $selectedMaster,
 			'masterId' => $masterId,
 			'year' => $year,
+			'tahapan' => $tahapan,
 			'details' => $details,
 			'chartData' => $chartData,
+			'hasData' => !empty($details),
+			'recordCount' => count($rows),
 		];
 
 		return view($this->theme->getThemePath() . '/tfk/rekap', $data);
+	}
+
+	/**
+	 * Test method to check database data
+	 */
+	public function testData()
+	{
+		$year = (int)($this->request->getGet('year') ?: date('Y'));
+		$tahapan = (string)($this->request->getGet('tahapan') ?: 'penetapan');
+		
+		// Check all data in tbl_fiskal
+		$allData = $this->fiskalModel->findAll();
+		
+		$response = [
+			'total_records' => count($allData),
+			'year' => $year,
+			'tahapan' => $tahapan,
+			'sample_data' => []
+		];
+		
+		if (!empty($allData)) {
+			$response['sample_data'] = array_slice($allData, 0, 5);
+		}
+		
+		return $this->response->setJSON($response);
 	}
 
     /**

@@ -317,6 +317,15 @@
     var csrfToken = '<?= csrf_token() ?>';
     var csrfHash = '<?= csrf_hash() ?>';
     
+    // Format number similar to format_angka() helper with 0 decimal places
+    function formatAngka(num) {
+        if (num === null || num === undefined || isNaN(num)) return '0';
+        return new Intl.NumberFormat('id-ID', {
+            minimumFractionDigits: 0,
+            maximumFractionDigits: 0
+        }).format(parseFloat(num));
+    }
+    
     // Edit numeric cells
     function openNumericEdit(span) {
         var value = parseFloat(span.text()) || 0;
@@ -328,7 +337,7 @@
         
         function commit() {
             var newVal = parseFloat(input.val()) || 0;
-            span.text(newVal);
+            span.text(formatAngka(newVal));
             input.remove();
             span.show();
             recalculateDeviations();
@@ -373,19 +382,25 @@
         var months = ['jan', 'feb', 'mar', 'apr', 'mei', 'jun'];
         
         months.forEach(function(bulan) {
-            // Get target and realisasi values
-            var targetFisik = parseFloat($('td[data-bulan="' + bulan + '"][data-field="target_fisik"]').text()) || 0;
-            var realFisik = parseFloat($('span[data-bulan="' + bulan + '"][data-field="realisasi_fisik"]').text()) || 0;
-            var targetKeu = parseFloat($('td[data-bulan="' + bulan + '"][data-field="target_keuangan"]').text()) || 0;
-            var realKeu = parseFloat($('span[data-bulan="' + bulan + '"][data-field="realisasi_keuangan"]').text()) || 0;
+            // Get target and realisasi values - parse formatted numbers correctly
+            var targetFisikText = $('td[data-bulan="' + bulan + '"][data-field="target_fisik"]').text();
+            var realFisikText = $('span[data-bulan="' + bulan + '"][data-field="realisasi_fisik"]').text();
+            var targetKeuText = $('td[data-bulan="' + bulan + '"][data-field="target_keuangan"]').text();
+            var realKeuText = $('span[data-bulan="' + bulan + '"][data-field="realisasi_keuangan"]').text();
+            
+            // Parse formatted numbers (remove dots and convert to float)
+            var targetFisik = parseFloat(targetFisikText.replace(/\./g, '')) || 0;
+            var realFisik = parseFloat(realFisikText.replace(/\./g, '')) || 0;
+            var targetKeu = parseFloat(targetKeuText.replace(/\./g, '')) || 0;
+            var realKeu = parseFloat(realKeuText.replace(/\./g, '')) || 0;
             
             // Calculate deviations
             var devFisik = realFisik - targetFisik;
             var devKeu = realKeu - targetKeu;
             
             // Update deviation cells
-            $('td[data-bulan="' + bulan + '"][data-type="deviasi_fisik"]').text(devFisik.toFixed(2));
-            $('td[data-bulan="' + bulan + '"][data-type="deviasi_keuangan"]').text(devKeu.toFixed(2));
+            $('td[data-bulan="' + bulan + '"][data-type="deviasi_fisik"]').text(formatAngka(devFisik));
+            $('td[data-bulan="' + bulan + '"][data-type="deviasi_keuangan"]').text(formatAngka(devKeu));
         });
     }
     
@@ -452,20 +467,20 @@
      
      // Reset table to default values
      function resetTableToDefaults() {
-         // Reset static target cells to 0 (no hardcoded values)
-         $('.static-cell').each(function() {
-             var $cell = $(this);
-             var field = $cell.data('field');
-             
-             if (field === 'target_fisik' || field === 'target_keuangan') {
-                 $cell.text('0');
-             }
-         });
-         
-         // Reset editable cells to 0
-         $('.editable-cell').each(function() {
-             $(this).text('0');
-         });
+        // Reset static target cells to 0 (no hardcoded values)
+        $('.static-cell').each(function() {
+            var $cell = $(this);
+            var field = $cell.data('field');
+            
+            if (field === 'target_fisik' || field === 'target_keuangan') {
+                $cell.text(formatAngka(0));
+            }
+        });
+        
+        // Reset editable cells to 0
+        $('.editable-cell').each(function() {
+            $(this).text(formatAngka(0));
+        });
          
          // Reset text cells to empty
          $('.editable-text-cell').each(function() {
@@ -486,10 +501,10 @@
              var bulan = $cell.data('bulan');
              var field = $cell.data('field');
              
-             if (data[bulan] && data[bulan][field] !== undefined) {
-                 $cell.text(data[bulan][field]);
-                 console.log('Updated static cell:', bulan, field, data[bulan][field]);
-             }
+            if (data[bulan] && data[bulan][field] !== undefined) {
+                $cell.text(formatAngka(data[bulan][field]));
+                console.log('Updated static cell:', bulan, field, data[bulan][field]);
+            }
          });
          
          // Update editable cells
@@ -498,10 +513,10 @@
              var bulan = $span.data('bulan');
              var field = $span.data('field');
              
-             if (data[bulan] && data[bulan][field] !== undefined) {
-                 $span.text(data[bulan][field]);
-                 console.log('Updated editable cell:', bulan, field, data[bulan][field]);
-             }
+            if (data[bulan] && data[bulan][field] !== undefined) {
+                $span.text(formatAngka(data[bulan][field]));
+                console.log('Updated editable cell:', bulan, field, data[bulan][field]);
+            }
          });
          
          // Update text cells
