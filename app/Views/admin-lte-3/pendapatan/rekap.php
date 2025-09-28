@@ -148,23 +148,20 @@
                                 <td class="font-weight-bold"><?= $row['label'] ?></td>
                                 <td class="text-right" style="color: #dc3545;"><?= format_angka_rp($target) ?></td>
                                 <td class="text-right" style="color: #007bff;"><?= format_angka_rp($realisasi) ?></td>
-                                <td class="text-right" style="color: #007bff;"><?= format_angka($persen, 2) ?>%</td>
+                                <td class="text-right" style="color: #007bff;"><?= format_angka($persen, 0) ?>%</td>
                             </tr>
                             <?php endforeach; ?>
                             
                             <!-- TOTAL Row -->
                             <?php 
                                 $totalPersen = $totalTarget > 0 ? ($totalRealisasi / $totalTarget) * 100 : 0;
-                                
-                                // Temporary debug output
-                                echo "<!-- DEBUG: Total Target = $totalTarget, Total Realisasi = $totalRealisasi, Percentage = $totalPersen -->";
                             ?>
                             <tr style="background-color: #3b6ea8; color: white;">
                                 <td class="text-center font-weight-bold">-</td>
                                 <td class="font-weight-bold">TOTAL</td>
                                 <td class="text-right font-weight-bold" style="color: #dc3545;"><?= format_angka_rp($totalTarget) ?></td>
                                 <td class="text-right font-weight-bold" style="color: #007bff;"><?= format_angka_rp($totalRealisasi) ?></td>
-                                <td class="text-right font-weight-bold" style="color: #007bff;"><?= number_format($totalPersen, 2, '.', ',') ?>%</td>
+                                <td class="text-right font-weight-bold" style="color: #007bff;"><?= format_angka($totalPersen, 0) ?>%</td>
                             </tr>
                         </tbody>
                     </table>

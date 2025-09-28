@@ -139,7 +139,7 @@
                             <i class="fas fa-pencil-alt text-muted ml-1 edit-icon" data-field="<?= $row['field'] ?>_realisasi"></i>
                         </td>
                         <td class="text-right">
-                            <span class="calculated-percent" data-field="<?= $row['field'] ?>_percent"><?= format_angka($persen, 2) ?></span>%
+                            <span class="calculated-percent" data-field="<?= $row['field'] ?>_percent"><?= format_angka($persen, 0) ?></span>%
                         </td>
                     </tr>
                     <?php endforeach; ?>
@@ -156,7 +156,7 @@
                             <span id="totalRealisasi"><?= format_angka_rp($totalRealisasi) ?></span>
                         </td>
                         <td class="text-right font-weight-bold">
-                            <span id="totalPersen"><?= format_angka($totalPersen, 2) ?></span>%
+                            <span id="totalPersen"><?= format_angka($totalPersen, 0) ?></span>%
                         </td>
                     </tr>
                 </tbody>
@@ -241,7 +241,7 @@
         var totalRealisasi = 0;
         var totalTarget = 0;
         
-        $('tbody tr').each(function(){
+        $('tbody tr').not(':last').each(function(){
             var $row = $(this);
             var $targetCell = $row.find('td:nth-child(3)');
             var targetText = $targetCell.text().replace(/[^\d]/g, '');
@@ -256,14 +256,14 @@
                 
                 // Calculate percentage
                 var persen = target > 0 ? (realisasi / target) * 100 : 0;
-                $row.find('.calculated-percent').text(persen.toFixed(2));
+                $row.find('.calculated-percent').text(Math.round(persen));
             }
         });
         
         // Update totals
         var totalPersen = totalTarget > 0 ? (totalRealisasi / totalTarget) * 100 : 0;
         $('#totalRealisasi').text(formatCurrencyRp(totalRealisasi));
-        $('#totalPersen').text(totalPersen.toFixed(2));
+        $('#totalPersen').text(Math.round(totalPersen));
     }
     
     // Handle span and icon clicks for editing
