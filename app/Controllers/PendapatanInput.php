@@ -133,6 +133,7 @@ class PendapatanInput extends BaseController
             $totalRealisasi = (float)($existingData['total_realisasi'] ?? 0);
             $totalSisa = $totalTarget - $totalRealisasi;
             
+            
             $chartData = [
                 'realisasi' => $totalRealisasi,
                 'sisa' => $totalSisa,

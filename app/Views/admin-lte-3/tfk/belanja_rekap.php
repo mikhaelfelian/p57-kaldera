@@ -29,11 +29,11 @@
                 <div class="mt-3">
                     <div class="d-flex align-items-center justify-content-center mb-2">
                         <div style="width: 15px; height: 15px; background-color: #007bff; margin-right: 8px;"></div>
-                        <span>Realisasi</span>
+                        <span>Realisasi (<?= format_angka($chart['realisasi_percent'] ?? 0, 0) ?>%)</span>
                     </div>
                     <div class="d-flex align-items-center justify-content-center">
                         <div style="width: 15px; height: 15px; background-color: #dc3545; margin-right: 8px;"></div>
-                        <span>Sisa Anggaran</span>
+                        <span>Sisa Anggaran (<?= format_angka($chart['sisa_percent'] ?? 0, 0) ?>%)</span>
                     </div>
                 </div>
             </div>
@@ -78,14 +78,14 @@
                     <table class="table table-bordered rounded-0">
                         <thead style="background-color: #3b6ea8; color: white;">
                             <tr>
-                                <th style="width: 200px;">Jenis Belanja</th>
+                                <th>Jenis Belanja</th>
                                 <th class="text-center">Anggaran (Rp)</th>
                                 <th class="text-center" colspan="2">Realisasi</th>
                                 <th class="text-center" colspan="2">Sisa Anggaran</th>
                             </tr>
                             <tr>
                                 <th></th>
-                                <th></th>
+                                <th class="text-center">(Rp)</th>
                                 <th class="text-center">(Rp)</th>
                                 <th class="text-center">%</th>
                                 <th class="text-center">(Rp)</th>
@@ -121,10 +121,10 @@
                                 <td class="font-weight-bold" style="background-color: #2f5f93; color: white;">
                                     <?= $row['label'] ?><?= $row['sub'] ? '<br><small>'.$row['sub'].'</small>' : '' ?>
                                 </td>
-                                <td class="text-right"><?= format_angka_rp($anggaran) ?></td>
-                                <td class="text-right"><?= format_angka_rp($realisasi) ?></td>
+                                <td class="text-right"><?= format_angka($anggaran) ?></td>
+                                <td class="text-right"><?= format_angka($realisasi) ?></td>
                                 <td class="text-right"><?= format_angka($persen, 2) ?>%</td>
-                                <td class="text-right"><?= format_angka_rp($sisa) ?></td>
+                                <td class="text-right"><?= format_angka($sisa) ?></td>
                                 <td class="text-right"><?= format_angka($sisaPersen, 2) ?>%</td>
                             </tr>
                             <?php endforeach; ?>
@@ -137,10 +137,10 @@
                             ?>
                             <tr style="background-color: #3b6ea8; color: white;">
                                 <td class="font-weight-bold">TOTAL</td>
-                                <td class="text-right font-weight-bold"><?= format_angka_rp($totalAnggaran) ?></td>
-                                <td class="text-right font-weight-bold"><?= format_angka_rp($totalRealisasi) ?></td>
+                                <td class="text-right font-weight-bold"><?= format_angka($totalAnggaran) ?></td>
+                                <td class="text-right font-weight-bold"><?= format_angka($totalRealisasi) ?></td>
                                 <td class="text-right font-weight-bold"><?= format_angka($totalPersen, 2) ?>%</td>
-                                <td class="text-right font-weight-bold"><?= format_angka_rp($totalSisa) ?></td>
+                                <td class="text-right font-weight-bold"><?= format_angka($totalSisa) ?></td>
                                 <td class="text-right font-weight-bold"><?= format_angka($totalSisaPersen, 2) ?>%</td>
                             </tr>
                         </tbody>

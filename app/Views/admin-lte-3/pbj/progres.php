@@ -19,7 +19,7 @@
         </div>
     </div>
     <div class="card-body rounded-0">
-        <form id="pbjProgresForm" method="post">
+        <form id="pbjProgresForm" method="get">
             <div class="row mb-3">
                 <div class="col-md-4">
                     <label class="font-weight-bold">Tahun</label>

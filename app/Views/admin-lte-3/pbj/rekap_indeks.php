@@ -110,16 +110,17 @@
                                 
                                 $totalPagu += $pagu;
                                 $totalRealisasi += $realisasi;
+                                
                             ?>
                             <tr>
                                 <td class="font-weight-bold" style="background-color: #2f5f93; color: white;">
                                     <?= $label ?>
                                 </td>
                                 <td class="text-right"><?= format_angka_rp($pagu) ?></td>
-                                <td class="text-right" style="color: #dc3545;"><?= format_angka_rp($realisasi) ?></td>
-                                <td class="text-right" style="color: #dc3545;"><?= format_angka($persen, 2) ?>%</td>
-                                <td class="text-right" style="color: #dc3545;"><?= format_angka_rp($sisa) ?></td>
-                                <td class="text-right" style="color: #dc3545;"><?= format_angka($sisaPersen, 2) ?>%</td>
+                                <td class="text-right"><?= format_angka_rp($realisasi) ?></td>
+                                <td class="text-right"><?= format_angka($persen, 2) ?>%</td>
+                                <td class="text-right"><?= format_angka_rp($sisa) ?></td>
+                                <td class="text-right"><?= format_angka($sisaPersen, 2) ?>%</td>
                             </tr>
                             <?php endforeach; ?>
                             
@@ -128,6 +129,7 @@
                                 $totalSisa = $totalPagu - $totalRealisasi;
                                 $totalPersen = $totalPagu > 0 ? ($totalRealisasi / $totalPagu) * 100 : 0;
                                 $totalSisaPersen = $totalPagu > 0 ? ($totalSisa / $totalPagu) * 100 : 0;
+                                
                             ?>
                             <tr style="background-color: #3b6ea8; color: white;">
                                 <td class="font-weight-bold">TOTAL</td>

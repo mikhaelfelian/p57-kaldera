@@ -11,7 +11,7 @@ class Gulkin extends BaseController
     public function __construct()
     {
         $this->model = new GulkinModel();
-        helper(['form']);
+        helper(['form', 'tanggalan']);
     }
 
     public function index()

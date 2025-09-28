@@ -11,7 +11,7 @@ class Gender extends BaseController
     public function __construct()
     {
         $this->model = new GenderModel();
-        helper(['form']);
+        helper(['form', 'tanggalan']);
     }
 
     public function index()

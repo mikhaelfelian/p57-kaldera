@@ -950,10 +950,16 @@ class TargetFisikKeu extends BaseController
 			$totalRealisasi = (float)($existingData['total_realisasi'] ?? 0);
 			$totalSisa = $totalAnggaran - $totalRealisasi;
 			
+			// Calculate percentages
+			$realisasiPercent = $totalAnggaran > 0 ? ($totalRealisasi / $totalAnggaran) * 100 : 0;
+			$sisaPercent = $totalAnggaran > 0 ? ($totalSisa / $totalAnggaran) * 100 : 0;
+			
 			$chartData = [
 				'realisasi' => $totalRealisasi,
 				'sisa' => $totalSisa,
-				'total' => $totalAnggaran
+				'total' => $totalAnggaran,
+				'realisasi_percent' => $realisasiPercent,
+				'sisa_percent' => $sisaPercent
 			];
 		}
 		

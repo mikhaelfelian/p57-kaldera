@@ -11,7 +11,7 @@ class Risiko extends BaseController
     public function __construct()
     {
         $this->model = new RisikoModel();
-        helper(['form']);
+        helper(['form', 'tanggalan']);
     }
 
     public function index()

@@ -21,10 +21,10 @@
                             <input type="number" id="year" name="year" class="form-control rounded-0" value="<?= esc($year) ?>" readonly>
                         </div>
                         <div class="form-group col-md-2">
-                            <label for="month">Triwulan</label>
+                            <label for="month">Bulan</label>
                             <select id="month" name="month" class="form-control rounded-0" required>
-                                <?php for ($m = 1; $m <= 4; $m++): $v = str_pad($m, 2, '0', STR_PAD_LEFT); ?>
-                                    <option value="<?= $v ?>">Triwulan <?= $m ?></option>
+                                <?php for ($m = 1; $m <= 12; $m++): $v = str_pad($m, 2, '0', STR_PAD_LEFT); ?>
+                                    <option value="<?= $v ?>"><?= $v ?> = <?= bulan_ke_str($m) ?></option>
                                 <?php endfor; ?>
                             </select>
                         </div>
@@ -47,7 +47,7 @@
                     <table class="table table-bordered table-striped rounded-0">
                         <thead class="bg-primary text-white">
                             <tr>
-                                <th class="text-center" style="width:10%">Triwulan</th>
+                                <th class="text-center" style="width:10%">Bulan</th>
                                 <th style="width:40%">Uraian</th>
                                 <th class="text-center" style="width:20%">Upload Data</th>
                                 <th class="text-center" style="width:30%">Aksi</th>
@@ -56,9 +56,8 @@
                         <tbody>
                             <?php if (!empty($items)): foreach ($items as $row): ?>
                                 <tr>
-                                    <td class="text-center"><code><?= esc($row['month'] ?? '') ?></code></td>
+                                    <td class="text-center"><small><?= bulan_ke_str((int)($row['month'] ?? 1)) ?></small></td>
                                     <td>
-                                        <div class="font-weight-600 mb-1">Monitoring Progres</div>
                                         <div><?= esc($row['uraian']) ?></div>
                                     </td>
                                     <td class="text-center">

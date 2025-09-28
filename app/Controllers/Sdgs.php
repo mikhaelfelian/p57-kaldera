@@ -11,7 +11,7 @@ class Sdgs extends BaseController
     public function __construct()
     {
         $this->model = new SdgsModel();
-        helper(['form']);
+        helper(['form', 'tanggalan']);
     }
 
     public function index()

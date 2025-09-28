@@ -24,7 +24,7 @@
                             <label for="month">Bulan</label>
                             <select id="month" name="month" class="form-control rounded-0" required>
                                 <?php for ($m = 1; $m <= 12; $m++): $v = str_pad($m, 2, '0', STR_PAD_LEFT); ?>
-                                    <option value="<?= $v ?>" <?= (date('m') === $v ? 'selected' : '') ?>><?= $v ?></option>
+                                    <option value="<?= $v ?>" <?= (date('m') === $v ? 'selected' : '') ?>><?= bulan_ke_str($m) ?></option>
                                 <?php endfor; ?>
                             </select>
                         </div>
@@ -57,9 +57,8 @@
                             <?php if (!empty($items)): ?>
                                 <?php foreach ($items as $row): ?>
                                 <tr>
-                                    <td class="text-center"><code><?= esc($row['month'] ?? '') ?></code></td>
+                                    <td class="text-center"><small><?= bulan_ke_str((int)($row['month'] ?? 1)) ?></small></td>
                                     <td>
-                                        <div class="font-weight-600 mb-1">Monitoring Progres</div>
                                         <div><?= esc($row['uraian']) ?></div>
                                     </td>
                                     <td class="text-center">

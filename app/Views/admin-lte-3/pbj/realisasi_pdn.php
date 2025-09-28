@@ -18,7 +18,7 @@
         </div>
     </div>
     <div class="card-body rounded-0">
-        <form id="pbjPdnForm" method="post">
+        <form id="pbjPdnForm" method="get">
             <div class="row mb-3">
                 <div class="col-md-4">
                     <label class="font-weight-bold">Tahun</label>
