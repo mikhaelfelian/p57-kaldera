@@ -1,310 +1,600 @@
 <?= $this->extend(theme_path('main')) ?>
 
 <?= $this->section('content') ?>
-<?php helper(['angka']); $months = ['jan'=>'Januari','feb'=>'Februari','mar'=>'Maret','apr'=>'April','mei'=>'Mei','jun'=>'Juni','jul'=>'Juli','ags'=>'Agustus','sep'=>'September','okt'=>'Oktober','nov'=>'November','des'=>'Desember']; ?>
-<div class="card">
-    <div class="card-header d-flex align-items-center justify-content-between">
-        <h3 class="card-title">Target Fisik & Keuangan - Input</h3>
-        <form class="form-inline" method="get">
-            <?php $current = (int)($year ?? date('Y')); $start=$current-5; $end=$current+5; ?>
-            <label class="mr-2">Tahun</label>
-            <select name="year" class="form-control form-control-sm mr-3" disabled readonly>
-                <option value="<?= $current ?>" selected><?= $current ?></option>
-            </select>
-            <input type="hidden" name="year" value="<?= $current ?>">
-            <label class="mr-2">Tahapan</label>
-            <select name="tahapan" class="form-control form-control-sm" id="tahapanSelect">
-                <?php foreach(($tahapanOptions ?? ['penetapan'=>'Penetapan APBD','pergeseran'=>'Pergeseran','perubahan'=>'Perubahan APBD']) as $k=>$o): ?>
-                <option value="<?= $k ?>" <?= ($tahapan===$k)?'selected':'' ?>><?= $o ?></option>
+<?php 
+    helper(['tanggalan', 'angka']);
+    $tahapanList = [
+        'penetapan' => 'Penetapan APBD',
+        'pergeseran' => 'Pergeseran',
+        'perubahan' => 'Perubahan APBD'
+    ];
+    $bulanList = [];
+    for($i = 1; $i <= 12; $i++) {
+        $bulanList[$i] = bulan_ke_str($i);
+    }
+    
+    $existing = $existingData ?? [];
+    $master = $masterData ?? [];
+?>
+<div class="card rounded-0">
+    <div class="card-header d-flex align-items-center justify-content-between rounded-0">
+        <h3 class="card-title mb-0">TARGET FISIK & KEUANGAN</h3>
+         <div class="d-flex align-items-center">
+             <button type="button" class="btn btn-info rounded-0 mr-2" id="btnTest">
+                 <i class="fas fa-refresh"></i> Test Load
+             </button>
+             <button type="button" class="btn btn-success rounded-0" id="btnSave">
+                 <i class="fas fa-save"></i> Simpan
+             </button>
+         </div>
+    </div>
+    <div class="card-body rounded-0">
+        <form id="tfkInputForm" method="get">
+            <div class="row mb-3">
+                <div class="col-md-4">
+                    <label class="font-weight-bold">Tahapan</label>
+                    <select name="tahapan" class="form-control rounded-0" id="tahapanSelect">
+                        <?php foreach ($tahapanList as $key => $label): ?>
+                        <option value="<?= $key ?>" <?= ($tahapan === $key) ? 'selected' : '' ?>><?= $label ?></option>
                 <?php endforeach; ?>
             </select>
-        </form>
     </div>
-    <div class="card-body">
-        <div class="table-responsive mt-2">
-            <table class="table table-bordered mb-0 rounded-0" id="tfkInput" data-year="<?= (int)($year) ?>" data-master-id="<?= (int)($sourceMaster['id'] ?? 0) ?>">
-                <thead>
-                    <tr>
-                        <th style="width:220px">Kumulatif</th>
-                        <?php foreach ($months as $label): ?>
-                            <th><?= $label ?></th>
+                <div class="col-md-4">
+                    <label class="font-weight-bold">Bulan :</label>
+                    <select name="bulan" class="form-control rounded-0" id="bulanSelect">
+                        <?php foreach ($bulanList as $key => $label): ?>
+                        <option value="<?= $key ?>" <?= ($bulan == $key) ? 'selected' : '' ?>><?= $label ?></option>
                         <?php endforeach; ?>
+                    </select>
+                </div>
+                <div class="col-md-4">
+                    <label class="font-weight-bold">Tahun</label>
+                    <select name="year" class="form-control rounded-0" id="yearSelect" readonly disabled>
+                        <?php 
+                            $currentYear = date('Y');
+                            $selectedYear = isset($year) ? (int)$year : $currentYear;
+                            for($i = $currentYear - 5; $i <= $currentYear + 5; $i++): 
+                        ?>
+                        <option value="<?= $i ?>" <?= ($selectedYear == $i) ? 'selected' : '' ?>><?= $i ?></option>
+                        <?php endfor; ?>
+                    </select>
+                    <input type="hidden" name="year" value="<?= $selectedYear ?>">
+                </div>
+            </div>
+
+            <div class="table-responsive rounded-0">
+                <table class="table table-bordered rounded-0" id="tfkTable">
+                    <thead style="background-color: #275a9a; color: white;">
+                        <tr>
+                            <th style="width: 200px;">Kumulatif</th>
+                            <th class="text-center">Januari</th>
+                            <th class="text-center">Februari</th>
+                            <th class="text-center">Maret</th>
+                            <th class="text-center">April</th>
+                            <th class="text-center">Mei</th>
+                            <th class="text-center">Juni dst</th>
                     </tr>
                 </thead>
                 <tbody>
-                    <?php $map = $detailsMap; ?>
-                    <tr>
-                        <td class="red-box"><strong>Target Fisik (%)</strong></td>
-                        <?php foreach ($months as $k=>$label): $d = $map[$k] ?? []; $val = (float)($d['target_fisik'] ?? 0); ?>
-                        <td><span class="static" data-bulan="<?= $k ?>" data-field="fisik" data-value="<?= $val ?>"><?= format_angka($val) ?></span></td>
-                        <?php endforeach; ?>
+                         <!-- Target Fisik (%) -->
+                         <tr>
+                             <td class="red-box font-weight-bold">Target Fisik (%)</td>
+                             <td class="text-center static-cell" data-bulan="jan" data-field="target_fisik">0</td>
+                             <td class="text-center static-cell" data-bulan="feb" data-field="target_fisik">0</td>
+                             <td class="text-center static-cell" data-bulan="mar" data-field="target_fisik">0</td>
+                             <td class="text-center static-cell" data-bulan="apr" data-field="target_fisik">0</td>
+                             <td class="text-center static-cell" data-bulan="mei" data-field="target_fisik">0</td>
+                             <td class="text-center static-cell" data-bulan="jun" data-field="target_fisik">0</td>
+                         </tr>
+                        
+                         <!-- Realisasi Fisik (%) -->
+                         <tr>
+                             <td class="font-weight-bold">Realisasi Fisik (%)</td>
+                             <td class="text-center">
+                                 <span class="editable-cell" data-bulan="jan" data-field="realisasi_fisik">0</span>
+                                 <i class="fas fa-pencil-alt text-muted ml-1 edit-icon"></i>
+                             </td>
+                             <td class="text-center">
+                                 <span class="editable-cell" data-bulan="feb" data-field="realisasi_fisik">0</span>
+                                 <i class="fas fa-pencil-alt text-muted ml-1 edit-icon"></i>
+                             </td>
+                             <td class="text-center">
+                                 <span class="editable-cell" data-bulan="mar" data-field="realisasi_fisik">0</span>
+                                 <i class="fas fa-pencil-alt text-muted ml-1 edit-icon"></i>
+                             </td>
+                             <td class="text-center">
+                                 <span class="editable-cell" data-bulan="apr" data-field="realisasi_fisik">0</span>
+                                 <i class="fas fa-pencil-alt text-muted ml-1 edit-icon"></i>
+                             </td>
+                             <td class="text-center">
+                                 <span class="editable-cell" data-bulan="mei" data-field="realisasi_fisik">0</span>
+                                 <i class="fas fa-pencil-alt text-muted ml-1 edit-icon"></i>
+                             </td>
+                             <td class="text-center">
+                                 <span class="editable-cell" data-bulan="jun" data-field="realisasi_fisik">0</span>
+                                 <i class="fas fa-pencil-alt text-muted ml-1 edit-icon"></i>
+                             </td>
+                         </tr>
+                        
+                         <!-- Realisasi Fisik Prov (%) -->
+                         <tr>
+                             <td class="font-weight-bold">Realisasi Fisik Prov (%)</td>
+                             <td class="text-center">
+                                 <span class="editable-cell" data-bulan="jan" data-field="realisasi_fisik_prov">0</span>
+                                 <i class="fas fa-pencil-alt text-muted ml-1 edit-icon"></i>
+                             </td>
+                            <td class="text-center">
+                                <span class="editable-cell" data-bulan="feb" data-field="realisasi_fisik_prov">0</span>
+                                <i class="fas fa-pencil-alt text-muted ml-1 edit-icon"></i>
+                            </td>
+                            <td class="text-center">
+                                <span class="editable-cell" data-bulan="mar" data-field="realisasi_fisik_prov">0</span>
+                                <i class="fas fa-pencil-alt text-muted ml-1 edit-icon"></i>
+                            </td>
+                            <td class="text-center">
+                                <span class="editable-cell" data-bulan="apr" data-field="realisasi_fisik_prov">0</span>
+                                <i class="fas fa-pencil-alt text-muted ml-1 edit-icon"></i>
+                            </td>
+                            <td class="text-center">
+                                <span class="editable-cell" data-bulan="mei" data-field="realisasi_fisik_prov">0</span>
+                                <i class="fas fa-pencil-alt text-muted ml-1 edit-icon"></i>
+                            </td>
+                            <td class="text-center">
+                                <span class="editable-cell" data-bulan="jun" data-field="realisasi_fisik_prov">0</span>
+                                <i class="fas fa-pencil-alt text-muted ml-1 edit-icon"></i>
+                            </td>
                     </tr>
-                    <tr class="sep-top">
-                        <td><strong>Realisasi Fisik (%)</strong></td>
-                        <?php foreach ($months as $k=>$label): $d = $map[$k] ?? []; $val = (float)($d['realisasi_fisik'] ?? 0); ?>
-                        <td><span class="editable" data-bulan="<?= $k ?>" data-field="real_fisik" data-id="<?= (int)($d['id'] ?? 0) ?>" data-value="<?= $val ?>"><?= format_angka($val, 2) ?></span> <i class="fas fa-pencil-alt text-muted ml-1 edit-icon"></i></td>
-                        <?php endforeach; ?>
-                    </tr>
-                    <tr>
-                        <td><strong>Realisasi Fisik Prov (%)</strong></td>
-                        <?php foreach ($months as $k=>$label): $d = $map[$k] ?? []; $val = (float)($d['realisasi_fisik_prov'] ?? 0); ?>
-                        <td><span class="editable" data-bulan="<?= $k ?>" data-field="real_fisik_prov" data-id="<?= (int)($d['id'] ?? 0) ?>" data-value="<?= $val ?>"><?= format_angka($val, 2) ?></span> <i class="fas fa-pencil-alt text-muted ml-1 edit-icon"></i></td>
-                        <?php endforeach; ?>
-                    </tr>
-                    <tr>
-                        <td><strong>Deviasi Fisik (%)</strong><div class="text-muted small">Realisasi - Target</div></td>
-                        <?php foreach ($months as $k=>$label): $d = $map[$k] ?? []; $target=(float)($d['target_fisik']??0); $real=(float)($d['realisasi_fisik']??0); $dev=$real-$target; ?>
-                        <td><span class="calc" data-bulan="<?= $k ?>" data-type="dev_fisik" data-value="<?= $dev ?>"><?= format_angka($dev, 2) ?></span></td>
-                        <?php endforeach; ?>
+                        
+                        <!-- Deviasi Fisik (%) -->
+                        <tr>
+                            <td class="font-weight-bold">Deviasi Fisik (%)</td>
+                            <td class="text-center calculated-cell" data-bulan="jan" data-type="deviasi_fisik">0</td>
+                            <td class="text-center calculated-cell" data-bulan="feb" data-type="deviasi_fisik">0</td>
+                            <td class="text-center calculated-cell" data-bulan="mar" data-type="deviasi_fisik">0</td>
+                            <td class="text-center calculated-cell" data-bulan="apr" data-type="deviasi_fisik">0</td>
+                            <td class="text-center calculated-cell" data-bulan="mei" data-type="deviasi_fisik">0</td>
+                            <td class="text-center calculated-cell" data-bulan="jun" data-type="deviasi_fisik">0</td>
                     </tr>
 
-                    <tr class="sep-top">
-                        <td class="red-box"><strong>Target Keuangan (%)</strong></td>
-                        <?php foreach ($months as $k=>$label): $d = $map[$k] ?? []; $val = (float)($d['target_keuangan'] ?? 0); ?>
-                        <td><span class="static" data-bulan="<?= $k ?>" data-field="keu" data-value="<?= $val ?>"><?= format_angka($val) ?></span></td>
-                        <?php endforeach; ?>
+                         <!-- Target Keuangan (%) -->
+                         <tr class="sep-top">
+                             <td class="red-box font-weight-bold">Target Keuangan (%)</td>
+                             <td class="text-center static-cell" data-bulan="jan" data-field="target_keuangan">0</td>
+                             <td class="text-center static-cell" data-bulan="feb" data-field="target_keuangan">0</td>
+                             <td class="text-center static-cell" data-bulan="mar" data-field="target_keuangan">0</td>
+                             <td class="text-center static-cell" data-bulan="apr" data-field="target_keuangan">0</td>
+                             <td class="text-center static-cell" data-bulan="mei" data-field="target_keuangan">0</td>
+                             <td class="text-center static-cell" data-bulan="jun" data-field="target_keuangan">0</td>
+                         </tr>
+                        
+                         <!-- Realisasi Keuangan (%) -->
+                         <tr>
+                             <td class="font-weight-bold">Realisasi Keuangan (%)</td>
+                             <td class="text-center">
+                                 <span class="editable-cell" data-bulan="jan" data-field="realisasi_keuangan">0</span>
+                                 <i class="fas fa-pencil-alt text-muted ml-1 edit-icon"></i>
+                             </td>
+                            <td class="text-center">
+                                <span class="editable-cell" data-bulan="feb" data-field="realisasi_keuangan">0</span>
+                                <i class="fas fa-pencil-alt text-muted ml-1 edit-icon"></i>
+                            </td>
+                            <td class="text-center">
+                                <span class="editable-cell" data-bulan="mar" data-field="realisasi_keuangan">0</span>
+                                <i class="fas fa-pencil-alt text-muted ml-1 edit-icon"></i>
+                            </td>
+                            <td class="text-center">
+                                <span class="editable-cell" data-bulan="apr" data-field="realisasi_keuangan">0</span>
+                                <i class="fas fa-pencil-alt text-muted ml-1 edit-icon"></i>
+                            </td>
+                            <td class="text-center">
+                                <span class="editable-cell" data-bulan="mei" data-field="realisasi_keuangan">0</span>
+                                <i class="fas fa-pencil-alt text-muted ml-1 edit-icon"></i>
+                            </td>
+                            <td class="text-center">
+                                <span class="editable-cell" data-bulan="jun" data-field="realisasi_keuangan">0</span>
+                                <i class="fas fa-pencil-alt text-muted ml-1 edit-icon"></i>
+                            </td>
                     </tr>
-                    <tr>
-                        <td><strong>Realisasi Keuangan (%)</strong></td>
-                        <?php foreach ($months as $k=>$label): $d = $map[$k] ?? []; $val = (float)($d['realisasi_keuangan'] ?? 0); ?>
-                        <td><span class="editable" data-bulan="<?= $k ?>" data-field="real_keu" data-id="<?= (int)($d['id'] ?? 0) ?>" data-value="<?= $val ?>"><?= format_angka($val, 2) ?></span> <i class="fas fa-pencil-alt text-muted ml-1 edit-icon"></i></td>
-                        <?php endforeach; ?>
+                        
+                        <!-- Realisasi Keuangan Prov (%) -->
+                        <tr>
+                            <td class="font-weight-bold">Realisasi Keuangan Prov (%)</td>
+                            <td class="text-center">
+                                <span class="editable-cell" data-bulan="jan" data-field="realisasi_keuangan_prov">0</span>
+                                <i class="fas fa-pencil-alt text-muted ml-1 edit-icon"></i>
+                            </td>
+                            <td class="text-center">
+                                <span class="editable-cell" data-bulan="feb" data-field="realisasi_keuangan_prov">0</span>
+                                <i class="fas fa-pencil-alt text-muted ml-1 edit-icon"></i>
+                            </td>
+                            <td class="text-center">
+                                <span class="editable-cell" data-bulan="mar" data-field="realisasi_keuangan_prov">0</span>
+                                <i class="fas fa-pencil-alt text-muted ml-1 edit-icon"></i>
+                            </td>
+                            <td class="text-center">
+                                <span class="editable-cell" data-bulan="apr" data-field="realisasi_keuangan_prov">0</span>
+                                <i class="fas fa-pencil-alt text-muted ml-1 edit-icon"></i>
+                            </td>
+                            <td class="text-center">
+                                <span class="editable-cell" data-bulan="mei" data-field="realisasi_keuangan_prov">0</span>
+                                <i class="fas fa-pencil-alt text-muted ml-1 edit-icon"></i>
+                            </td>
+                            <td class="text-center">
+                                <span class="editable-cell" data-bulan="jun" data-field="realisasi_keuangan_prov">0</span>
+                                <i class="fas fa-pencil-alt text-muted ml-1 edit-icon"></i>
+                            </td>
                     </tr>
-                    <tr>
-                        <td><strong>Realisasi Keuangan Prov (%)</strong></td>
-                        <?php foreach ($months as $k=>$label): $d = $map[$k] ?? []; $val = (float)($d['realisasi_keuangan_prov'] ?? 0); ?>
-                        <td><span class="editable" data-bulan="<?= $k ?>" data-field="real_keu_prov" data-id="<?= (int)($d['id'] ?? 0) ?>" data-value="<?= $val ?>"><?= format_angka($val, 2) ?></span> <i class="fas fa-pencil-alt text-muted ml-1 edit-icon"></i></td>
-                        <?php endforeach; ?>
+                        
+                        <!-- Deviasi Keuangan (%) -->
+                        <tr>
+                            <td class="font-weight-bold">Deviasi Keuangan (%)</td>
+                            <td class="text-center calculated-cell" data-bulan="jan" data-type="deviasi_keuangan">0</td>
+                            <td class="text-center calculated-cell" data-bulan="feb" data-type="deviasi_keuangan">0</td>
+                            <td class="text-center calculated-cell" data-bulan="mar" data-type="deviasi_keuangan">0</td>
+                            <td class="text-center calculated-cell" data-bulan="apr" data-type="deviasi_keuangan">0</td>
+                            <td class="text-center calculated-cell" data-bulan="mei" data-type="deviasi_keuangan">0</td>
+                            <td class="text-center calculated-cell" data-bulan="jun" data-type="deviasi_keuangan">0</td>
                     </tr>
-                    <tr>
-                        <td><strong>Deviasi Keuangan (%)</strong><div class="text-muted small">Realisasi - Target</div></td>
-                        <?php foreach ($months as $k=>$label): $d = $map[$k] ?? []; $target=(float)($d['target_keuangan']??0); $real=(float)($d['realisasi_keuangan']??0); $dev=$real-$target; ?>
-                        <td><span class="calc" data-bulan="<?= $k ?>" data-type="dev_keu" data-value="<?= $dev ?>"><?= format_angka($dev, 2) ?></span></td>
-                        <?php endforeach; ?>
-                    </tr>
-                    <tr>
-                        <td><strong>Analisa</strong></td>
-                        <?php foreach ($months as $k=>$label): $d = $map[$k] ?? []; $val = (string)($d['analisa'] ?? ''); ?>
-                        <td><span class="editable-text" data-bulan="<?= $k ?>" data-field="analisa" data-id="<?= (int)($d['id'] ?? 0) ?>" data-value="<?= esc($val) ?>"><?= esc($val) ?></span> <i class="fas fa-pencil-alt text-muted ml-1 edit-icon"></i></td>
-                        <?php endforeach; ?>
+                        
+                        <!-- Analisa -->
+                        <tr>
+                            <td class="font-weight-bold">Analisa</td>
+                            <td class="text-center">
+                                <span class="editable-text-cell" data-bulan="jan" data-field="analisa">Kegiatan on progress</span>
+                                <i class="fas fa-pencil-alt text-muted ml-1 edit-icon"></i>
+                            </td>
+                            <td class="text-center">
+                                <span class="editable-text-cell" data-bulan="feb" data-field="analisa">0</span>
+                                <i class="fas fa-pencil-alt text-muted ml-1 edit-icon"></i>
+                            </td>
+                            <td class="text-center">
+                                <span class="editable-text-cell" data-bulan="mar" data-field="analisa">0</span>
+                                <i class="fas fa-pencil-alt text-muted ml-1 edit-icon"></i>
+                            </td>
+                            <td class="text-center">
+                                <span class="editable-text-cell" data-bulan="apr" data-field="analisa">0</span>
+                                <i class="fas fa-pencil-alt text-muted ml-1 edit-icon"></i>
+                            </td>
+                            <td class="text-center">
+                                <span class="editable-text-cell" data-bulan="mei" data-field="analisa">0</span>
+                                <i class="fas fa-pencil-alt text-muted ml-1 edit-icon"></i>
+                            </td>
+                            <td class="text-center">
+                                <span class="editable-text-cell" data-bulan="jun" data-field="analisa">0</span>
+                                <i class="fas fa-pencil-alt text-muted ml-1 edit-icon"></i>
+                            </td>
                     </tr>
                 </tbody>
             </table>
-            <div class="text-right mt-3">
-                <button type="button" class="btn btn-success rounded-0" id="btnSaveInput">Simpan</button>
             </div>
-        </div>
+        </form>
     </div>
 </div>
 <?= $this->endSection() ?>
 
 <?= $this->section('css') ?>
 <style>
-    #tfkInput { border-color: #1f4986; }
-    #tfkInput th {
-        background-color: #275a9a;
-        color: #fff;
-        text-align: center;
-    }
-    #tfkInput td { vertical-align: middle; }
-    #tfkInput tbody tr td { background: #e6eef8; }
-    #tfkInput tbody tr:nth-child(odd) td { background: #f3f7fc; }
-    #tfkInput .editable, #tfkInput .editable-text { cursor: pointer; }
-    #tfkInput td.red-box {
-        border: 3px solid #d9534f !important;
+#tfkTable { border-color: #1f4986; }
+#tfkTable th {
+    background-color: #275a9a;
+    color: #fff;
+    text-align: center;
+}
+#tfkTable td { 
+    vertical-align: middle; 
+    background: #e6eef8;
+}
+#tfkTable tbody tr:nth-child(odd) td { 
+    background: #f3f7fc; 
+}
+#tfkTable .editable-cell, #tfkTable .editable-text-cell { 
+    cursor: pointer; 
+}
+#tfkTable td.red-box {
+    border: 3px solid #d9534f !important;
         background-color: #fff;
-        color: #d9534f;
+    color: #d9534f;
+}
+#tfkTable td:first-child { 
+    font-weight: 600; 
+}
+#tfkTable .sep-top td { 
+    border-top: 4px solid #000 !important; 
+}
+.edit-icon {
+    cursor: pointer;
+    opacity: 0.7;
+}
+.edit-icon:hover {
+    opacity: 1;
     }
-    #tfkInput td:first-child { font-weight: 600; }
-    #tfkInput .sep-top td { border-top: 4px solid #000 !important; }
 </style>
 <?= $this->endSection() ?>
 
 <?= $this->section('js') ?>
 <script>
 (function(){
-    function openNumeric(span){
-        var value = (span.data('value')!==undefined)? span.data('value') : 0;
+    var csrfToken = '<?= csrf_token() ?>';
+    var csrfHash = '<?= csrf_hash() ?>';
+    
+    // Edit numeric cells
+    function openNumericEdit(span) {
+        var value = parseFloat(span.text()) || 0;
         var input = $('<input type="number" step="0.01" class="form-control form-control-sm rounded-0" />');
         input.val(value);
-        span.hide(); span.after(input); input.focus();
-        function commit(){
-            var newVal = parseFloat(input.val()||0);
-            var payload = {
-                id: span.data('id')||0,
-                master_id: $('#tfkInput').data('master-id')||0,
-                bulan: span.data('bulan'),
-                year: $('#tfkInput').data('year'),
-                field: span.data('field'),
-                value: newVal,
-                tahapan: $('select[name="tahapan"]').val()
-            };
-            $.post('<?= base_url('tfk/update-cell') ?>', payload, function(res){
-                if(res && res.ok){
-                    span.data('id', res.id);
-                    span.data('value', newVal);
-                    try { span.text(new Intl.NumberFormat('id-ID').format(newVal)); } catch(e){ span.text(newVal); }
-                    recalc();
-                }
-                input.remove(); span.show();
-            }, 'json').fail(function(){ input.remove(); span.show(); });
+        span.hide();
+        span.after(input);
+        input.focus();
+        
+        function commit() {
+            var newVal = parseFloat(input.val()) || 0;
+            span.text(newVal);
+            input.remove();
+            span.show();
+            recalculateDeviations();
         }
+        
         input.on('blur', commit);
-        input.on('keydown', function(e){ if(e.key==='Enter'){ e.preventDefault(); commit(); } });
+        input.on('keydown', function(e) {
+            if (e.key === 'Enter') {
+                e.preventDefault();
+                commit();
+            }
+        });
     }
-    function openText(span){
-        var value = span.data('value')||'';
+    
+    // Edit text cells
+    function openTextEdit(span) {
+        var value = span.text();
         var input = $('<textarea class="form-control form-control-sm rounded-0" rows="2"></textarea>');
         input.val(value);
-        span.hide(); span.after(input); input.focus();
-        function commit(){
-            var newVal = input.val()||'';
-            var payload = {
-                id: span.data('id')||0,
-                master_id: $('#tfkInput').data('master-id')||0,
-                bulan: span.data('bulan'),
-                year: $('#tfkInput').data('year'),
-                field: span.data('field'),
-                value: newVal,
-                tahapan: $('select[name="tahapan"]').val()
-            };
-            $.post('<?= base_url('tfk/update-cell') ?>', payload, function(res){
-                if(res && res.ok){ span.data('id', res.id); span.data('value', newVal); span.text(newVal); }
-                input.remove(); span.show();
-            }, 'json').fail(function(){ input.remove(); span.show(); });
+        span.hide();
+        span.after(input);
+        input.focus();
+        
+        function commit() {
+            var newVal = input.val();
+            span.text(newVal);
+            input.remove();
+            span.show();
         }
+        
         input.on('blur', commit);
-        input.on('keydown', function(e){ if(e.key==='Enter' && e.ctrlKey){ e.preventDefault(); commit(); } });
-    }
-
-    $(document).on('click', '#tfkInput .editable', function(){ openNumeric($(this)); });
-    $(document).on('click', '#tfkInput .editable-text', function(){ openText($(this)); });
-    $(document).on('click', '#tfkInput .edit-icon', function(){ var s=$(this).siblings('span').first(); if(s.hasClass('editable')) openNumeric(s); else openText(s); });
-
-    function recalc(){
-        $('#tfkInput tbody tr').each(function(){ /* noop for row context */ });
-        <?php foreach ($months as $k=>$label): ?>
-        (function(){
-            var targetF = parseFloat($('span.static[data-field="fisik"][data-bulan="<?= $k ?>"]').data('value')||0);
-            var realF = parseFloat($('span.editable[data-field="real_fisik"][data-bulan="<?= $k ?>"]').data('value')||0);
-            var targetK = parseFloat($('span.static[data-field="keu"][data-bulan="<?= $k ?>"]').data('value')||0);
-            var realK = parseFloat($('span.editable[data-field="real_keu"][data-bulan="<?= $k ?>"]').data('value')||0);
-            var devF = realF - targetF; var devK = realK - targetK;
-            var dvF = $('span.calc[data-type="dev_fisik"][data-bulan="<?= $k ?>"]');
-            var dvK = $('span.calc[data-type="dev_keu"][data-bulan="<?= $k ?>"]');
-            dvF.data('value', devF); dvK.data('value', devK);
-            try { dvF.text(new Intl.NumberFormat('id-ID',{minimumFractionDigits:2,maximumFractionDigits:2}).format(devF)); } catch(e){ dvF.text(devF.toFixed(2)); }
-            try { dvK.text(new Intl.NumberFormat('id-ID',{minimumFractionDigits:2,maximumFractionDigits:2}).format(devK)); } catch(e){ dvK.text(devK.toFixed(2)); }
-        })();
-        <?php endforeach; ?>
-    }
-
-    // Load data when tahapan changes
-    function loadDataByTahapan() {
-        var tahun = $('#tfkInput').data('year');
-        var tahapan = $('#tahapanSelect').val();
-        var masterId = $('#tfkInput').data('master-id');
-        
-        console.log('Loading data for tahun:', tahun, 'tahapan:', tahapan, 'masterId:', masterId);
-        
-        $.get('<?= base_url('tfk/get-data') ?>', {
-            tahun: tahun,
-            tahapan: tahapan,
-            master_id: masterId,
-            _: Date.now() // cache buster
-        }, function(res) {
-            console.log('Received response:', res);
-            if (res && res.ok && res.data && Object.keys(res.data).length > 0) {
-                updateTableWithData(res.data);
-                console.log('Data loaded successfully');
-            } else {
-                console.log('No data found for tahun:', tahun, 'tahapan:', tahapan);
-                // Reset all editable cells to 0 if no data found
-                $('#tfkInput .editable, #tfkInput .editable-text').each(function(){
-                    $(this).data('value', 0).text('0');
-                });
-                recalc();
+        input.on('keydown', function(e) {
+            if (e.key === 'Enter' && e.ctrlKey) {
+                e.preventDefault();
+                commit();
             }
-        }, 'json').fail(function(xhr) {
-            console.error('Failed to load data:', xhr.responseText);
-            toastr.error('Gagal memuat data dari database');
         });
     }
     
-    // Update table with loaded data
-    function updateTableWithData(data) {
-        console.log('Updating table with data:', data);
+    // Recalculate deviations
+    function recalculateDeviations() {
+        var months = ['jan', 'feb', 'mar', 'apr', 'mei', 'jun'];
         
-        // Update static target rows first
-        $('#tfkInput .static').each(function(){
-            var $span = $(this);
-            var bulan = $span.data('bulan');
-            var field = $span.data('field'); // 'fisik' or 'keu'
-            var dbField = field === 'fisik' ? 'target_fisik' : 'target_keuangan';
-            if(data[bulan] && data[bulan][dbField] !== undefined){
-                var value = parseFloat(data[bulan][dbField]) || 0;
-                $span.data('value', value);
-                try { $span.text(new Intl.NumberFormat('id-ID').format(value)); } catch(e){ $span.text(value); }
-            } else {
-                $span.data('value', 0).text('0');
-            }
+        months.forEach(function(bulan) {
+            // Get target and realisasi values
+            var targetFisik = parseFloat($('td[data-bulan="' + bulan + '"][data-field="target_fisik"]').text()) || 0;
+            var realFisik = parseFloat($('span[data-bulan="' + bulan + '"][data-field="realisasi_fisik"]').text()) || 0;
+            var targetKeu = parseFloat($('td[data-bulan="' + bulan + '"][data-field="target_keuangan"]').text()) || 0;
+            var realKeu = parseFloat($('span[data-bulan="' + bulan + '"][data-field="realisasi_keuangan"]').text()) || 0;
+            
+            // Calculate deviations
+            var devFisik = realFisik - targetFisik;
+            var devKeu = realKeu - targetKeu;
+            
+            // Update deviation cells
+            $('td[data-bulan="' + bulan + '"][data-type="deviasi_fisik"]').text(devFisik.toFixed(2));
+            $('td[data-bulan="' + bulan + '"][data-type="deviasi_keuangan"]').text(devKeu.toFixed(2));
         });
-
-        // Update all editable cells with loaded data
-        $('#tfkInput .editable').each(function(){
+    }
+    
+    // Event handlers
+    $(document).on('click', '.editable-cell', function() {
+        openNumericEdit($(this));
+    });
+    
+    $(document).on('click', '.editable-text-cell', function() {
+        openTextEdit($(this));
+    });
+    
+    $(document).on('click', '.edit-icon', function() {
+        var span = $(this).siblings('span').first();
+        if (span.hasClass('editable-cell')) {
+            openNumericEdit(span);
+        } else if (span.hasClass('editable-text-cell')) {
+            openTextEdit(span);
+        }
+    });
+    
+     // Load data when tahapan or bulan changes
+     function loadData() {
+         var tahun = $('input[name="year"]').val();
+         var tahapan = $('#tahapanSelect').val();
+         var bulan = $('#bulanSelect').val();
+         
+         console.log('=== LOADING DATA ===');
+         console.log('Tahun:', tahun);
+         console.log('Tahapan:', tahapan);
+         console.log('Bulan:', bulan);
+         
+         if (!tahun || !tahapan || !bulan) {
+             console.error('Missing required parameters:', {tahun, tahapan, bulan});
+             return;
+         }
+         
+         $.get('<?= base_url('tfk/get-data') ?>', {
+             tahun: tahun,
+             tahapan: tahapan,
+             bulan: bulan,
+             _: Date.now()
+         }, function(res) {
+             console.log('=== AJAX RESPONSE ===');
+             console.log('Response:', res);
+             
+             if (res && res.ok && res.data && Object.keys(res.data).length > 0) {
+                 console.log('Data found, updating table...');
+                 updateTableWithData(res.data);
+                 console.log('Data loaded successfully');
+             } else {
+                 console.log('No data found, resetting to defaults');
+                 resetTableToDefaults();
+             }
+         }, 'json').fail(function(xhr) {
+             console.error('=== AJAX ERROR ===');
+             console.error('Status:', xhr.status);
+             console.error('Response:', xhr.responseText);
+             if (window.toastr) {
+                 toastr.error('Gagal memuat data dari database');
+             }
+         });
+     }
+     
+     // Reset table to default values
+     function resetTableToDefaults() {
+         // Reset static target cells to 0 (no hardcoded values)
+         $('.static-cell').each(function() {
+             var $cell = $(this);
+             var field = $cell.data('field');
+             
+             if (field === 'target_fisik' || field === 'target_keuangan') {
+                 $cell.text('0');
+             }
+         });
+         
+         // Reset editable cells to 0
+         $('.editable-cell').each(function() {
+             $(this).text('0');
+         });
+         
+         // Reset text cells to empty
+         $('.editable-text-cell').each(function() {
+             $(this).text('');
+         });
+         
+         // Recalculate deviations
+         recalculateDeviations();
+     }
+    
+     // Update table with loaded data
+     function updateTableWithData(data) {
+         console.log('Updating table with data:', data);
+         
+         // Update static target cells
+         $('.static-cell').each(function() {
+             var $cell = $(this);
+             var bulan = $cell.data('bulan');
+             var field = $cell.data('field');
+             
+             if (data[bulan] && data[bulan][field] !== undefined) {
+                 $cell.text(data[bulan][field]);
+                 console.log('Updated static cell:', bulan, field, data[bulan][field]);
+             }
+         });
+         
+         // Update editable cells
+         $('.editable-cell').each(function() {
+             var $span = $(this);
+             var bulan = $span.data('bulan');
+             var field = $span.data('field');
+             
+             if (data[bulan] && data[bulan][field] !== undefined) {
+                 $span.text(data[bulan][field]);
+                 console.log('Updated editable cell:', bulan, field, data[bulan][field]);
+             }
+         });
+         
+         // Update text cells
+         $('.editable-text-cell').each(function() {
+             var $span = $(this);
+             var bulan = $span.data('bulan');
+             var field = $span.data('field');
+             
+             if (data[bulan] && data[bulan][field] !== undefined) {
+                 $span.text(data[bulan][field]);
+                 console.log('Updated text cell:', bulan, field, data[bulan][field]);
+             }
+         });
+         
+         // Recalculate deviations
+         recalculateDeviations();
+     }
+    
+     // Bind change events
+     $(document).on('change', '#tahapanSelect', function() {
+         console.log('Tahapan changed to:', $(this).val());
+         loadData();
+     });
+     
+     $(document).on('change', '#bulanSelect', function() {
+         console.log('Bulan changed to:', $(this).val());
+         loadData();
+     });
+    
+     // Test button for debugging
+     $('#btnTest').on('click', function() {
+         console.log('=== MANUAL TEST LOAD ===');
+         loadData();
+     });
+     
+     // Save button
+     $('#btnSave').on('click', function() {
+        var formData = {
+            tahun: $('input[name="year"]').val(),
+            tahapan: $('#tahapanSelect').val(),
+            bulan: $('#bulanSelect').val(),
+        };
+        
+        // Collect all cell data
+        var cellData = {};
+        $('.editable-cell, .editable-text-cell').each(function() {
             var $span = $(this);
             var bulan = $span.data('bulan');
             var field = $span.data('field');
+            var value = $span.text();
             
-            // Map field names to database fields
-            var dbField = field;
-            if (field === 'real_fisik') dbField = 'realisasi_fisik';
-            if (field === 'real_keu') dbField = 'realisasi_keuangan';
-            if (field === 'real_fisik_prov') dbField = 'realisasi_fisik_prov';
-            if (field === 'real_keu_prov') dbField = 'realisasi_keuangan_prov';
-            
-            if(data[bulan] && data[bulan][dbField] !== undefined) {
-                var value = parseFloat(data[bulan][dbField]) || 0;
-                $span.data('value', value);
-                try {
-                    $span.text(new Intl.NumberFormat('id-ID', {minimumFractionDigits: 2, maximumFractionDigits: 2}).format(value));
-                } catch(e) {
-                    $span.text(value.toFixed(2));
+            if (!cellData[bulan]) {
+                cellData[bulan] = {};
+            }
+            cellData[bulan][field] = value;
+        });
+        
+        formData.data = cellData;
+        formData[csrfToken] = csrfHash;
+        
+        $.post('<?= base_url('tfk/save-all') ?>', formData, function(res) {
+            if (res && res.csrf_hash) {
+                csrfHash = res.csrf_hash;
+            }
+            if (res && res.ok) {
+                if (window.toastr) {
+                    toastr.success(res.message || 'Data berhasil disimpan');
+                }
+            } else {
+                if (window.toastr) {
+                    toastr.error(res.message || 'Gagal menyimpan data');
                 }
             }
-        });
-        
-        // Update editable-text cells (analisa)
-        $('#tfkInput .editable-text').each(function(){
-            var $span = $(this);
-            var bulan = $span.data('bulan');
-            var field = $span.data('field');
-            
-            if(data[bulan] && data[bulan][field] !== undefined) {
-                var value = data[bulan][field] || '';
-                $span.data('value', value).text(value);
+        }, 'json').fail(function() {
+            if (window.toastr) {
+                toastr.error('Gagal menyimpan data');
             }
         });
-        
-        // Recalculate deviations
-        recalc();
-    }
-    
-    // Bind tahapan change event
-    $(document).on('change', '#tahapanSelect', function(){
-        console.log('Tahapan changed to:', $(this).val());
-        loadDataByTahapan();
     });
     
-    // Load data on page load
-    loadDataByTahapan();
-
-    $('#btnSaveInput').on('click', function(){
-        // nothing extra; values are saved per-cell on edit
-        toastr && toastr.success && toastr.success('Tersimpan');
-    });
+     // Direct event binding for dropdowns
+     $('#tahapanSelect').on('change', function() {
+         console.log('Tahapan dropdown changed to:', $(this).val());
+         loadData();
+     });
+     
+     $('#bulanSelect').on('change', function() {
+         console.log('Bulan dropdown changed to:', $(this).val());
+         loadData();
+     });
+     
+     // Load data on page load
+     loadData();
 })();
 </script>
 <?= $this->endSection() ?>
-
-

@@ -62,49 +62,31 @@ class TargetFisikKeu extends BaseController
     {
         $year = (int)($this->request->getGet('year') ?: date('Y'));
         $tahapan = (string)($this->request->getGet('tahapan') ?: 'penetapan');
+        $bulan = (int)($this->request->getGet('bulan') ?: 9); // Default to September
 
-        // Masters for dropdown (tahapan options come from master rows' "tahapan")
-        $masters = $this->masterModel->orderBy('id', 'DESC')->findAll();
-
-        // Choose first master as default source for target values
-        $sourceMaster = $masters[0] ?? null;
-        $detailsMap = [];
-        if ($sourceMaster) {
-            $rows = $this->fiskalModel->getByMasterTipeYear($sourceMaster['id'], '1', $year);
+        // Get existing data from FiskalModel
+        $existingData = [];
+        $masterId = 1; // Default master ID
+        $rows = $this->fiskalModel->where([
+            'master_id' => $masterId,
+            'tipe' => '1',
+            'tahun' => $year,
+            'tahapan' => $tahapan
+        ])->findAll();
+        
             foreach ($rows as $r) {
-                $detailsMap[$r['bulan']] = $r;
-            }
-        }
-
-        // Build tahapan options from existing fiskal rows for this master+year
-        $tahapanOptions = ['penetapan' => 'Penetapan APBD', 'pergeseran' => 'Pergeseran', 'perubahan' => 'Perubahan APBD'];
-        if ($sourceMaster) {
-            $distinctTahapan = $this->fiskalModel
-                ->distinct()
-                ->select('tahapan')
-                ->where(['master_id' => $sourceMaster['id'], 'tipe' => '1', 'tahun' => $year])
-                ->findColumn('tahapan');
-            if (!empty($distinctTahapan)) {
-                $mapNames = ['penetapan' => 'Penetapan APBD', 'pergeseran' => 'Pergeseran', 'perubahan' => 'Perubahan APBD'];
-                $tahapanOptions = [];
-                foreach ($distinctTahapan as $t) { $tahapanOptions[$t] = $mapNames[$t] ?? ucfirst($t); }
-                if (!array_key_exists($tahapan, $tahapanOptions)) {
-                    $firstKey = array_key_first($tahapanOptions);
-                    if ($firstKey) { $tahapan = $firstKey; }
-                }
-            }
+            $existingData[$r['bulan']] = $r;
         }
 
         $data = [
-            'title' => 'Target Fisik & Keuangan - Input Manual',
+            'title' => 'Target Fisik & Keuangan - Input',
             'Pengaturan' => $this->pengaturan,
             'user' => $this->ionAuth->user()->row(),
             'year' => $year,
             'tahapan' => $tahapan,
-            'masters' => $masters,
-            'sourceMaster' => $sourceMaster,
-            'detailsMap' => $detailsMap,
-            'tahapanOptions' => $tahapanOptions,
+            'bulan' => $bulan,
+            'existingData' => $existingData,
+            'masterData' => null,
         ];
 
         return view($this->theme->getThemePath() . '/tfk/input', $data);
@@ -219,24 +201,24 @@ class TargetFisikKeu extends BaseController
 
 			$dbField = $fieldMap[$field] ?? $field;
 
-            // Get existing record or create new one
+			// Get existing record or create new one
             // NOTE: Unique key is on (master_id, tipe, tahun, bulan) so we must
             // search without filtering by 'tahapan' to avoid duplicate key errors
-            $existing = $this->fiskalModel->where([
-                'master_id' => $masterId,
-                'tipe' => '1',
-                'tahun' => $year,
+			$existing = $this->fiskalModel->where([
+				'master_id' => $masterId,
+				'tipe' => '1',
+				'tahun' => $year,
                 'bulan' => $bulan,
-            ])->first();
+			])->first();
 			
 			log_message('debug', 'Looking for existing record: master_id=' . $masterId . ', tipe=1, tahun=' . $year . ', bulan=' . $bulan);
 			log_message('debug', 'Existing record found: ' . json_encode($existing));
 
-            $data = [
+			$data = [
                 $dbField => $value,
                 // Always keep latest tahapan value on the row
                 'tahapan' => $tahapan,
-            ];
+			];
 
 			if ($existing) {
 				// Update existing record
@@ -282,11 +264,12 @@ class TargetFisikKeu extends BaseController
 		try {
 			$tahun = (int)$this->request->getGet('tahun') ?: date('Y');
 			$tahapan = $this->request->getGet('tahapan') ?: 'penetapan';
+			$bulan = $this->request->getGet('bulan') ?: 9;
 			
-			log_message('debug', 'getData called with tahun: ' . $tahun . ', tahapan: ' . $tahapan);
+			log_message('debug', 'getData called with tahun: ' . $tahun . ', tahapan: ' . $tahapan . ', bulan: ' . $bulan);
 			
             // Get data from database based on tahun, tahapan and master
-            $masterId = (int)($this->request->getGet('master_id') ?: 1);
+            $masterId = 1; // Default master ID
             $rows = $this->fiskalModel->where([
                 'tahun' => $tahun,
                 'tahapan' => $tahapan,
@@ -294,15 +277,8 @@ class TargetFisikKeu extends BaseController
                 'master_id' => $masterId
             ])->findAll();
 
-            // Fallback: if no rows found for specific master, try without master filter
-            if (empty($rows)) {
-                $rows = $this->fiskalModel->where([
-                    'tahun' => $tahun,
-                    'tahapan' => $tahapan,
-                    'tipe' => '1',
-                ])->findAll();
-                log_message('debug', 'Fallback query without master_id returned ' . count($rows) . ' rows');
-            }
+            // No fallback - if no data found for this tahapan, return empty data
+            // This ensures proper filtering by tahapan
 			
             log_message('debug', 'Found ' . count($rows) . ' records for tahun: ' . $tahun . ', tahapan: ' . $tahapan . ', master_id: ' . $masterId);
 			log_message('debug', 'Raw rows data: ' . json_encode($rows));
@@ -343,9 +319,10 @@ class TargetFisikKeu extends BaseController
 		try {
 			$tahun = (int)$this->request->getPost('tahun') ?: date('Y');
 			$tahapan = $this->request->getPost('tahapan') ?: 'penetapan';
+			$bulan = (int)$this->request->getPost('bulan') ?: 9;
 			$data = $this->request->getPost('data');
 			
-			log_message('debug', 'saveAll called with tahun: ' . $tahun . ', tahapan: ' . $tahapan);
+			log_message('debug', 'saveAll called with tahun: ' . $tahun . ', tahapan: ' . $tahapan . ', bulan: ' . $bulan);
 			log_message('debug', 'Data received: ' . json_encode($data));
 			
 			if (empty($data) || !is_array($data)) {
@@ -354,30 +331,39 @@ class TargetFisikKeu extends BaseController
 			
 			$savedCount = 0;
 			$errors = [];
+			$masterId = 1; // Default master ID
 			
 			// Process each month's data
-			foreach ($data as $bulan => $monthData) {
-				if (!in_array($bulan, ['jan','feb','mar','apr','mei','jun','jul','ags','sep','okt','nov','des'])) {
+			foreach ($data as $bulanKey => $monthData) {
+				if (!in_array($bulanKey, ['jan','feb','mar','apr','mei','jun','jul','ags','sep','okt','nov','des'])) {
 					continue; // Skip invalid bulan
 				}
 				
-                // Check if record exists using unique key columns only
+                // Check if record exists using unique key columns INCLUDING tahapan
                 $existing = $this->fiskalModel->where([
-                    'master_id' => 1,
+                    'master_id' => $masterId,
                     'tipe' => '1',
                     'tahun' => $tahun,
-                    'bulan' => $bulan,
+                    'bulan' => $bulanKey,
+                    'tahapan' => $tahapan, // IMPORTANT: Include tahapan for proper uniqueness
                 ])->first();
 				
                 $recordData = [
-					'master_id' => 1,
+					'master_id' => $masterId,
 					'tipe' => '1',
 					'tahun' => $tahun,
-					'bulan' => $bulan,
-                    // Keep latest tahapan value on the row
+					'bulan' => $bulanKey,
                     'tahapan' => $tahapan,
-					'target_fisik' => isset($monthData['fisik']) ? (float)$monthData['fisik'] : 0,
-					'target_keuangan' => isset($monthData['keu']) ? (float)$monthData['keu'] : 0
+					// Map frontend fields to database fields
+					'target_fisik' => isset($monthData['fisik']) ? (float)$monthData['fisik'] : 
+					                 (isset($monthData['target_fisik']) ? (float)$monthData['target_fisik'] : 0),
+					'target_keuangan' => isset($monthData['keu']) ? (float)$monthData['keu'] : 
+					                    (isset($monthData['target_keuangan']) ? (float)$monthData['target_keuangan'] : 0),
+					'realisasi_fisik' => isset($monthData['realisasi_fisik']) ? (float)$monthData['realisasi_fisik'] : 0,
+					'realisasi_keuangan' => isset($monthData['realisasi_keuangan']) ? (float)$monthData['realisasi_keuangan'] : 0,
+					'realisasi_fisik_prov' => isset($monthData['realisasi_fisik_prov']) ? (float)$monthData['realisasi_fisik_prov'] : 0,
+					'realisasi_keuangan_prov' => isset($monthData['realisasi_keuangan_prov']) ? (float)$monthData['realisasi_keuangan_prov'] : 0,
+					'analisa' => isset($monthData['analisa']) ? (string)$monthData['analisa'] : '',
 				];
 				
 				$this->fiskalModel->skipValidation(true);
@@ -387,18 +373,18 @@ class TargetFisikKeu extends BaseController
 					$result = $this->fiskalModel->update($existing['id'], $recordData);
 					if ($result) {
 						$savedCount++;
-						log_message('debug', 'Updated record for bulan: ' . $bulan);
+						log_message('debug', 'Updated record for bulan: ' . $bulanKey . ', tahapan: ' . $tahapan);
 					} else {
-						$errors[] = 'Failed to update bulan: ' . $bulan;
+						$errors[] = 'Failed to update bulan: ' . $bulanKey . ', tahapan: ' . $tahapan;
 					}
 				} else {
 					// Create new record
 					$id = $this->fiskalModel->insert($recordData);
 					if ($id) {
 						$savedCount++;
-						log_message('debug', 'Created new record for bulan: ' . $bulan . ' with ID: ' . $id);
+						log_message('debug', 'Created new record for bulan: ' . $bulanKey . ', tahapan: ' . $tahapan . ' with ID: ' . $id);
 					} else {
-						$errors[] = 'Failed to create record for bulan: ' . $bulan;
+						$errors[] = 'Failed to create record for bulan: ' . $bulanKey . ', tahapan: ' . $tahapan;
 					}
 				}
 			}
@@ -1146,6 +1132,77 @@ class TargetFisikKeu extends BaseController
 
 		$pdf->writeHTML($html, true, false, true, false, '');
 		$pdf->Output('Rekap_Belanja_' . bulan_ke_str($bulan) . '_' . $year . '.pdf', 'D');
+	}
+
+	/**
+	 * Save tahapan selection to database immediately
+	 */
+	public function saveTahapan()
+	{
+		$tahun = (int)$this->request->getPost('tahun');
+		$tahapan = (string)$this->request->getPost('tahapan');
+		
+		if (!$tahun || !$tahapan) {
+			return $this->response->setJSON([
+				'ok' => false,
+				'message' => 'Tahun dan tahapan harus diisi',
+				'csrf_hash' => csrf_hash()
+			]);
+		}
+
+		// Validate tahapan
+		if (!in_array($tahapan, ['penetapan', 'pergeseran', 'perubahan'])) {
+			return $this->response->setJSON([
+				'ok' => false,
+				'message' => 'Tahapan tidak valid',
+				'csrf_hash' => csrf_hash()
+			]);
+		}
+
+		try {
+			// Check if record exists for this tahun and tahapan
+			$existing = $this->fiskalModel->where([
+				'master_id' => 1,
+				'tipe' => 1,
+				'tahun' => $tahun,
+				'tahapan' => $tahapan
+			])->first();
+
+			if (!$existing) {
+				// Create a default record for this tahapan if it doesn't exist
+				$data = [
+					'master_id' => 1,
+					'tipe' => 1,
+					'tahun' => $tahun,
+					'bulan' => 'jan', // Default month
+					'tahapan' => $tahapan,
+					'target_fisik' => 0,
+					'target_keuangan' => 0,
+					'realisasi_fisik' => 0,
+					'realisasi_keuangan' => 0,
+					'deviasi_fisik' => 0,
+					'deviasi_keuangan' => 0,
+					'analisa' => ''
+				];
+				
+				$this->fiskalModel->insert($data);
+				log_message('info', 'Created default record for tahapan: ' . $tahapan . ', tahun: ' . $tahun);
+			}
+
+			return $this->response->setJSON([
+				'ok' => true,
+				'message' => 'Tahapan berhasil disimpan',
+				'csrf_hash' => csrf_hash()
+			]);
+
+		} catch (\Exception $e) {
+			log_message('error', 'Failed to save tahapan: ' . $e->getMessage());
+			return $this->response->setJSON([
+				'ok' => false,
+				'message' => 'Gagal menyimpan tahapan: ' . $e->getMessage(),
+				'csrf_hash' => csrf_hash()
+			]);
+		}
 	}
 }
 

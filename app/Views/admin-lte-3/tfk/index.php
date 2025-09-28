@@ -55,9 +55,8 @@ $year = $year ?? date('Y');
 							<tr>
 								<td><strong>Target Fisik (%)</strong></td>
 						<?php
-								$defaultValues = [5, 10, 15, 20, 30, 40, 50, 60, 70, 80, 90, 100];
 								foreach ($months as $k => $label):
-									$val = $defaultValues[array_search($k, array_keys($months))] ?? 0;
+									$val = 0; // Always start with 0, no hardcoded values
 								?>
 									<td class="text-center">
 										<span class="editable" data-bulan="<?= $k ?>" data-field="fisik"
@@ -70,7 +69,7 @@ $year = $year ?? date('Y');
 								<td><strong>Target Keuangan (%)</strong></td>
 								<?php 
 								foreach ($months as $k => $label):
-									$val = $defaultValues[array_search($k, array_keys($months))] ?? 0;
+									$val = 0; // Always start with 0, no hardcoded values
 								?>
 									<td class="text-center">
 										<span class="editable" data-bulan="<?= $k ?>" data-field="keu"
@@ -82,7 +81,7 @@ $year = $year ?? date('Y');
 					</tbody>
 				</table>
 				<div class="text-right mt-3">
-					<button type="button" class="btn btn-success rounded-0" id="btnDummySave">Simpan</button>
+					<button type="button" class="btn btn-success rounded-0" id="btnDummySave">Simpan Semua Data</button>
 				</div>
 			</div>
 	</div>
@@ -139,15 +138,25 @@ $year = $year ?? date('Y');
 			return new Intl.NumberFormat('id-ID').format(parseFloat(num));
 		}
 
-		// Load existing data function (following master.php pattern)
+		// Store tahapan selection locally (don't save immediately)
+		function storeTahapanSelection(tahapan) {
+			var tahun = $('#tfkTable').data('year');
+			
+			// Update table data attribute for later use
+			$('#tfkTable').data('tahapan', tahapan);
+			
+			console.log('Tahapan selection stored locally:', tahapan, 'for year:', tahun);
+		}
+
+		// Load existing data function - preserves staged changes
 		function loadExisting() {
 			var tahun = $('#tfkTable').data('year');
 			var tahapan = $('select[name="tahapan"]').val();
 			
 			console.log('Loading data for tahun:', tahun, 'tahapan:', tahapan);
 			
-			// Update table data attribute
-			$('#tfkTable').data('tahapan', tahapan);
+			// Store tahapan selection locally
+			storeTahapanSelection(tahapan);
 			
 			// Load data from database based on tahun and tahapan
 			$.get('<?= base_url('tfk/get-data') ?>', {
@@ -155,26 +164,24 @@ $year = $year ?? date('Y');
 				tahapan: tahapan
 			}, function(res) {
 				console.log('Received response:', res);
-				if (res && res.ok && res.data && Object.keys(res.data).length > 0) {
-					// Update table with loaded data
-					updateTableWithData(res.data);
+				if (res && res.ok) {
+					if (res.data && Object.keys(res.data).length > 0) {
+						// Update table with loaded data, but preserve staged changes
+						updateTableWithDataPreserveStaged(res.data);
+						console.log('Data loaded successfully for tahapan:', tahapan);
+					} else {
+						// No data found for this tahapan - reset non-staged cells to 0
+						console.log('No data found for tahapan:', tahapan, '- resetting non-staged cells to 0');
+						resetNonStagedCellsToZero();
+					}
 					if (res.csrf_hash) { csrfHash = res.csrf_hash; }
-					console.log('Data loaded successfully');
 				} else {
-					console.log('No data found for tahun:', tahun, 'tahapan:', tahapan);
-					console.log('Response data:', res.data);
-					// Reset all cells to 0 if no data found
-					$('#tfkTable .editable').each(function(){
-						$(this).data('value', 0).removeData('staged').removeClass('has-changes').text('0');
-					});
+					console.error('Server error:', res.message);
+					toastr.error('Error: ' + (res.message || 'Unknown error'));
 				}
 			}, 'json').fail(function(xhr) {
 				console.error('Failed to load data:', xhr.responseText);
 				toastr.error('Gagal memuat data dari database');
-				// Reset all cells to 0 on error
-				$('#tfkTable .editable').each(function(){
-					$(this).data('value', 0).removeData('staged').removeClass('has-changes').text('0');
-				});
 			});
 		}
 
@@ -201,6 +208,74 @@ $year = $year ?? date('Y');
 			});
 		}
 
+		// Update table with loaded data but preserve staged changes
+        function updateTableWithDataPreserveStaged(data) {
+			console.log('Updating table with data (preserving staged):', data);
+			
+			// Update Target Fisik row (first row) - only if not staged
+			$('#tfkTable tbody tr:first-child .editable').each(function() {
+				var $cell = $(this);
+				var bulan = $cell.data('bulan');
+				
+				// Only update if no staged changes
+				if ($cell.data('staged') === undefined) {
+					var value = data[bulan] ? data[bulan].target_fisik || 0 : 0;
+					$cell.data('value', value).text(formatAngka(value));
+					console.log('Updated fisik for bulan:', bulan, 'value:', value);
+				} else {
+					console.log('Preserved staged fisik for bulan:', bulan, 'staged:', $cell.data('staged'));
+				}
+			});
+
+			// Update Target Keuangan row (second row) - only if not staged
+			$('#tfkTable tbody tr:last-child .editable').each(function() {
+				var $cell = $(this);
+				var bulan = $cell.data('bulan');
+				
+				// Only update if no staged changes
+				if ($cell.data('staged') === undefined) {
+					var value = data[bulan] ? data[bulan].target_keuangan || 0 : 0;
+					$cell.data('value', value).text(formatAngka(value));
+					console.log('Updated keuangan for bulan:', bulan, 'value:', value);
+				} else {
+					console.log('Preserved staged keuangan for bulan:', bulan, 'staged:', $cell.data('staged'));
+				}
+			});
+		}
+
+		// Reset non-staged cells to 0 when no data found for tahapan
+		function resetNonStagedCellsToZero() {
+			console.log('Resetting non-staged cells to 0');
+			
+			// Reset Target Fisik row (first row) - only if not staged
+			$('#tfkTable tbody tr:first-child .editable').each(function() {
+				var $cell = $(this);
+				var bulan = $cell.data('bulan');
+				
+				// Only reset if no staged changes
+				if ($cell.data('staged') === undefined) {
+					$cell.data('value', 0).text('0');
+					console.log('Reset fisik for bulan:', bulan, 'to 0');
+				} else {
+					console.log('Preserved staged fisik for bulan:', bulan, 'staged:', $cell.data('staged'));
+				}
+			});
+
+			// Reset Target Keuangan row (second row) - only if not staged
+			$('#tfkTable tbody tr:last-child .editable').each(function() {
+				var $cell = $(this);
+				var bulan = $cell.data('bulan');
+				
+				// Only reset if no staged changes
+				if ($cell.data('staged') === undefined) {
+					$cell.data('value', 0).text('0');
+					console.log('Reset keuangan for bulan:', bulan, 'to 0');
+				} else {
+					console.log('Preserved staged keuangan for bulan:', bulan, 'staged:', $cell.data('staged'));
+				}
+			});
+		}
+
 		function makeInput(span) {
 			var value = (span.data('value') !== undefined) ? span.data('value') : span.text().trim();
 			var input = $('<input type="number" step="0.01" min="0" max="100" class="form-control form-control-sm rounded-0" />');
@@ -223,43 +298,60 @@ $year = $year ?? date('Y');
 		$(document).on('click', '#tfkTable .editable', function () { makeInput($(this)); });
 		$(document).on('click', '#tfkTable .edit-icon', function () { var span = $(this).siblings('span.editable').first(); if (span.length) { makeInput(span); } });
 
-		// Bind dropdown change events (following master.php pattern)
+		// Bind dropdown change events - store tahapan locally, preserve values
 		loadExisting();
 		$('select[name="tahapan"]').on('change', function(){
-			console.log('Tahapan dropdown changed to:', $(this).val());
+			var tahapan = $(this).val();
+			console.log('Tahapan dropdown changed to:', tahapan);
+			
+			// Store tahapan selection locally (don't save immediately)
+			storeTahapanSelection(tahapan);
+			
+			// Load existing data for the new tahapan (preserving staged changes)
 			loadExisting();
 		});
 
-        // Save button functionality - save only staged changes to database organized by year and tahapan
+        // Save button functionality - save everything (tahapan + monthly changes + Target Nominal)
 		$('#btnDummySave').on('click', function () {
 			var $btn = $(this);
 			var originalText = $btn.text();
 			var tahun = $('#tfkTable').data('year');
 			var tahapan = $('#tfkTable').data('tahapan');
 			
-            // Collect only staged changes
+            // Collect all data (both staged and current values)
             var allData = {};
-            var stagedCount = 0;
+            var hasChanges = false;
+            
 			$('#tfkTable .editable').each(function () {
 				var $span = $(this);
-                var staged = $span.data('staged');
-                if(staged !== undefined){
-                    var bulan = $span.data('bulan');
-                    var field = $span.data('field');
-                    if (!allData[bulan]) {
-                        allData[bulan] = {};
-                    }
-                    allData[bulan][field] = parseFloat(staged)||0;
-                    stagedCount++;
+                var bulan = $span.data('bulan');
+                var field = $span.data('field');
+                
+                // Use staged value if available, otherwise current value
+                var value = $span.data('staged') !== undefined ? 
+                           parseFloat($span.data('staged')) || 0 : 
+                           parseFloat($span.data('value')) || 0;
+                
+                if (!allData[bulan]) {
+                    allData[bulan] = {};
+                }
+                allData[bulan][field] = value;
+                
+                // Check if there are any staged changes
+                if ($span.data('staged') !== undefined) {
+                    hasChanges = true;
                 }
             });
-            if(stagedCount===0){ toastr.info('Tidak ada perubahan'); return; }
+            
+            // Always allow save (even without changes) to persist tahapan selection
+            console.log('Saving all data:', { tahun, tahapan, allData, hasChanges });
 			
-			// Save all data to database
-				var payload = {
+			// Save everything to database
+			var payload = {
 				tahun: tahun,
 				tahapan: tahapan,
-				data: allData
+				data: allData,
+				save_tahapan: true // Flag to indicate we want to save tahapan too
 			};
 			payload[csrfToken] = csrfHash;
 			
@@ -271,7 +363,7 @@ $year = $year ?? date('Y');
 				
 				if (res && res.ok) {
                     toastr.success('Semua data berhasil disimpan ke database!');
-                    // Apply staged values to UI and clear staging
+                    // Apply all values to UI and clear staging
                     $('#tfkTable .editable').each(function(){
                         var $span = $(this);
                         var staged = $span.data('staged');

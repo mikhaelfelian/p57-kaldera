@@ -93,6 +93,7 @@ $routes->group('tfk', ['namespace' => 'App\\Controllers', 'filter' => 'auth'], f
     $routes->get('refresh-csrf', 'TargetFisikKeu::refreshCSRF', ['as' => 'tfk.refresh_csrf']);
     $routes->get('get-data', 'TargetFisikKeu::getData', ['as' => 'tfk.get_data']);
     $routes->post('save-all', 'TargetFisikKeu::saveAll', ['as' => 'tfk.save_all']);
+    $routes->post('save-tahapan', 'TargetFisikKeu::saveTahapan', ['as' => 'tfk.save_tahapan']);
     $routes->get('test', 'TargetFisikKeu::test', ['as' => 'tfk.test']);
 });
 
