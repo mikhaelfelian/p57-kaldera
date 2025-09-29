@@ -11,7 +11,6 @@ class BanmasHibahModel extends Model
     protected $allowedFields = [
         'tahun',
         'bulan',
-        'jenis_hibah',
         'nama_hibah',
         'deskripsi',
         'nilai_hibah',
@@ -34,7 +33,6 @@ class BanmasHibahModel extends Model
     protected $validationRules = [
         'tahun' => 'required|integer|min_length[4]|max_length[4]',
         'bulan' => 'required|integer|min_length[1]|max_length[2]',
-        'jenis_hibah' => 'required|max_length[100]',
         'nama_hibah' => 'permit_empty|max_length[255]',
         'status' => 'permit_empty|in_list[Sesuai,Tidak Sesuai,Belum Diperiksa]',
     ];

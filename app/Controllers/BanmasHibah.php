@@ -40,24 +40,21 @@ class BanmasHibah extends BaseController
 
         $tahun = (int)$this->request->getPost('tahun');
         $bulan = (int)$this->request->getPost('bulan');
-        $jenis_hibah = $this->request->getPost('jenis_hibah');
 
-        if (!$tahun || !$bulan || !$jenis_hibah) {
+        if (!$tahun || !$bulan) {
             return $this->response->setJSON(['ok' => false, 'message' => 'Data tidak lengkap']);
         }
 
         try {
-            // Check if data exists for this year, month, and jenis_hibah
+            // Check if data exists for this year and month
             $existing = $this->banmasHibahModel->where([
                 'tahun' => $tahun,
-                'bulan' => $bulan,
-                'jenis_hibah' => $jenis_hibah
+                'bulan' => $bulan
             ])->first();
 
             $data = [
                 'tahun' => $tahun,
-                'bulan' => $bulan,
-                'jenis_hibah' => $jenis_hibah
+                'bulan' => $bulan
             ];
 
             // Only update fields that are provided
@@ -73,11 +70,13 @@ class BanmasHibah extends BaseController
             if ($this->request->getPost('status')) {
                 $data['status'] = $this->request->getPost('status');
             }
-            if ($this->request->getPost('catatan_kendala')) {
-                $data['catatan_kendala'] = $this->request->getPost('catatan_kendala');
+            $catatanKendala = $this->request->getPost('catatan_kendala');
+            if ($catatanKendala !== null) {
+                $data['catatan_kendala'] = $catatanKendala;
             }
-            if ($this->request->getPost('rencana_tindak_lanjut')) {
-                $data['rencana_tindak_lanjut'] = $this->request->getPost('rencana_tindak_lanjut');
+            $rencanaTindakLanjut = $this->request->getPost('rencana_tindak_lanjut');
+            if ($rencanaTindakLanjut !== null) {
+                $data['rencana_tindak_lanjut'] = $rencanaTindakLanjut;
             }
             if ($this->request->getPost('feedback_unit_kerja')) {
                 $data['feedback_unit_kerja'] = json_encode($this->request->getPost('feedback_unit_kerja'));
@@ -132,10 +131,9 @@ class BanmasHibah extends BaseController
 
         $tahun = (int)$this->request->getPost('tahun');
         $bulan = (int)$this->request->getPost('bulan');
-        $jenisHibah = $this->request->getPost('jenis_hibah');
 
         // Debug logging
-        log_message('debug', 'Upload request - tahun: ' . $tahun . ', bulan: ' . $bulan . ', jenis_hibah: ' . $jenisHibah);
+        log_message('debug', 'Upload request - tahun: ' . $tahun . ', bulan: ' . $bulan);
         log_message('debug', 'POST data: ' . json_encode($this->request->getPost()));
         log_message('debug', 'Files: ' . json_encode($this->request->getFiles()));
         
@@ -143,7 +141,6 @@ class BanmasHibah extends BaseController
         $missingFields = [];
         if (!$tahun) $missingFields[] = 'tahun';
         if (!$bulan) $missingFields[] = 'bulan';
-        if (!$jenisHibah) $missingFields[] = 'jenis_hibah';
         
         if (!empty($missingFields)) {
             return $this->response->setJSON([
@@ -152,7 +149,6 @@ class BanmasHibah extends BaseController
                 'debug' => [
                     'tahun' => $tahun,
                     'bulan' => $bulan,
-                    'jenis_hibah' => $jenisHibah,
                     'post_data' => $this->request->getPost()
                 ]
             ]);
@@ -179,7 +175,6 @@ class BanmasHibah extends BaseController
                 $data = [
                     'tahun' => $tahun,
                     'bulan' => $bulan,
-                    'jenis_hibah' => $jenisHibah,
                     'nama_hibah' => $this->request->getPost('nama_hibah'),
                     'deskripsi' => $this->request->getPost('deskripsi'),
                     'nilai_hibah' => (float)($this->request->getPost('nilai_hibah') ?: 0),
@@ -193,8 +188,7 @@ class BanmasHibah extends BaseController
                 // Check if data exists
                 $existing = $this->banmasHibahModel->where([
                     'tahun' => $tahun,
-                    'bulan' => $bulan,
-                    'jenis_hibah' => $jenisHibah
+                    'bulan' => $bulan
                 ])->first();
 
                 if ($existing) {
@@ -286,23 +280,17 @@ class BanmasHibah extends BaseController
         $data = $this->banmasHibahModel->where([
             'tahun' => $tahun,
             'bulan' => $bulan
-        ])->findAll();
+        ])->first();
         
         // Debug logging
         log_message('debug', 'getExistingData - tahun: ' . $tahun . ', bulan: ' . $bulan);
-        log_message('debug', 'Found ' . count($data) . ' records');
+        log_message('debug', 'Found record: ' . ($data ? 'Yes (ID: ' . $data['id'] . ')' : 'No'));
         
-        $result = [];
-        foreach ($data as $row) {
-            if ($row['feedback_unit_kerja']) {
-                $row['feedback_unit_kerja'] = json_decode($row['feedback_unit_kerja'], true);
-            }
-            $result[$row['jenis_hibah']] = $row;
-            log_message('debug', 'Added to result: ' . $row['jenis_hibah'] . ' (ID: ' . $row['id'] . ')');
+        if ($data && $data['feedback_unit_kerja']) {
+            $data['feedback_unit_kerja'] = json_decode($data['feedback_unit_kerja'], true);
         }
         
-        log_message('debug', 'Final result keys: ' . implode(', ', array_keys($result)));
-        return $result;
+        return $data ? ['monitoring_progres' => $data] : [];
     }
 
     private function getHibahList()

@@ -109,10 +109,15 @@
                                         <i class="fas fa-check-circle"></i> Verifikasi tersimpan
                                     </small>
                                 </div>
-                                <?php if(isset($existingData['monitoring_progres']) && !empty($existingData['monitoring_progres']) && !empty($existingData['monitoring_progres']['catatan_kendala'])): ?>
-                                <div class="mt-1">
-                                    <small class="text-dark" style="font-size: 10px; max-width: 120px; word-wrap: break-word;">
-                                        <?= $existingData['monitoring_progres']['catatan_kendala'] ?>
+                                <?php if(isset($existingData['monitoring_progres']) && !empty($existingData['monitoring_progres']) && (!empty($existingData['monitoring_progres']['catatan_kendala']) || !empty($existingData['monitoring_progres']['rencana_tindak_lanjut']))): ?>
+                                <div class="mt-1 text-left" style="text-align: left;">
+                                    <small class="text-dark" style="font-size: 10px; max-width: 120px; word-wrap: break-word; display: block;">
+                                        <?php if(!empty($existingData['monitoring_progres']['catatan_kendala'])): ?>
+                                            <b>Kendala :</b> <?= htmlspecialchars($existingData['monitoring_progres']['catatan_kendala'], ENT_QUOTES, 'UTF-8') ?><br>
+                                        <?php endif; ?>
+                                        <?php if(!empty($existingData['monitoring_progres']['rencana_tindak_lanjut'])): ?>
+                                            <b>Tindak Lanjut :</b> <?= htmlspecialchars($existingData['monitoring_progres']['rencana_tindak_lanjut'], ENT_QUOTES, 'UTF-8') ?>
+                                        <?php endif; ?>
                                     </small>
                                 </div>
                                 <?php endif; ?>
@@ -132,7 +137,7 @@
                                 </div>
                                 <?php if(isset($existingData['monitoring_progres']) && !empty($existingData['monitoring_progres']) && !empty($existingData['monitoring_progres']['feedback_unit_kerja'])): ?>
                                 <div class="mt-1">
-                                    <small class="text-dark" style="font-size: 10px; max-width: 120px; word-wrap: break-word;">
+                                    <small class="text-dark text-left" style="font-size: 10px; max-width: 120px; word-wrap: break-word; text-align: left; display: block;">
                                         <?php 
                                         $feedbackRaw = $existingData['monitoring_progres']['feedback_unit_kerja'];
                                         $feedback = is_string($feedbackRaw) ? json_decode($feedbackRaw, true) : $feedbackRaw;
@@ -689,7 +694,6 @@
         
         formData.append('tahun', tahunValue);
         formData.append('bulan', bulanValue);
-        formData.append('jenis_hibah', 'monitoring_progres');
         formData.append('nama_hibah', $('#data_keterangan').val());
         formData.append(csrfTokenName, csrfHash);
         
@@ -762,7 +766,6 @@
         var formData = {
             tahun: <?= $tahun ?>,
             bulan: <?= $bulan ?>,
-            jenis_hibah: $('#nilai_jenis_hibah').val(),
             nilai_hibah: $('#nilai_hibah').autoNumeric('get') // Get raw number using AutoNumeric
         };
         formData[csrfTokenName] = csrfHash;
