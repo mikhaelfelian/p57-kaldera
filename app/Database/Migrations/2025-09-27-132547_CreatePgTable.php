@@ -82,11 +82,16 @@ class CreatePgTable extends Migration
         
         $this->forge->addKey('id', true);
         $this->forge->addKey(['tahun', 'bulan']);
-        $this->forge->createTable('tbl_pg');
+        // Create only if not exists to avoid failures when table already present
+        if (! $this->db->tableExists('tbl_pg')) {
+            $this->forge->createTable('tbl_pg');
+        }
     }
 
     public function down()
     {
-        $this->forge->dropTable('tbl_pg');
+        if ($this->db->tableExists('tbl_pg')) {
+            $this->forge->dropTable('tbl_pg');
+        }
     }
 }

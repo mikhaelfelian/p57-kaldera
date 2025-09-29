@@ -21,6 +21,8 @@ class BanmasHibahModel extends Model
         'feedback_unit_kerja',
         'file_path',
         'file_name',
+        'file_path_dok',
+        'file_name_dok',
         'file_size',
         'uploaded_by',
         'uploaded_at'

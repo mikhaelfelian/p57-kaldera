@@ -236,8 +236,8 @@ $routes->group('pbj', ['namespace' => 'App\\Controllers', 'filter' => 'auth'], f
 // ==================== Bantuan ====================
 $routes->group('bantuan', ['namespace' => 'App\\Controllers', 'filter' => 'auth'], function ($routes) {
     $routes->get('hibah', 'BanmasHibah::hibah', ['as' => 'bantuan.hibah']);
-    $routes->post('hibah/save', 'BanmasHibah::save', ['as' => 'bantuan.hibah.save']);
-    $routes->post('hibah/upload', 'BanmasHibah::upload', ['as' => 'bantuan.hibah.upload']);
+    $routes->post('hibah/save', 'BanmasHibah::save', ['as' => 'bantuan.hibah.save', 'filter' => 'no_csrf']);
+    $routes->post('hibah/upload', 'BanmasHibah::upload', ['as' => 'bantuan.hibah.upload', 'filter' => 'no_csrf']);
     $routes->get('hibah/preview/(:num)', 'BanmasHibah::preview/$1', ['as' => 'bantuan.hibah.preview']);
     $routes->get('hibah/download/(:num)', 'BanmasHibah::download/$1', ['as' => 'bantuan.hibah.download']);
     

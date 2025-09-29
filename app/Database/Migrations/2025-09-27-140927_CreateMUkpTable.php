@@ -8,6 +8,11 @@ class CreateMUkpTable extends Migration
 {
     public function up()
     {
+        // If table already exists, skip
+        if ($this->db->tableExists('tbl_m_ukp')) {
+            return;
+        }
+
         $this->forge->addField([
             'id' => [
                 'type'           => 'INT',
@@ -80,6 +85,8 @@ class CreateMUkpTable extends Migration
 
     public function down()
     {
-        $this->forge->dropTable('tbl_m_ukp');
+        if ($this->db->tableExists('tbl_m_ukp')) {
+            $this->forge->dropTable('tbl_m_ukp');
+        }
     }
 }

@@ -76,6 +76,13 @@
                                         <i class="fas fa-check-circle"></i> Data uploaded
                                     </small>
                                 </div>
+                                <?php if(isset($existingData['monitoring_progres']) && !empty($existingData['monitoring_progres'])): ?>
+                                <div class="mt-1">
+                                    <small class="text-success font-weight-bold" style="font-size: 10px; max-width: 120px; word-wrap: break-word;">
+                                        <i class="fas fa-check-circle"></i> <?= $existingData['monitoring_progres']['file_name'] ?? 'Data tersimpan' ?>
+                                    </small>
+                                </div>
+                                <?php endif; ?>
                             </div>
                         </td>
                         <td class="text-center">
@@ -91,18 +98,58 @@
                             </button>
                         </td>
                         <td class="text-center">
-                            <button type="button" class="btn btn-warning btn-sm rounded-0 verifikasi-btn" 
-                                    data-jenis="monitoring_progres" data-label="Monitoring Progres Barang yang diserahkan kepada masyarakat"
-                                    style="background-color: #ffc107; border-color: #ffc107;">
-                                <i class="fas fa-check"></i>
-                            </button>
+                            <div class="d-flex flex-column align-items-center">
+                                <button type="button" class="btn btn-warning btn-sm rounded-0 verifikasi-btn" 
+                                        data-jenis="monitoring_progres" data-label="Monitoring Progres Barang yang diserahkan kepada masyarakat"
+                                        style="background-color: #ffc107; border-color: #ffc107;">
+                                    <i class="fas fa-check"></i>
+                                </button>
+                                <div id="verifikasi-result-monitoring_progres" class="mt-1" style="display: none;">
+                                    <small class="text-dark" style="font-size: 10px; max-width: 120px; word-wrap: break-word;">
+                                        <i class="fas fa-check-circle"></i> Verifikasi tersimpan
+                                    </small>
+                                </div>
+                                <?php if(isset($existingData['monitoring_progres']) && !empty($existingData['monitoring_progres']) && !empty($existingData['monitoring_progres']['catatan_kendala'])): ?>
+                                <div class="mt-1">
+                                    <small class="text-dark" style="font-size: 10px; max-width: 120px; word-wrap: break-word;">
+                                        <?= $existingData['monitoring_progres']['catatan_kendala'] ?>
+                                    </small>
+                                </div>
+                                <?php endif; ?>
+                            </div>
                         </td>
                         <td class="text-center">
-                            <button type="button" class="btn btn-info btn-sm rounded-0 feedback-btn" 
-                                    data-jenis="monitoring_progres" data-label="Monitoring Progres Barang yang diserahkan kepada masyarakat"
-                                    style="background-color: #17a2b8; border-color: #17a2b8;">
-                                <i class="fas fa-comment"></i>
-                            </button>
+                            <div class="d-flex flex-column align-items-center">
+                                <button type="button" class="btn btn-info btn-sm rounded-0 feedback-btn" 
+                                        data-jenis="monitoring_progres" data-label="Monitoring Progres Barang yang diserahkan kepada masyarakat"
+                                        style="background-color: #17a2b8; border-color: #17a2b8;">
+                                    <i class="fas fa-comment"></i>
+                                </button>
+                                <div id="feedback-result-monitoring_progres" class="mt-1" style="display: none;">
+                                    <small class="text-dark" style="font-size: 10px; max-width: 120px; word-wrap: break-word;">
+                                        <i class="fas fa-check-circle"></i> Feedback tersimpan
+                                    </small>
+                                </div>
+                                <?php if(isset($existingData['monitoring_progres']) && !empty($existingData['monitoring_progres']) && !empty($existingData['monitoring_progres']['feedback_unit_kerja'])): ?>
+                                <div class="mt-1">
+                                    <small class="text-dark" style="font-size: 10px; max-width: 120px; word-wrap: break-word;">
+                                        <?php 
+                                        $feedbackRaw = $existingData['monitoring_progres']['feedback_unit_kerja'];
+                                        $feedback = is_string($feedbackRaw) ? json_decode($feedbackRaw, true) : $feedbackRaw;
+                                        if(is_array($feedback)) {
+                                            foreach($feedback as $item) {
+                                                $unitKerja = isset($item['unit_kerja']) ? htmlspecialchars((string) $item['unit_kerja'], ENT_QUOTES, 'UTF-8') : '';
+                                                $alasan    = isset($item['alasan_saran']) ? htmlspecialchars((string) $item['alasan_saran'], ENT_QUOTES, 'UTF-8') : '';
+                                                if($unitKerja !== '' && $alasan !== '') {
+                                                    echo $unitKerja . ' : ' . $alasan . '<br>';
+                                                }
+                                            }
+                                        }
+                                        ?>
+                                    </small>
+                                </div>
+                                <?php endif; ?>
+                            </div>
                         </td>
                         <td class="text-center">
                             <button type="button" class="btn btn-secondary btn-sm rounded-0" disabled>
@@ -524,6 +571,19 @@
         $('#uploadDataModal').modal('show');
     });
     
+    // Initialize preview button with existing data ID if available
+    $(document).ready(function(){
+        // Check if there's existing data and set the preview button ID
+        <?php if(isset($existingData['monitoring_progres']) && !empty($existingData['monitoring_progres'])): ?>
+        var existingId = <?= $existingData['monitoring_progres']['id'] ?? 'null' ?>;
+        if(existingId) {
+            $('.preview-btn').attr('data-id', existingId);
+            currentDataId = existingId;
+        }
+        <?php endif; ?>
+    });
+    
+    
     // Upload Nilai button click
     $(document).on('click', '.upload-nilai-btn', function(){
         var jenis = $(this).data('jenis');
@@ -571,6 +631,13 @@
     // Preview button click
     $(document).on('click', '.preview-btn', function(){
         var id = $(this).data('id');
+        
+        // If no ID is set, try to get the latest uploaded record ID
+        if (!id) {
+            if(window.toastr){ toastr.error('Tidak ada data untuk di-preview. Silakan upload file terlebih dahulu.'); }
+            return;
+        }
+        
         currentDataId = id;
         
         $.get('<?= base_url('bantuan/hibah/preview') ?>/' + id, function(res){
@@ -604,24 +671,48 @@
         e.preventDefault();
         
         var formData = new FormData(this);
-        formData.append('tahun', <?= $tahun ?>);
-        formData.append('bulan', <?= $bulan ?>);
+        var tahunValue = <?= $tahun ?? date('Y') ?>;
+        var bulanValue = <?= $bulan ?? date('n') ?>;
+        
+        // Validate values
+        if (!tahunValue || !bulanValue) {
+            if(window.toastr){ toastr.error('Tahun atau bulan tidak valid'); }
+            return;
+        }
+        
+        // Check if file is selected
+        var fileInput = $('#data_file')[0];
+        if (!fileInput.files || fileInput.files.length === 0) {
+            if(window.toastr){ toastr.error('Silakan pilih file terlebih dahulu'); }
+            return;
+        }
+        
+        formData.append('tahun', tahunValue);
+        formData.append('bulan', bulanValue);
+        formData.append('jenis_hibah', 'monitoring_progres');
+        formData.append('nama_hibah', $('#data_keterangan').val());
         formData.append(csrfTokenName, csrfHash);
         
+        console.log('Sending AJAX request to:', '<?= base_url('bantuan/hibah/upload') ?>');
+        console.log('FormData contents:');
+        for (var pair of formData.entries()) {
+            console.log(pair[0] + ': ' + pair[1]);
+        }
+        
         $.ajax({
-            url: '<?= base_url('bantuan/hibah/upload-data') ?>',
+            url: '<?= base_url('bantuan/hibah/upload') ?>',
             type: 'POST',
             data: formData,
             processData: false,
             contentType: false,
             success: function(res){
+                console.log('Upload success response:', res);
                 if(res && res.csrf_hash){ csrfHash = res.csrf_hash; }
                 if(res && res.ok){
-                    if(window.toastr){ toastr.success(res.message || 'Data berhasil diupload'); }
+                    if(window.toastr){ toastr.success(res.message || 'Data berhasil diupload dan disimpan'); }
                     $('#uploadDataModal').modal('hide');
                     
                     // Show upload result inline
-                    var jenis = $('#data_indikator').val();
                     var jenisKey = 'monitoring_progres'; // Default for this page
                     
                     // Show the upload result
@@ -630,6 +721,14 @@
                     // Update the result text with file name if available
                     if(res.data && res.data.file_name) {
                         $('#upload-result-' + jenisKey + ' small').html('<i class="fas fa-check-circle"></i> ' + res.data.file_name);
+                    } else {
+                        $('#upload-result-' + jenisKey + ' small').html('<i class="fas fa-check-circle"></i> Data berhasil disimpan');
+                    }
+                    
+                    // Set the data ID on the preview button so it can work
+                    if(res.data && res.data.id) {
+                        $('.preview-btn').attr('data-id', res.data.id);
+                        currentDataId = res.data.id;
                     }
                     
                 } else {
@@ -637,12 +736,20 @@
                 }
             },
             error: function(xhr){
+                console.log('AJAX Error:', xhr);
+                console.log('Response Text:', xhr.responseText);
+                console.log('Status:', xhr.status);
+                console.log('Status Text:', xhr.statusText);
+                console.log('Request URL:', xhr.responseURL);
+                
                 try{
                     var data = JSON.parse(xhr.responseText);
+                    console.log('Parsed Error Data:', data);
                     if(data && data.csrf_hash){ csrfHash = data.csrf_hash; }
                     if(window.toastr){ toastr.error(data.message || 'Gagal mengupload data'); }
                 }catch(e){
-                    if(window.toastr){ toastr.error('Gagal mengupload data'); }
+                    console.log('JSON Parse Error:', e);
+                    if(window.toastr){ toastr.error('Gagal mengupload data - ' + xhr.status + ': ' + xhr.statusText); }
                 }
             }
         });
@@ -724,12 +831,32 @@
         };
         formData[csrfTokenName] = csrfHash;
         
+        console.log('Verifikasi form data:', formData);
+        console.log('CSRF Token Name:', csrfTokenName);
+        console.log('CSRF Hash:', csrfHash);
+        
         $.post('<?= base_url('bantuan/hibah/save') ?>', formData, function(res){
             if(res && res.csrf_hash){ csrfHash = res.csrf_hash; }
             if(res && res.ok){
                 if(window.toastr){ toastr.success(res.message || 'Verifikasi berhasil disimpan'); }
                 $('#verifikasiModal').modal('hide');
-                location.reload();
+                
+                // Show feedback result inline
+                var jenisKey = 'monitoring_progres'; // Default for this page
+                $('#verifikasi-result-' + jenisKey).show();
+                
+                // Update the result text with the feedback
+                var feedbackText = formData.catatan_kendala || 'Verifikasi tersimpan';
+                $('#verifikasi-result-' + jenisKey + ' small').html('<i class="fas fa-check-circle"></i> ' + feedbackText);
+                
+                // Also show the feedback in the main display area
+                var $feedbackDisplay = $('#verifikasi-result-' + jenisKey).next();
+                if($feedbackDisplay.length === 0) {
+                    $('#verifikasi-result-' + jenisKey).after('<div class="mt-1"><small class="text-dark" style="font-size: 10px; max-width: 120px; word-wrap: break-word;">' + feedbackText + '</small></div>');
+                } else {
+                    $feedbackDisplay.find('small').text(feedbackText);
+                }
+                
             } else {
                 if(window.toastr){ toastr.error(res.message || 'Gagal menyimpan verifikasi'); }
             }
@@ -811,6 +938,7 @@
         var formData = new FormData(this);
         formData.append('tahun', <?= $tahun ?>);
         formData.append('bulan', <?= $bulan ?>);
+        formData.append('dok_admin', '1');
         formData.append(csrfTokenName, csrfHash);
         
         $.ajax({

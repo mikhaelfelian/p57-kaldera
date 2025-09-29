@@ -8,6 +8,11 @@ class AddAvatarToUsers extends Migration
 {
     public function up()
     {
+        // Skip if users table does not exist
+        if (! $this->db->tableExists('users')) {
+            return;
+        }
+
         $this->forge->addColumn('users', [
             'avatar' => [
                 'type' => 'VARCHAR',
@@ -20,6 +25,8 @@ class AddAvatarToUsers extends Migration
 
     public function down()
     {
-        $this->forge->dropColumn('users', 'avatar');
+        if ($this->db->tableExists('users')) {
+            $this->forge->dropColumn('users', 'avatar');
+        }
     }
 }
