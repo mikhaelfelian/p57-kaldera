@@ -195,16 +195,19 @@ class Dashboard extends BaseController
     public function enhancedFeatures()
     {
         $data = [
-            'title' => 'Enhanced POS System Features',
-            'Pengaturan' => $this->pengaturan,
-            'user' => $this->ionAuth->user()->row(),
+            'title'       => 'Enhanced POS System Features',
+            'Pengaturan'  => $this->pengaturan,
+            'user'        => $this->ionAuth->user()->row(),
             'breadcrumbs' => '
                 <li class="breadcrumb-item"><a href="' . base_url() . '">Beranda</a></li>
                 <li class="breadcrumb-item active">Enhanced Features</li>
-            '
+            ',
         ];
 
-        return view($this->theme->getThemePath() . '/dashboard/enhanced_menu', $data);
+        return view(
+            $this->theme->getThemePath() . '/dashboard/enhanced_menu',
+            $data
+        );
     }
 
     /**
@@ -214,15 +217,18 @@ class Dashboard extends BaseController
     public function systemOverview()
     {
         $data = [
-            'title' => 'System Overview - All Features',
-            'Pengaturan' => $this->pengaturan,
-            'user' => $this->ionAuth->user()->row(),
+            'title'       => 'System Overview - All Features',
+            'Pengaturan'  => $this->pengaturan,
+            'user'        => $this->ionAuth->user()->row(),
             'breadcrumbs' => '
                 <li class="breadcrumb-item"><a href="' . base_url() . '">Beranda</a></li>
                 <li class="breadcrumb-item active">System Overview</li>
-            '
+            ',
         ];
 
-        return view($this->theme->getThemePath() . '/dashboard/system_overview', $data);
+        return view(
+            $this->theme->getThemePath() . '/dashboard/system_overview',
+            $data
+        );
     }
 } 
