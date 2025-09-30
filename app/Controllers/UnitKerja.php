@@ -27,85 +27,100 @@ class UnitKerja extends BaseController
     public function create()
     {
         if (!$this->request->isAJAX()) {
-            return $this->response->setJSON(['ok' => false, 'message' => 'Invalid request']);
+            return $this->response->setJSON([
+                'ok'      => false,
+                'message' => 'Invalid request'
+            ]);
         }
 
         $validation = \Config\Services::validation();
-        $validation->setRules([
-            'kode_unit_kerja' => 'required|max_length[50]|is_unique[tbl_m_unit_kerja.kode_unit_kerja]',
-            'nama_unit_kerja' => 'required|max_length[255]',
-            'alamat' => 'permit_empty',
-            'telepon' => 'permit_empty|max_length[20]',
-            'email' => 'permit_empty|valid_email|max_length[100]',
-            'kepala_unit_kerja' => 'permit_empty|max_length[255]',
-            'nip_kepala' => 'permit_empty|max_length[50]',
-            'status' => 'permit_empty|in_list[Aktif,Tidak Aktif]',
-            'keterangan' => 'permit_empty'
-        ], [
-            'kode_unit_kerja' => [
-                'required' => 'Kode unit kerja harus diisi',
-                'max_length' => 'Kode unit kerja maksimal 50 karakter',
-                'is_unique' => 'Kode unit kerja sudah digunakan'
+        $validation->setRules(
+            [
+                'kode_unit_kerja'    => 'required|max_length[50]|is_unique[tbl_m_unit_kerja.kode_unit_kerja]',
+                'nama_unit_kerja'    => 'required|max_length[255]',
+                'alamat'             => 'permit_empty',
+                'telepon'            => 'permit_empty|max_length[20]',
+                'email'              => 'permit_empty|valid_email|max_length[100]',
+                'kepala_unit_kerja'  => 'permit_empty|max_length[255]',
+                'nip_kepala'         => 'permit_empty|max_length[50]',
+                'status'             => 'permit_empty|in_list[Aktif,Tidak Aktif]',
+                'keterangan'         => 'permit_empty'
             ],
-            'nama_unit_kerja' => [
-                'required' => 'Nama unit kerja harus diisi',
-                'max_length' => 'Nama unit kerja maksimal 255 karakter'
-            ],
-            'telepon' => [
-                'max_length' => 'Nomor telepon maksimal 20 karakter'
-            ],
-            'email' => [
-                'valid_email' => 'Format email tidak valid',
-                'max_length' => 'Email maksimal 100 karakter'
-            ],
-            'kepala_unit_kerja' => [
-                'max_length' => 'Nama kepala unit kerja maksimal 255 karakter'
-            ],
-            'nip_kepala' => [
-                'max_length' => 'NIP kepala maksimal 50 karakter'
-            ],
-            'status' => [
-                'in_list' => 'Status harus Aktif atau Tidak Aktif'
+            [
+                'kode_unit_kerja' => [
+                    'required'   => 'Kode unit kerja harus diisi',
+                    'max_length' => 'Kode unit kerja maksimal 50 karakter',
+                    'is_unique'  => 'Kode unit kerja sudah digunakan'
+                ],
+                'nama_unit_kerja' => [
+                    'required'   => 'Nama unit kerja harus diisi',
+                    'max_length' => 'Nama unit kerja maksimal 255 karakter'
+                ],
+                'telepon' => [
+                    'max_length' => 'Nomor telepon maksimal 20 karakter'
+                ],
+                'email' => [
+                    'valid_email' => 'Format email tidak valid',
+                    'max_length'  => 'Email maksimal 100 karakter'
+                ],
+                'kepala_unit_kerja' => [
+                    'max_length' => 'Nama kepala unit kerja maksimal 255 karakter'
+                ],
+                'nip_kepala' => [
+                    'max_length' => 'NIP kepala maksimal 50 karakter'
+                ],
+                'status' => [
+                    'in_list' => 'Status harus Aktif atau Tidak Aktif'
+                ]
             ]
-        ]);
+        );
 
         if (!$validation->withRequest($this->request)->run()) {
             return $this->response->setJSON([
-                'ok' => false,
-                'message' => 'Validasi gagal',
-                'errors' => $validation->getErrors(),
-                'csrf_token' => csrf_token(),
+                'ok'        => false,
+                'message'   => 'Validasi gagal',
+                'errors'    => $validation->getErrors(),
+                'csrf_token'=> csrf_token(),
                 'csrf_hash' => csrf_hash()
             ]);
         }
 
         try {
+            $kode_unit_kerja    = $this->request->getPost('kode_unit_kerja');
+            $nama_unit_kerja    = $this->request->getPost('nama_unit_kerja');
+            $alamat             = $this->request->getPost('alamat') ?: '';
+            $telepon            = $this->request->getPost('telepon') ?: '';
+            $email              = $this->request->getPost('email') ?: '';
+            $kepala_unit_kerja  = $this->request->getPost('kepala_unit_kerja') ?: '';
+            $nip_kepala         = $this->request->getPost('nip_kepala') ?: '';
+            $status             = $this->request->getPost('status') ?: 'Aktif';
+            $keterangan         = $this->request->getPost('keterangan') ?: '';
+
             $data = [
-                'kode_unit_kerja' => $this->request->getPost('kode_unit_kerja'),
-                'nama_unit_kerja' => $this->request->getPost('nama_unit_kerja'),
-                'alamat' => $this->request->getPost('alamat') ?: '',
-                'telepon' => $this->request->getPost('telepon') ?: '',
-                'email' => $this->request->getPost('email') ?: '',
-                'kepala_unit_kerja' => $this->request->getPost('kepala_unit_kerja') ?: '',
-                'nip_kepala' => $this->request->getPost('nip_kepala') ?: '',
-                'status' => $this->request->getPost('status') ?: 'Aktif',
-                'keterangan' => $this->request->getPost('keterangan') ?: ''
+                'kode_unit_kerja'    => $kode_unit_kerja,
+                'nama_unit_kerja'    => $nama_unit_kerja,
+                'alamat'             => $alamat,
+                'telepon'            => $telepon,
+                'email'              => $email,
+                'kepala_unit_kerja'  => $kepala_unit_kerja,
+                'nip_kepala'         => $nip_kepala,
+                'status'             => $status,
+                'keterangan'         => $keterangan
             ];
 
             $this->unitKerjaModel->insert($data);
 
             return $this->response->setJSON([
-                'ok' => true,
-                'message' => 'Unit kerja berhasil ditambahkan',
-                'csrf_token' => csrf_token(),
+                'ok'        => true,
+                'message'   => 'Unit kerja berhasil ditambahkan',
+                'csrf_token'=> csrf_token(),
                 'csrf_hash' => csrf_hash()
             ]);
-
         } catch (\Exception $e) {
             return $this->response->setJSON([
-                'ok' => false,
-                'message' => 'Gagal menambahkan unit kerja: ' . $e->getMessage(),
-                'csrf_token' => csrf_token(),
+                'ok'        => false,
+                'message'   => 'Gagal menambahkan unit kerja: ' . $e->getMessage(),
+                'csrf_token'=> csrf_token(),
                 'csrf_hash' => csrf_hash()
             ]);
         }
