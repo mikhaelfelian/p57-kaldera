@@ -15,8 +15,8 @@ $year = $year ?? date('Y');
 
 		<?php
 		$current = (int) ($year ?? date('Y'));
-		$start = $current - 0;
-		$end = $current + 1;
+		$start = $current - 5;
+		$end = $current + 5;
 		$tahapanList = [
 					'penetapan'   => 'Penetapan APBD',
 					'pergeseran'  => 'Pergeseran',

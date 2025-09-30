@@ -31,8 +31,8 @@ $master = $masterData ?? [];
                 <select name="year" class="form-control rounded-0 mr-3" id="yearSelect" onchange="this.form.submit()">
                     <?php 
                         $current = (int)($year ?? date('Y')); 
-                        $start = $current - 0;
-                        $end = $current + 1;
+                        $start = $current - 5;
+                        $end = $current + 5;
                         for ($i = $end; $i >= $start; $i--): 
                     ?>
                         <option value="<?= $i ?>" <?= $i === $current ? 'selected' : '' ?>><?= $i ?></option>

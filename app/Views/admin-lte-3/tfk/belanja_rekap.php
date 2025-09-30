@@ -58,7 +58,7 @@
                                 <?php 
                                 $currentYear = date('Y');
                                 $current = (int)($year ?? date('Y'));
-                                for($i = $currentYear - 0; $i <= $currentYear + 1; $i++): 
+                                for($i = $currentYear - 5; $i <= $currentYear + 5; $i++): 
                                 ?>
                                 <option value="<?= $i ?>" <?= ($current == $i) ? 'selected' : '' ?>><?= $i ?></option>
                                 <?php endfor; ?>

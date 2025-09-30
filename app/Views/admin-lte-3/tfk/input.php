@@ -29,7 +29,7 @@ $master = $masterData ?? [];
                         <?php
                         $currentYear = date('Y');
                         $selectedYear = isset($year) ? (int) $year : $currentYear;
-                        for ($i = $currentYear - 0; $i <= $currentYear + 1; $i++):
+                        for ($i = $currentYear - 5; $i <= $currentYear + 5; $i++):
                             ?>
                             <option value="<?= $i ?>" <?= ($selectedYear == $i) ? 'selected' : '' ?>><?= $i ?></option>
                         <?php endfor; ?>

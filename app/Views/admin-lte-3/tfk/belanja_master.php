@@ -16,8 +16,8 @@
         <form class="form-inline">
             <?php 
                 $current = (int)($year ?? date('Y')); 
-                $start = $current - 0;
-                $end = $current + 1;
+                $start = $current - 5;
+                $end = $current + 5;
             ?>
             <label class="mr-2">Tahun</label>
             <select name="year" class="form-control form-control-sm rounded-0 mr-3" id="yearSelect">
