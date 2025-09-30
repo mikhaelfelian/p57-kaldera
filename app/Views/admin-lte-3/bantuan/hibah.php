@@ -167,6 +167,18 @@
                                     style="background-color: #dc3545; border-color: #dc3545;">
                                 <i class="fas fa-file-upload"></i>
                             </button>
+                            <div id="upload-dok-result-monitoring_progres" class="mt-1" style="display: none;">
+                                <small class="text-success font-weight-bold" style="font-size: 10px; max-width: 120px; word-wrap: break-word;">
+                                    <i class="fas fa-check-circle"></i> Dokumen diupload
+                                </small>
+                            </div>
+                            <?php if(isset($existingData['monitoring_progres']) && !empty($existingData['monitoring_progres']) && !empty($existingData['monitoring_progres']['file_name_dok'])): ?>
+                            <div class="mt-1">
+                                <small class="text-success font-weight-bold" style="font-size: 10px; max-width: 120px; word-wrap: break-word;">
+                                    <i class="fas fa-check-circle"></i> <?= $existingData['monitoring_progres']['file_name_dok'] ?>
+                                </small>
+                            </div>
+                            <?php endif; ?>
                         </td>
                     </tr>
                 </tbody>
@@ -735,6 +747,14 @@
                         currentDataId = res.data.id;
                     }
                     
+                    // Also update the static existing display if present
+                    var $existingDisplay = $('#upload-result-' + jenisKey).next();
+                    if($existingDisplay.length === 0) {
+                        $('#upload-result-' + jenisKey).after('<div class="mt-1"><small class="text-success font-weight-bold" style="font-size: 10px; max-width: 120px; word-wrap: break-word;"><i class="fas fa-check-circle"></i> ' + (res.data && res.data.file_name ? res.data.file_name : 'Data tersimpan') + '</small></div>');
+                    } else {
+                        $existingDisplay.find('small').html('<i class="fas fa-check-circle"></i> ' + (res.data && res.data.file_name ? res.data.file_name : 'Data tersimpan'));
+                    }
+                    
                 } else {
                     if(window.toastr){ toastr.error(res.message || 'Gagal mengupload data'); }
                 }
@@ -955,7 +975,17 @@
                 if(res && res.ok){
                     if(window.toastr){ toastr.success(res.message || 'Dokumen berhasil diupload'); }
                     $('#uploadDokModal').modal('hide');
-                    location.reload();
+                    
+                    // Inline update of uploaded dokumen filename under red button
+                    var jenisKey = 'monitoring_progres';
+                    $('#upload-dok-result-' + jenisKey).show();
+                    if(res.data && res.data.file_name_dok){
+                        $('#upload-dok-result-' + jenisKey + ' small').html('<i class="fas fa-check-circle"></i> ' + res.data.file_name_dok);
+                    } else if(res.data && res.data.file_name){
+                        $('#upload-dok-result-' + jenisKey + ' small').html('<i class="fas fa-check-circle"></i> ' + res.data.file_name);
+                    } else {
+                        $('#upload-dok-result-' + jenisKey + ' small').html('<i class="fas fa-check-circle"></i> Dokumen diupload');
+                    }
                 } else {
                     if(window.toastr){ toastr.error(res.message || 'Gagal mengupload dokumen'); }
                 }

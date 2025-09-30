@@ -26,7 +26,7 @@
                     <div class="row mb-3">
                         <div class="col-md-4">
                             <label class="font-weight-bold">Tahapan</label>
-                            <select name="tahapan" class="form-control rounded-0" onchange="document.getElementById('filterForm').submit()">
+                            <select name="tahapan" class="form-control rounded-0" id="tahapanSelect" onchange="document.getElementById('filterForm').submit()">
                                 <?php foreach ($tahapanList as $key => $label): ?>
                                 <option value="<?= $key ?>" <?= ($tahapan === $key) ? 'selected' : '' ?>><?= $label ?></option>
                                 <?php endforeach; ?>
@@ -34,7 +34,7 @@
                         </div>
                         <div class="col-md-4">
                             <label class="font-weight-bold">Tahun</label>
-                            <select name="year" class="form-control rounded-0" onchange="document.getElementById('filterForm').submit()" readonly disabled>
+                            <select name="year" class="form-control rounded-0" id="yearSelect" onchange="document.getElementById('filterForm').submit()">
                                 <?php 
                                 $currentYear = date('Y');
                                 for($i = $currentYear - 5; $i <= $currentYear + 5; $i++): 
@@ -305,6 +305,19 @@
         }
         if(res && res.csrf_hash){ csrfHash = res.csrf_hash; }
     }, 'json');
+
+    // Enhanced dropdown change handlers for database search
+    document.getElementById('yearSelect').addEventListener('change', function(){
+        var params = new URLSearchParams(window.location.search);
+        params.set('year', this.value);
+        window.location.href = window.location.pathname + '?' + params.toString();
+    });
+
+    document.getElementById('tahapanSelect').addEventListener('change', function(){
+        var params = new URLSearchParams(window.location.search);
+        params.set('tahapan', this.value);
+        window.location.href = window.location.pathname + '?' + params.toString();
+    });
 })();
 </script>
 <?= $this->endSection() ?>

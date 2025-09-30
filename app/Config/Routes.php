@@ -242,14 +242,14 @@ $routes->group('bantuan', ['namespace' => 'App\\Controllers', 'filter' => 'auth'
     $routes->get('hibah/download/(:num)', 'BanmasHibah::download/$1', ['as' => 'bantuan.hibah.download']);
     
     $routes->get('bansos', 'BanmasBansos::bansos', ['as' => 'bantuan.bansos']);
-    $routes->post('bansos/save', 'BanmasBansos::save', ['as' => 'bantuan.bansos.save']);
-    $routes->post('bansos/upload', 'BanmasBansos::upload', ['as' => 'bantuan.bansos.upload']);
+    $routes->post('bansos/save', 'BanmasBansos::save', ['as' => 'bantuan.bansos.save', 'filter' => 'no_csrf']);
+    $routes->post('bansos/upload', 'BanmasBansos::upload', ['as' => 'bantuan.bansos.upload', 'filter' => 'no_csrf']);
     $routes->get('bansos/preview/(:num)', 'BanmasBansos::preview/$1', ['as' => 'bantuan.bansos.preview']);
     $routes->get('bansos/download/(:num)', 'BanmasBansos::download/$1', ['as' => 'bantuan.bansos.download']);
     
     $routes->get('barang', 'BanmasBs::barang', ['as' => 'bantuan.barang']);
-    $routes->post('barang/save', 'BanmasBs::save', ['as' => 'bantuan.barang.save']);
-    $routes->post('barang/upload', 'BanmasBs::upload', ['as' => 'bantuan.barang.upload']);
+    $routes->post('barang/save', 'BanmasBs::save', ['as' => 'bantuan.barang.save', 'filter' => 'no_csrf']);
+    $routes->post('barang/upload', 'BanmasBs::upload', ['as' => 'bantuan.barang.upload', 'filter' => 'no_csrf']);
     $routes->get('barang/preview/(:num)', 'BanmasBs::preview/$1', ['as' => 'bantuan.barang.preview']);
     $routes->get('barang/download/(:num)', 'BanmasBs::download/$1', ['as' => 'bantuan.barang.download']);
 });

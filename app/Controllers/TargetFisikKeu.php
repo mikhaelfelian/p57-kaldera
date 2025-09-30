@@ -323,6 +323,7 @@ class TargetFisikKeu extends BaseController
 			$data = $this->request->getPost('data');
 			
 			log_message('debug', 'saveAll called with tahun: ' . $tahun . ', tahapan: ' . $tahapan . ', bulan: ' . $bulan);
+			log_message('debug', 'POST data received: ' . json_encode($this->request->getPost()));
 			log_message('debug', 'Data received: ' . json_encode($data));
 			
 			if (empty($data) || !is_array($data)) {
@@ -335,7 +336,7 @@ class TargetFisikKeu extends BaseController
 			
 			// Process each month's data
 			foreach ($data as $bulanKey => $monthData) {
-				if (!in_array($bulanKey, ['jan','feb','mar','apr','mei','jun','jul','ags','sep','okt','nov','des'])) {
+				if (!in_array($bulanKey, ['jan','feb','mar','apr','mei','jun','jul','agu','sep','okt','nov','des'])) {
 					continue; // Skip invalid bulan
 				}
 				
@@ -534,12 +535,10 @@ class TargetFisikKeu extends BaseController
     public function rekapExportExcel()
     {
         $year = (int)($this->request->getGet('year') ?: date('Y'));
-        $masterId = (int)($this->request->getGet('master_id') ?: 0);
         $tahapan = (string)($this->request->getGet('tahapan') ?: 'penetapan');
-        if (!$masterId) {
-            $masters = $this->masterModel->orderBy('id', 'DESC')->findAll();
-            $masterId = !empty($masters) ? (int)$masters[0]['id'] : 0;
-        }
+        
+        // Use master_id = 1 as default (same as rekap method)
+        $masterId = 1;
 
         // Pull data
         $rows = $this->fiskalModel->where([
@@ -548,10 +547,13 @@ class TargetFisikKeu extends BaseController
             'tahun'     => $year,
             'tahapan'   => $tahapan,
         ])->orderBy('bulan', 'ASC')->findAll();
+        
+        // Debug: Log the data
+        log_message('debug', 'Export Excel - Found ' . count($rows) . ' rows for year: ' . $year . ', tahapan: ' . $tahapan);
 
         $map = [];
         foreach ($rows as $r) { $map[$r['bulan']] = $r; }
-        $months = ['jan','feb','mar','apr','mei','jun','jul','ags','sep','okt','nov','des'];
+        $months = ['jan','feb','mar','apr','mei','jun','jul','agu','sep','okt','nov','des'];
         $monthNames = ['Januari','Februari','Maret','April','Mei','Juni','Juli','Agustus','September','Oktober','November','Desember'];
 
         // Build spreadsheet
@@ -567,11 +569,11 @@ class TargetFisikKeu extends BaseController
         }
 
         $rowsSpec = [
-            ['Target Fisik (%)', 'target_fisik', 0],
+            ['Target Fisik (%)', 'target_fisik', 2],
             ['Realisasi Fisik (%)', 'realisasi_fisik', 2],
             ['Realisasi Fisik Prov (%)', 'realisasi_fisik_prov', 2],
             ['Deviasi Fisik (%)', null, 2, function($d){return ($d['realisasi_fisik']??0)-($d['target_fisik']??0);} ],
-            ['Target Keuangan (%)', 'target_keuangan', 0],
+            ['Target Keuangan (%)', 'target_keuangan', 2],
             ['Realisasi Keuangan (%)', 'realisasi_keuangan', 2],
             ['Realisasi Keuangan Prov (%)', 'realisasi_keuangan_prov', 2],
             ['Deviasi Keuangan (%)', null, 2, function($d){return ($d['realisasi_keuangan']??0)-($d['target_keuangan']??0);} ],
@@ -590,6 +592,12 @@ class TargetFisikKeu extends BaseController
                 } else {
                     $val = $field ? ($d[$field] ?? '') : '';
                 }
+                
+                // Format numeric values with proper decimal places
+                if ($decimals !== null && is_numeric($val)) {
+                    $val = number_format((float)$val, $decimals, ',', '.');
+                }
+                
                 $sheet->setCellValue($col . $r, $val);
             }
             $r++;
@@ -611,12 +619,10 @@ class TargetFisikKeu extends BaseController
     public function rekapExportPDF()
     {
         $year = (int)($this->request->getGet('year') ?: date('Y'));
-        $masterId = (int)($this->request->getGet('master_id') ?: 0);
         $tahapan = (string)($this->request->getGet('tahapan') ?: 'penetapan');
-        if (!$masterId) {
-            $masters = $this->masterModel->orderBy('id', 'DESC')->findAll();
-            $masterId = !empty($masters) ? (int)$masters[0]['id'] : 0;
-        }
+        
+        // Use master_id = 1 as default (same as rekap method)
+        $masterId = 1;
 
         $rows = $this->fiskalModel->where([
             'master_id' => $masterId,
@@ -624,10 +630,13 @@ class TargetFisikKeu extends BaseController
             'tahun'     => $year,
             'tahapan'   => $tahapan,
         ])->orderBy('bulan', 'ASC')->findAll();
+        
+        // Debug: Log the data
+        log_message('debug', 'Export PDF - Found ' . count($rows) . ' rows for year: ' . $year . ', tahapan: ' . $tahapan);
 
         $map = [];
         foreach ($rows as $r) { $map[$r['bulan']] = $r; }
-        $months = ['jan','feb','mar','apr','mei','jun','jul','ags','sep','okt','nov','des'];
+        $months = ['jan','feb','mar','apr','mei','jun','jul','agu','sep','okt','nov','des'];
         $monthNames = ['Januari','Februari','Maret','April','Mei','Juni','Juli','Agustus','September','Oktober','November','Desember'];
 
         // Initialize TCPDF
@@ -646,19 +655,19 @@ class TargetFisikKeu extends BaseController
         $html .= '</tr>';
 
         $rowsSpec = [
-            ['Target Fisik (%)', 'target_fisik'],
-            ['Realisasi Fisik (%)', 'realisasi_fisik'],
-            ['Realisasi Fisik Prov (%)', 'realisasi_fisik_prov'],
-            ['Deviasi Fisik (%)', null, function($d){return ($d['realisasi_fisik']??0)-($d['target_fisik']??0);} ],
-            ['Target Keuangan (%)', 'target_keuangan'],
-            ['Realisasi Keuangan (%)', 'realisasi_keuangan'],
-            ['Realisasi Keuangan Prov (%)', 'realisasi_keuangan_prov'],
-            ['Deviasi Keuangan (%)', null, function($d){return ($d['realisasi_keuangan']??0)-($d['target_keuangan']??0);} ],
-            ['Analisa', 'analisa'],
+            ['Target Fisik (%)', 'target_fisik', 2],
+            ['Realisasi Fisik (%)', 'realisasi_fisik', 2],
+            ['Realisasi Fisik Prov (%)', 'realisasi_fisik_prov', 2],
+            ['Deviasi Fisik (%)', null, 2, function($d){return ($d['realisasi_fisik']??0)-($d['target_fisik']??0);} ],
+            ['Target Keuangan (%)', 'target_keuangan', 2],
+            ['Realisasi Keuangan (%)', 'realisasi_keuangan', 2],
+            ['Realisasi Keuangan Prov (%)', 'realisasi_keuangan_prov', 2],
+            ['Deviasi Keuangan (%)', null, 2, function($d){return ($d['realisasi_keuangan']??0)-($d['target_keuangan']??0);} ],
+            ['Analisa', 'analisa', null],
         ];
 
         foreach ($rowsSpec as $spec) {
-            [$label, $field] = $spec;
+            [$label, $field, $decimals] = $spec;
             $html .= '<tr><td><b>' . $label . '</b></td>';
             foreach ($months as $m) {
                 $d = $map[$m] ?? [];
@@ -667,6 +676,12 @@ class TargetFisikKeu extends BaseController
                 } else {
                     $val = $field ? ($d[$field] ?? '') : '';
                 }
+                
+                // Format numeric values with proper decimal places
+                if ($decimals !== null && is_numeric($val)) {
+                    $val = number_format((float)$val, $decimals, ',', '.');
+                }
+                
                 $html .= '<td>' . $val . '</td>';
             }
             $html .= '</tr>';
@@ -707,7 +722,7 @@ class TargetFisikKeu extends BaseController
             'tahapan' => $tahapan,
             'details' => $details,
 		];
-		return view($this->theme->getThemePath() . '/tfk/master', $data);
+		return view($this->theme->getThemePath() . '/tfk/belanja_master', $data);
 	}
 
 	public function masterStore()
@@ -1169,11 +1184,11 @@ class TargetFisikKeu extends BaseController
 
 			$html .= '<tr>
 				<td>' . $labels[$key] . '</td>
-				<td align="right">' . number_format($anggaran, 0, ',', '.') . '</td>
-				<td align="right">' . number_format($realisasi, 0, ',', '.') . '</td>
-				<td align="right">' . number_format($persen, 2) . '%</td>
-				<td align="right">' . number_format($sisa, 0, ',', '.') . '</td>
-				<td align="right">' . number_format($sisaPersen, 2) . '%</td>
+				<td align="right">' . format_angka($anggaran, 2) . '</td>
+				<td align="right">' . format_angka($realisasi, 2) . '</td>
+				<td align="right">' . format_angka($persen, 2) . '%</td>
+				<td align="right">' . format_angka($sisa, 2) . '</td>
+				<td align="right">' . format_angka($sisaPersen, 2) . '%</td>
 			</tr>';
 
 			$totalAnggaran += $anggaran;
@@ -1187,11 +1202,11 @@ class TargetFisikKeu extends BaseController
 
 		$html .= '<tr style="background-color:#3b6ea8; color:white; font-weight:bold;">
 			<td>TOTAL</td>
-			<td align="right">' . number_format($totalAnggaran, 0, ',', '.') . '</td>
-			<td align="right">' . number_format($totalRealisasi, 0, ',', '.') . '</td>
-			<td align="right">' . number_format($totalPersen, 2) . '%</td>
-			<td align="right">' . number_format($totalSisa, 0, ',', '.') . '</td>
-			<td align="right">' . number_format($totalSisaPersen, 2) . '%</td>
+			<td align="right">' . format_angka($totalAnggaran, 2) . '</td>
+			<td align="right">' . format_angka($totalRealisasi, 2) . '</td>
+			<td align="right">' . format_angka($totalPersen, 2) . '%</td>
+			<td align="right">' . format_angka($totalSisa, 2) . '</td>
+			<td align="right">' . format_angka($totalSisaPersen, 2) . '%</td>
 		</tr></table>';
 
 		$pdf->writeHTML($html, true, false, true, false, '');

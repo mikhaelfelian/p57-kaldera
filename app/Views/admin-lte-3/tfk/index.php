@@ -15,8 +15,8 @@ $year = $year ?? date('Y');
 
 		<?php
 		$current = (int) ($year ?? date('Y'));
-		$start = $current - 5;
-		$end = $current + 5;
+		$start = $current - 0;
+		$end = $current + 1;
 		$tahapanList = [
 					'penetapan'   => 'Penetapan APBD',
 					'pergeseran'  => 'Pergeseran',
@@ -25,14 +25,14 @@ $year = $year ?? date('Y');
 		$currentTahapan = $tahapan ?? '';
 		?>
 		<label class="mr-2">Tahun</label>
-				<select name="year" class="form-control form-control-sm mr-3" disabled readonly>
+				<select name="year" class="form-control form-control-sm mr-3 rounded-0">
 			<?php for ($y = $start; $y <= $end; $y++): ?>
 				<option value="<?= $y ?>" <?= $y === $current ? 'selected' : '' ?>><?= $y ?></option>
 			<?php endfor; ?>
 		</select>
 			<input type="hidden" name="year" value="<?= $current ?>">
 				<label class="mr-2">Tahapan</label>
-				<select name="tahapan" class="form-control form-control-sm">
+				<select name="tahapan" class="form-control form-control-sm rounded-0">
 			<?php foreach ($tahapanList as $key => $label): ?>
 				<option value="<?= $key ?>" <?= $key === $currentTahapan ? 'selected' : '' ?>><?= $label ?></option>
 			<?php endforeach; ?>
@@ -60,7 +60,7 @@ $year = $year ?? date('Y');
 								?>
 									<td class="text-center">
 										<span class="editable" data-bulan="<?= $k ?>" data-field="fisik"
-											data-id="0" data-value="<?= $val ?>"><?= format_angka($val) ?></span> 
+											data-id="0" data-value="<?= $val ?>"><?= format_angka($val, 2) ?></span> 
 										<i class="fas fa-pencil-alt text-muted ml-1 edit-icon"></i>
 									</td>
 							<?php endforeach; ?>
@@ -73,7 +73,7 @@ $year = $year ?? date('Y');
 								?>
 									<td class="text-center">
 										<span class="editable" data-bulan="<?= $k ?>" data-field="keu"
-											data-id="0" data-value="<?= $val ?>"><?= format_angka($val) ?></span> 
+											data-id="0" data-value="<?= $val ?>"><?= format_angka($val, 2) ?></span> 
 										<i class="fas fa-pencil-alt text-muted ml-1 edit-icon"></i>
 									</td>
 							<?php endforeach; ?>
@@ -132,10 +132,13 @@ $year = $year ?? date('Y');
 		var csrfToken = '<?= csrf_token() ?>';
 		var csrfHash = '<?= csrf_hash() ?>';
 
-		// Format number similar to format_angka() helper
+		// Format number similar to format_angka() helper with 2 decimal places
 		function formatAngka(num) {
-			if (num === null || num === undefined || isNaN(num)) return '0';
-			return new Intl.NumberFormat('id-ID').format(parseFloat(num));
+			if (num === null || num === undefined || isNaN(num)) return '0,00';
+			return new Intl.NumberFormat('id-ID', {
+				minimumFractionDigits: 2,
+				maximumFractionDigits: 2
+			}).format(parseFloat(num));
 		}
 
 		// Store tahapan selection locally (don't save immediately)
@@ -150,7 +153,7 @@ $year = $year ?? date('Y');
 
 		// Load existing data function - preserves staged changes
 		function loadExisting() {
-			var tahun = $('#tfkTable').data('year');
+			var tahun = $('select[name="year"]').val();
 			var tahapan = $('select[name="tahapan"]').val();
 			
 			console.log('Loading data for tahun:', tahun, 'tahapan:', tahapan);
@@ -254,7 +257,7 @@ $year = $year ?? date('Y');
 				
 				// Only reset if no staged changes
 				if ($cell.data('staged') === undefined) {
-					$cell.data('value', 0).text('0');
+					$cell.data('value', 0).text(formatAngka(0));
 					console.log('Reset fisik for bulan:', bulan, 'to 0');
 				} else {
 					console.log('Preserved staged fisik for bulan:', bulan, 'staged:', $cell.data('staged'));
@@ -268,7 +271,7 @@ $year = $year ?? date('Y');
 				
 				// Only reset if no staged changes
 				if ($cell.data('staged') === undefined) {
-					$cell.data('value', 0).text('0');
+					$cell.data('value', 0).text(formatAngka(0));
 					console.log('Reset keuangan for bulan:', bulan, 'to 0');
 				} else {
 					console.log('Preserved staged keuangan for bulan:', bulan, 'staged:', $cell.data('staged'));
@@ -310,13 +313,25 @@ $year = $year ?? date('Y');
 			// Load existing data for the new tahapan (preserving staged changes)
 			loadExisting();
 		});
+		
+		// Year dropdown change handler
+		$('select[name="year"]').on('change', function(){
+			var year = $(this).val();
+			console.log('Year dropdown changed to:', year);
+			
+			// Update the table data attribute
+			$('#tfkTable').data('year', year);
+			
+			// Load existing data for the new year (preserving staged changes)
+			loadExisting();
+		});
 
         // Save button functionality - save everything (tahapan + monthly changes + Target Nominal)
 		$('#btnDummySave').on('click', function () {
 			var $btn = $(this);
 			var originalText = $btn.text();
-			var tahun = $('#tfkTable').data('year');
-			var tahapan = $('#tfkTable').data('tahapan');
+			var tahun = $('select[name="year"]').val();
+			var tahapan = $('select[name="tahapan"]').val();
 			
             // Collect all data (both staged and current values)
             var allData = {};
@@ -345,6 +360,8 @@ $year = $year ?? date('Y');
             
             // Always allow save (even without changes) to persist tahapan selection
             console.log('Saving all data:', { tahun, tahapan, allData, hasChanges });
+            console.log('Year from dropdown:', $('select[name="year"]').val());
+            console.log('Tahapan from dropdown:', $('select[name="tahapan"]').val());
 			
 			// Save everything to database
 			var payload = {

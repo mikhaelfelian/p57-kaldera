@@ -49,16 +49,9 @@
             <table class="table table-bordered rounded-0">
                 <thead style="background-color: #3b6ea8; color: white;">
                     <tr>
-                        <th style="width: 200px;">Jenis Barang</th>
+                        <th style="width: 200px;">Indikator</th>
                         <th class="text-center">Upload Data</th>
                         <th class="text-center">Status</th>
-                        <th class="text-center">Aksi</th>
-                    </tr>
-                    <tr>
-                        <th></th>
-                        <th class="text-center">Nama Barang</th>
-                        <th class="text-center">Nilai Barang</th>
-                        <th class="text-center">Sesuai</th>
                         <th class="text-center">Preview</th>
                         <th class="text-center">Verifikasi Bidang</th>
                         <th class="text-center">Feed back Unit Kerja</th>
@@ -67,69 +60,101 @@
                     </tr>
                 </thead>
                 <tbody>
-                    <?php 
-                    $rows = [
-                        'barang_makanan' => 'Barang Makanan',
-                        'barang_sembako' => 'Barang Sembako',
-                        'barang_sandang' => 'Barang Sandang',
-                        'barang_lainnya' => 'Barang Lainnya'
-                    ];
-                    ?>
-                    
-                    <?php foreach ($rows as $key => $label): ?>
-                    <?php 
-                        $hasData = isset($existing[$key]);
-                        $data = $hasData ? $existing[$key] : null;
-                    ?>
                     <tr>
                         <td class="font-weight-bold" style="background-color: #2f5f93; color: white;">
-                            <?= $label ?>
+                            Monitoring Progres Barang yang diserahkan kepada masyarakat
                         </td>
                         <td class="text-center">
-                            <button type="button" class="btn btn-success btn-sm rounded-0 upload-data-btn" 
-                                    data-jenis="<?= $key ?>" data-label="<?= $label ?>"
-                                    style="background-color: #28a745; border-color: #28a745;">
-                                <i class="fas fa-upload"></i>
-                            </button>
+                            <div class="d-flex flex-column align-items-center">
+                                <button type="button" class="btn btn-success btn-sm rounded-0 upload-data-btn" 
+                                        data-jenis="monitoring_progres" data-label="Monitoring Progres Barang yang diserahkan kepada masyarakat"
+                                        style="background-color: #28a745; border-color: #28a745;">
+                                    <i class="fas fa-upload"></i>
+                                </button>
+                                <div id="upload-result-monitoring_progres" class="mt-1" style="display: none;">
+                                    <small class="text-success font-weight-bold" style="font-size: 10px; max-width: 120px; word-wrap: break-word;">
+                                        <i class="fas fa-check-circle"></i> Data uploaded
+                                    </small>
+                                </div>
+                                <?php if(isset($existingData['monitoring_progres']) && !empty($existingData['monitoring_progres'])): ?>
+                                <div class="mt-1">
+                                    <small class="text-success font-weight-bold" style="font-size: 10px; max-width: 120px; word-wrap: break-word;">
+                                        <i class="fas fa-check-circle"></i> <?= $existingData['monitoring_progres']['file_name'] ?? 'Data tersimpan' ?>
+                                    </small>
+                                </div>
+                                <?php endif; ?>
+                            </div>
                         </td>
                         <td class="text-center">
-                            <button type="button" class="btn btn-info btn-sm rounded-0 upload-nilai-btn" 
-                                    data-jenis="<?= $key ?>" data-label="<?= $label ?>"
-                                    style="background-color: #17a2b8; border-color: #17a2b8;">
-                                <i class="fas fa-money-bill"></i>
-                            </button>
-                        </td>
-                        <td class="text-center">
-                            <button type="button" class="btn btn-success btn-sm rounded-0" disabled>
+                            <span class="badge badge-success" style="background-color: #28a745; color: white; padding: 5px 10px; border-radius: 3px;">
                                 Sesuai
-                            </button>
+                            </span>
                         </td>
                         <td class="text-center">
-                            <?php if ($hasData): ?>
                             <button type="button" class="btn btn-primary btn-sm rounded-0 preview-btn" 
-                                    data-id="<?= $data['id'] ?>" data-jenis="<?= $key ?>"
+                                    data-jenis="monitoring_progres" data-label="Monitoring Progres Barang yang diserahkan kepada masyarakat"
                                     style="background-color: #6f42c1; border-color: #6f42c1;">
                                 <i class="fas fa-eye"></i>
                             </button>
-                            <?php else: ?>
-                            <button type="button" class="btn btn-secondary btn-sm rounded-0" disabled>
-                                <i class="fas fa-eye"></i>
-                            </button>
-                            <?php endif; ?>
                         </td>
                         <td class="text-center">
-                            <button type="button" class="btn btn-warning btn-sm rounded-0 verifikasi-btn" 
-                                    data-jenis="<?= $key ?>" data-label="<?= $label ?>"
-                                    style="background-color: #ffc107; border-color: #ffc107;">
-                                <i class="fas fa-check"></i>
-                            </button>
+                            <div class="d-flex flex-column align-items-center">
+                                <button type="button" class="btn btn-warning btn-sm rounded-0 verifikasi-btn" 
+                                        data-jenis="monitoring_progres" data-label="Monitoring Progres Barang yang diserahkan kepada masyarakat"
+                                        style="background-color: #ffc107; border-color: #ffc107;">
+                                    <i class="fas fa-check"></i>
+                                </button>
+                                <div id="verifikasi-result-monitoring_progres" class="mt-1" style="display: none;">
+                                    <small class="text-dark" style="font-size: 10px; max-width: 120px; word-wrap: break-word;">
+                                        <i class="fas fa-check-circle"></i> Verifikasi tersimpan
+                                    </small>
+                                </div>
+                                <?php if(isset($existingData['monitoring_progres']) && !empty($existingData['monitoring_progres']) && (!empty($existingData['monitoring_progres']['catatan_kendala']) || !empty($existingData['monitoring_progres']['rencana_tindak_lanjut']))): ?>
+                                <div class="mt-1 text-left" style="text-align: left;">
+                                    <small class="text-dark" style="font-size: 10px; max-width: 120px; word-wrap: break-word; display: block;">
+                                        <?php if(!empty($existingData['monitoring_progres']['catatan_kendala'])): ?>
+                                            <b>Kendala :</b> <?= htmlspecialchars($existingData['monitoring_progres']['catatan_kendala'], ENT_QUOTES, 'UTF-8') ?><br>
+                                        <?php endif; ?>
+                                        <?php if(!empty($existingData['monitoring_progres']['rencana_tindak_lanjut'])): ?>
+                                            <b>Tindak Lanjut :</b> <?= htmlspecialchars($existingData['monitoring_progres']['rencana_tindak_lanjut'], ENT_QUOTES, 'UTF-8') ?>
+                                        <?php endif; ?>
+                                    </small>
+                                </div>
+                                <?php endif; ?>
+                            </div>
                         </td>
                         <td class="text-center">
-                            <button type="button" class="btn btn-info btn-sm rounded-0 feedback-btn" 
-                                    data-jenis="<?= $key ?>" data-label="<?= $label ?>"
-                                    style="background-color: #17a2b8; border-color: #17a2b8;">
-                                <i class="fas fa-comment"></i>
-                            </button>
+                            <div class="d-flex flex-column align-items-center">
+                                <button type="button" class="btn btn-info btn-sm rounded-0 feedback-btn" 
+                                        data-jenis="monitoring_progres" data-label="Monitoring Progres Barang yang diserahkan kepada masyarakat"
+                                        style="background-color: #17a2b8; border-color: #17a2b8;">
+                                    <i class="fas fa-comment"></i>
+                                </button>
+                                <div id="feedback-result-monitoring_progres" class="mt-1" style="display: none;">
+                                    <small class="text-dark" style="font-size: 10px; max-width: 120px; word-wrap: break-word;">
+                                        <i class="fas fa-check-circle"></i> Feedback tersimpan
+                                    </small>
+                                </div>
+                                <?php if(isset($existingData['monitoring_progres']) && !empty($existingData['monitoring_progres']) && !empty($existingData['monitoring_progres']['feedback_unit_kerja'])): ?>
+                                <div class="mt-1">
+                                    <small class="text-dark text-left" style="font-size: 10px; max-width: 120px; word-wrap: break-word; text-align: left; display: block;">
+                                        <?php 
+                                        $feedbackRaw = $existingData['monitoring_progres']['feedback_unit_kerja'];
+                                        $feedback = is_string($feedbackRaw) ? json_decode($feedbackRaw, true) : $feedbackRaw;
+                                        if(is_array($feedback)) {
+                                            foreach($feedback as $item) {
+                                                $unitKerja = isset($item['unit_kerja']) ? htmlspecialchars((string) $item['unit_kerja'], ENT_QUOTES, 'UTF-8') : '';
+                                                $alasan    = isset($item['alasan_saran']) ? htmlspecialchars((string) $item['alasan_saran'], ENT_QUOTES, 'UTF-8') : '';
+                                                if($unitKerja !== '' && $alasan !== '') {
+                                                    echo $unitKerja . ' : ' . $alasan . '<br>';
+                                                }
+                                            }
+                                        }
+                                        ?>
+                                    </small>
+                                </div>
+                                <?php endif; ?>
+                            </div>
                         </td>
                         <td class="text-center">
                             <button type="button" class="btn btn-secondary btn-sm rounded-0" disabled>
@@ -138,13 +163,24 @@
                         </td>
                         <td class="text-center">
                             <button type="button" class="btn btn-danger btn-sm rounded-0 upload-dok-btn" 
-                                    data-jenis="<?= $key ?>" data-label="<?= $label ?>"
+                                    data-jenis="monitoring_progres" data-label="Monitoring Progres Barang yang diserahkan kepada masyarakat"
                                     style="background-color: #dc3545; border-color: #dc3545;">
                                 <i class="fas fa-file-upload"></i>
                             </button>
+                            <div id="upload-dok-result-monitoring_progres" class="mt-1" style="display: none;">
+                                <small class="text-success font-weight-bold" style="font-size: 10px; max-width: 120px; word-wrap: break-word;">
+                                    <i class="fas fa-check-circle"></i> Dokumen diupload
+                                </small>
+                            </div>
+                            <?php if(isset($existingData['monitoring_progres']) && !empty($existingData['monitoring_progres']) && !empty($existingData['monitoring_progres']['file_name_dok'])): ?>
+                            <div class="mt-1">
+                                <small class="text-success font-weight-bold" style="font-size: 10px; max-width: 120px; word-wrap: break-word;">
+                                    <i class="fas fa-check-circle"></i> <?= $existingData['monitoring_progres']['file_name_dok'] ?>
+                                </small>
+                            </div>
+                            <?php endif; ?>
                         </td>
                     </tr>
-                    <?php endforeach; ?>
                 </tbody>
             </table>
         </div>
@@ -174,55 +210,25 @@
             <form id="uploadDataForm" enctype="multipart/form-data">
                 <div class="modal-body">
                     <div class="form-group">
-                        <label class="font-weight-bold">Jenis Barang</label>
-                        <input type="text" class="form-control rounded-0" id="data_jenis_barang" name="jenis_barang" readonly>
+                        <label class="font-weight-bold">Indikator</label>
+                        <input type="text" class="form-control rounded-0" id="data_indikator" name="indikator" readonly>
                     </div>
                     <div class="form-group">
-                        <label class="font-weight-bold">Nama Barang</label>
-                        <input type="text" class="form-control rounded-0" id="data_nama_barang" name="nama_barang" required>
+                        <label class="font-weight-bold">File Data <span class="text-danger">*</span></label>
+                        <input type="file" class="form-control-file rounded-0" id="data_file" name="file" 
+                               accept=".xlsx,.xls,.pdf,.doc,.docx" required>
+                        <small class="form-text text-muted">Format yang diperbolehkan: Excel, PDF, Word</small>
                     </div>
                     <div class="form-group">
-                        <label class="font-weight-bold">Deskripsi</label>
-                        <textarea class="form-control rounded-0" id="data_deskripsi" name="deskripsi" rows="3"></textarea>
+                        <label class="font-weight-bold">Keterangan</label>
+                        <textarea class="form-control rounded-0" id="data_keterangan" name="keterangan" rows="3" 
+                                  placeholder="Masukkan keterangan tambahan..."></textarea>
                     </div>
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary rounded-0" data-dismiss="modal">Batal</button>
                     <button type="submit" class="btn btn-success rounded-0">
-                        <i class="fas fa-save"></i> Simpan
-                    </button>
-                </div>
-            </form>
-        </div>
-    </div>
-</div>
-
-<!-- Upload Nilai Modal -->
-<div class="modal fade" id="uploadNilaiModal" tabindex="-1" role="dialog" aria-labelledby="uploadNilaiModalLabel" aria-hidden="true">
-    <div class="modal-dialog modal-lg" role="document">
-        <div class="modal-content rounded-0">
-            <div class="modal-header" style="background-color: #3b6ea8; color: white;">
-                <h5 class="modal-title" id="uploadNilaiModalLabel">Input Nilai Barang</h5>
-                <button type="button" class="close" data-dismiss="modal" aria-label="Close" style="color: white;">
-                    <span aria-hidden="true">&times;</span>
-                </button>
-            </div>
-            <form id="uploadNilaiForm">
-                <div class="modal-body">
-                    <div class="form-group">
-                        <label class="font-weight-bold">Jenis Barang</label>
-                        <input type="text" class="form-control rounded-0" id="nilai_jenis_barang" name="jenis_barang" readonly>
-                    </div>
-                    <div class="form-group">
-                        <label class="font-weight-bold">Nilai Barang (Rp)</label>
-                        <input type="number" class="form-control rounded-0" id="nilai_barang" name="nilai_barang" 
-                               step="0.01" min="0" required>
-                    </div>
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary rounded-0" data-dismiss="modal">Batal</button>
-                    <button type="submit" class="btn btn-info rounded-0">
-                        <i class="fas fa-save"></i> Simpan
+                        <i class="fas fa-upload"></i> Upload Data
                     </button>
                 </div>
             </form>
@@ -443,6 +449,8 @@
     display: flex;
     align-items: center;
     justify-content: center;
+    margin: 0;
+    padding: 0;
 }
 
 .upload-data-btn:hover {
@@ -489,6 +497,30 @@
     border: 1px solid #ced4da;
     border-radius: 0.25rem;
 }
+
+.table th {
+    font-weight: bold;
+    text-align: center;
+    vertical-align: middle;
+    padding: 10px 5px;
+}
+
+.table td {
+    vertical-align: middle;
+    text-align: center;
+    padding: 10px 5px;
+}
+
+.badge {
+    font-size: 12px;
+    font-weight: bold;
+    padding: 8px 12px;
+}
+
+.table tbody tr td:first-child {
+    text-align: left;
+    padding-left: 15px;
+}
 </style>
 <?= $this->endSection() ?>
 
@@ -500,38 +532,28 @@
     var csrfTokenName = '<?= config('Security')->tokenName ?>';
     var currentDataId = null;
     
-    // Initialize AutoNumeric formatting
-    $('#nilai_barang').autoNumeric('init', {
-        aSep: '.',
-        aDec: ',',
-        aSign: '',
-        vMax: '999999999999999.99',
-        vMin: '0',
-        mDec: 0,
-        dGroup: 3
-    });
-    
     // Upload Data button click
     $(document).on('click', '.upload-data-btn', function(){
         var jenis = $(this).data('jenis');
         var label = $(this).data('label');
         
-        $('#data_jenis_barang').val(jenis);
-        $('#data_nama_barang').val('');
-        $('#data_deskripsi').val('');
+        $('#data_indikator').val(label);
+        $('#data_file').val('');
+        $('#data_keterangan').val('');
         
         $('#uploadDataModal').modal('show');
     });
     
-    // Upload Nilai button click
-    $(document).on('click', '.upload-nilai-btn', function(){
-        var jenis = $(this).data('jenis');
-        var label = $(this).data('label');
-        
-        $('#nilai_jenis_barang').val(jenis);
-        $('#nilai_barang').val('');
-        
-        $('#uploadNilaiModal').modal('show');
+    // Initialize preview button with existing data ID if available
+    $(document).ready(function(){
+        // Check if there's existing data and set the preview button ID
+        <?php if(isset($existingData['monitoring_progres']) && !empty($existingData['monitoring_progres'])): ?>
+        var existingId = <?= $existingData['monitoring_progres']['id'] ?? 'null' ?>;
+        if(existingId) {
+            $('.preview-btn').attr('data-id', existingId);
+            currentDataId = existingId;
+        }
+        <?php endif; ?>
     });
     
     // Verifikasi button click
@@ -570,11 +592,18 @@
     // Preview button click
     $(document).on('click', '.preview-btn', function(){
         var id = $(this).data('id');
+        
+        // If no ID is set, try to get the latest uploaded record ID
+        if (!id) {
+            if(window.toastr){ toastr.error('Tidak ada data untuk di-preview. Silakan upload file terlebih dahulu.'); }
+            return;
+        }
+        
         currentDataId = id;
         
         $.get('<?= base_url('bantuan/barang/preview') ?>/' + id, function(res){
             if(res && res.ok){
-                $('#preview_jenis_barang').text(res.data.jenis_barang);
+                $('#preview_jenis_barang').text(res.data.jenis_barang || 'monitoring_progres');
                 $('#preview_nama_barang').text(res.data.nama_barang);
                 $('#preview_deskripsi').text(res.data.deskripsi || '-');
                 $('#preview_nilai_barang').text(formatCurrency(res.data.nilai_barang || 0));
@@ -602,63 +631,79 @@
     $('#uploadDataForm').on('submit', function(e){
         e.preventDefault();
         
-        var formData = {
-            tahun: <?= $tahun ?>,
-            bulan: <?= $bulan ?>,
-            jenis_barang: $('#data_jenis_barang').val(),
-            nama_barang: $('#data_nama_barang').val(),
-            deskripsi: $('#data_deskripsi').val()
-        };
-        formData[csrfTokenName] = csrfHash;
+        var formData = new FormData(this);
+        var tahunValue = <?= $tahun ?? date('Y') ?>;
+        var bulanValue = <?= $bulan ?? date('n') ?>;
         
-        $.post('<?= base_url('bantuan/barang/save') ?>', formData, function(res){
-            if(res && res.csrf_hash){ csrfHash = res.csrf_hash; }
-            if(res && res.ok){
-                if(window.toastr){ toastr.success(res.message || 'Data berhasil disimpan'); }
-                $('#uploadDataModal').modal('hide');
-                location.reload();
-            } else {
-                if(window.toastr){ toastr.error(res.message || 'Gagal menyimpan data'); }
-            }
-        }, 'json').fail(function(xhr){
-            try{
-                var data = JSON.parse(xhr.responseText);
-                if(data && data.csrf_hash){ csrfHash = data.csrf_hash; }
-                if(window.toastr){ toastr.error(data.message || 'Gagal menyimpan data'); }
-            }catch(e){
-                if(window.toastr){ toastr.error('Gagal menyimpan data'); }
-            }
-        });
-    });
-    
-    // Upload Nilai form submit
-    $('#uploadNilaiForm').on('submit', function(e){
-        e.preventDefault();
+        // Validate values
+        if (!tahunValue || !bulanValue) {
+            if(window.toastr){ toastr.error('Tahun atau bulan tidak valid'); }
+            return;
+        }
         
-        var formData = {
-            tahun: <?= $tahun ?>,
-            bulan: <?= $bulan ?>,
-            jenis_barang: $('#nilai_jenis_barang').val(),
-            nilai_barang: $('#nilai_barang').autoNumeric('get') // Get raw number using AutoNumeric
-        };
-        formData[csrfTokenName] = csrfHash;
+        // Check if file is selected
+        var fileInput = $('#data_file')[0];
+        if (!fileInput.files || fileInput.files.length === 0) {
+            if(window.toastr){ toastr.error('Silakan pilih file terlebih dahulu'); }
+            return;
+        }
         
-        $.post('<?= base_url('bantuan/barang/save') ?>', formData, function(res){
-            if(res && res.csrf_hash){ csrfHash = res.csrf_hash; }
-            if(res && res.ok){
-                if(window.toastr){ toastr.success(res.message || 'Nilai barang berhasil disimpan'); }
-                $('#uploadNilaiModal').modal('hide');
-                location.reload();
-            } else {
-                if(window.toastr){ toastr.error(res.message || 'Gagal menyimpan nilai'); }
-            }
-        }, 'json').fail(function(xhr){
-            try{
-                var data = JSON.parse(xhr.responseText);
-                if(data && data.csrf_hash){ csrfHash = data.csrf_hash; }
-                if(window.toastr){ toastr.error(data.message || 'Gagal menyimpan nilai'); }
-            }catch(e){
-                if(window.toastr){ toastr.error('Gagal menyimpan nilai'); }
+        formData.append('tahun', tahunValue);
+        formData.append('bulan', bulanValue);
+        formData.append('nama_barang', $('#data_keterangan').val());
+        formData.append(csrfTokenName, csrfHash);
+        
+        $.ajax({
+            url: '<?= base_url('bantuan/barang/upload') ?>',
+            type: 'POST',
+            data: formData,
+            processData: false,
+            contentType: false,
+            success: function(res){
+                if(res && res.csrf_hash){ csrfHash = res.csrf_hash; }
+                if(res && res.ok){
+                    if(window.toastr){ toastr.success(res.message || 'Data berhasil diupload dan disimpan'); }
+                    $('#uploadDataModal').modal('hide');
+                    
+                    // Show upload result inline
+                    var jenisKey = 'monitoring_progres'; // Default for this page
+                    
+                    // Show the upload result
+                    $('#upload-result-' + jenisKey).show();
+                    
+                    // Update the result text with file name if available
+                    if(res.data && res.data.file_name) {
+                        $('#upload-result-' + jenisKey + ' small').html('<i class="fas fa-check-circle"></i> ' + res.data.file_name);
+                    } else {
+                        $('#upload-result-' + jenisKey + ' small').html('<i class="fas fa-check-circle"></i> Data berhasil disimpan');
+                    }
+                    
+                    // Set the data ID on the preview button so it can work
+                    if(res.data && res.data.id) {
+                        $('.preview-btn').attr('data-id', res.data.id);
+                        currentDataId = res.data.id;
+                    }
+                    
+                    // Also update the static existing display if present
+                    var $existingDisplay = $('#upload-result-' + jenisKey).next();
+                    if($existingDisplay.length === 0) {
+                        $('#upload-result-' + jenisKey).after('<div class="mt-1"><small class="text-success font-weight-bold" style="font-size: 10px; max-width: 120px; word-wrap: break-word;"><i class="fas fa-check-circle"></i> ' + (res.data && res.data.file_name ? res.data.file_name : 'Data tersimpan') + '</small></div>');
+                    } else {
+                        $existingDisplay.find('small').html('<i class="fas fa-check-circle"></i> ' + (res.data && res.data.file_name ? res.data.file_name : 'Data tersimpan'));
+                    }
+                    
+                } else {
+                    if(window.toastr){ toastr.error(res.message || 'Gagal mengupload data'); }
+                }
+            },
+            error: function(xhr){
+                try{
+                    var data = JSON.parse(xhr.responseText);
+                    if(data && data.csrf_hash){ csrfHash = data.csrf_hash; }
+                    if(window.toastr){ toastr.error(data.message || 'Gagal mengupload data'); }
+                }catch(e){
+                    if(window.toastr){ toastr.error('Gagal mengupload data - ' + xhr.status + ': ' + xhr.statusText); }
+                }
             }
         });
     });
@@ -670,7 +715,6 @@
         var formData = {
             tahun: <?= $tahun ?>,
             bulan: <?= $bulan ?>,
-            jenis_barang: $('#verifikasi_jenis_barang').val(),
             catatan_kendala: $('#verifikasi_catatan_kendala').val(),
             rencana_tindak_lanjut: $('#verifikasi_rencana_tindak_lanjut').val()
         };
@@ -681,7 +725,15 @@
             if(res && res.ok){
                 if(window.toastr){ toastr.success(res.message || 'Verifikasi berhasil disimpan'); }
                 $('#verifikasiModal').modal('hide');
-                location.reload();
+                
+                // Show feedback result inline
+                var jenisKey = 'monitoring_progres'; // Default for this page
+                $('#verifikasi-result-' + jenisKey).show();
+                
+                // Update the result text with the feedback
+                var feedbackText = formData.catatan_kendala || 'Verifikasi tersimpan';
+                $('#verifikasi-result-' + jenisKey + ' small').html('<i class="fas fa-check-circle"></i> ' + feedbackText);
+                
             } else {
                 if(window.toastr){ toastr.error(res.message || 'Gagal menyimpan verifikasi'); }
             }
@@ -703,7 +755,6 @@
         var formData = {
             tahun: <?= $tahun ?>,
             bulan: <?= $bulan ?>,
-            jenis_barang: $('#feedback_jenis_barang').val(),
             feedback_unit_kerja: {}
         };
         
@@ -763,6 +814,7 @@
         var formData = new FormData(this);
         formData.append('tahun', <?= $tahun ?>);
         formData.append('bulan', <?= $bulan ?>);
+        formData.append('dok_admin', '1');
         formData.append(csrfTokenName, csrfHash);
         
         $.ajax({
@@ -776,7 +828,17 @@
                 if(res && res.ok){
                     if(window.toastr){ toastr.success(res.message || 'Dokumen berhasil diupload'); }
                     $('#uploadDokModal').modal('hide');
-                    location.reload();
+                    
+                    // Inline update of uploaded dokumen filename under red button
+                    var jenisKey = 'monitoring_progres';
+                    $('#upload-dok-result-' + jenisKey).show();
+                    if(res.data && res.data.file_name_dok){
+                        $('#upload-dok-result-' + jenisKey + ' small').html('<i class="fas fa-check-circle"></i> ' + res.data.file_name_dok);
+                    } else if(res.data && res.data.file_name){
+                        $('#upload-dok-result-' + jenisKey + ' small').html('<i class="fas fa-check-circle"></i> ' + res.data.file_name);
+                    } else {
+                        $('#upload-dok-result-' + jenisKey + ' small').html('<i class="fas fa-check-circle"></i> Dokumen diupload');
+                    }
                 } else {
                     if(window.toastr){ toastr.error(res.message || 'Gagal mengupload dokumen'); }
                 }

@@ -11,7 +11,6 @@ class BanmasBansosModel extends Model
     protected $allowedFields = [
         'tahun',
         'bulan',
-        'jenis_bansos',
         'nama_bansos',
         'deskripsi',
         'nilai_bansos',
@@ -21,6 +20,8 @@ class BanmasBansosModel extends Model
         'feedback_unit_kerja',
         'file_path',
         'file_name',
+        'file_path_dok',
+        'file_name_dok',
         'file_size',
         'uploaded_by',
         'uploaded_at'
@@ -32,8 +33,7 @@ class BanmasBansosModel extends Model
     protected $validationRules = [
         'tahun' => 'required|integer|min_length[4]|max_length[4]',
         'bulan' => 'required|integer|min_length[1]|max_length[2]',
-        'jenis_bansos' => 'required|max_length[100]',
-        'nama_bansos' => 'required|max_length[255]',
+        'nama_bansos' => 'permit_empty|max_length[255]',
         'nilai_bansos' => 'permit_empty|integer',
         'status' => 'permit_empty|in_list[Sesuai,Tidak Sesuai,Belum Diperiksa]',
     ];
@@ -51,12 +51,7 @@ class BanmasBansosModel extends Model
             'min_length' => 'Bulan harus 1-2 digit',
             'max_length' => 'Bulan harus 1-2 digit'
         ],
-        'jenis_bansos' => [
-            'required' => 'Jenis bantuan sosial harus diisi',
-            'max_length' => 'Jenis bantuan sosial maksimal 100 karakter'
-        ],
         'nama_bansos' => [
-            'required' => 'Nama bantuan sosial harus diisi',
             'max_length' => 'Nama bantuan sosial maksimal 255 karakter'
         ],
         'status' => [

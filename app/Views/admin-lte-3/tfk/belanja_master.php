@@ -12,22 +12,21 @@
 ?>
 <div class="card" id="belanjaCard" data-year="<?= (int)($year ?? date('Y')) ?>" data-tahapan="<?= esc($currentTahapan) ?>">
     <div class="card-header d-flex align-items-center justify-content-between">
-        <h3 class="card-title mb-0">Target Fisik & Keuangan</h3>
+        <h3 class="card-title mb-0">Belanja</h3>
         <form class="form-inline">
             <?php 
                 $current = (int)($year ?? date('Y')); 
-                $start = $current - 5;
-                $end = $current + 5;
+                $start = $current - 0;
+                $end = $current + 1;
             ?>
             <label class="mr-2">Tahun</label>
-            <select name="year" class="form-control form-control-sm mr-3" disabled readonly>
+            <select name="year" class="form-control form-control-sm rounded-0 mr-3" id="yearSelect">
                 <?php for ($i = $end; $i >= $start; $i--): ?>
                     <option value="<?= $i ?>" <?= $i === $current ? 'selected' : '' ?>><?= $i ?></option>
                 <?php endfor; ?>
             </select>
-            <input type="hidden" name="year" value="<?= $current ?>">
             <label class="mr-2">Tahapan</label>
-            <select name="tahapan" class="form-control form-control-sm">
+            <select name="tahapan" class="form-control form-control-sm" id="tahapanSelect">
                 <?php foreach ($tahapanList as $key => $label): ?>
                     <option value="<?= $key ?>" <?= $key === $currentTahapan ? 'selected' : '' ?>><?= $label ?></option>
                 <?php endforeach; ?>
@@ -71,9 +70,6 @@
                     </tr>
                 </tbody>
             </table>
-            <div class="text-right mt-3">
-                <button type="button" id="btnBelanjaSave" class="btn btn-success rounded-0 px-4">Simpan</button>
-            </div>
         </div>
     </div>
 </div>
@@ -246,6 +242,20 @@
     });
 
     recalcTotal();
+
+    // Handle year dropdown change
+    document.getElementById('yearSelect').addEventListener('change', function(){
+        var params = new URLSearchParams(window.location.search);
+        params.set('year', this.value);
+        window.location.href = window.location.pathname + '?' + params.toString();
+    });
+
+    // Handle tahapan dropdown change
+    document.getElementById('tahapanSelect').addEventListener('change', function(){
+        var params = new URLSearchParams(window.location.search);
+        params.set('tahapan', this.value);
+        window.location.href = window.location.pathname + '?' + params.toString();
+    });
 })();
 </script>
 <?= $this->endSection() ?>

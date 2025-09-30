@@ -53,8 +53,20 @@
                 <form method="get" id="filterForm">
                     <div class="row mb-3">
                         <div class="col-md-4">
+                            <label class="font-weight-bold">Tahun</label>
+                            <select name="year" class="form-control rounded-0" id="yearSelect" onchange="document.getElementById('filterForm').submit()">
+                                <?php 
+                                $currentYear = date('Y');
+                                $current = (int)($year ?? date('Y'));
+                                for($i = $currentYear - 0; $i <= $currentYear + 1; $i++): 
+                                ?>
+                                <option value="<?= $i ?>" <?= ($current == $i) ? 'selected' : '' ?>><?= $i ?></option>
+                                <?php endfor; ?>
+                            </select>
+                        </div>
+                        <div class="col-md-4">
                             <label class="font-weight-bold">Tahapan</label>
-                            <select name="tahapan" class="form-control rounded-0" onchange="document.getElementById('filterForm').submit()">
+                            <select name="tahapan" class="form-control rounded-0" id="tahapanSelect" onchange="document.getElementById('filterForm').submit()">
                                 <?php foreach ($tahapanList as $key => $label): ?>
                                 <option value="<?= $key ?>" <?= ($tahapan === $key) ? 'selected' : '' ?>><?= $label ?></option>
                                 <?php endforeach; ?>
@@ -62,14 +74,11 @@
                         </div>
                         <div class="col-md-4">
                             <label class="font-weight-bold">Bulan :</label>
-                            <select name="bulan" class="form-control rounded-0" onchange="document.getElementById('filterForm').submit()">
+                            <select name="bulan" class="form-control rounded-0" id="bulanSelect" onchange="document.getElementById('filterForm').submit()">
                                 <?php foreach ($bulanList as $key => $label): ?>
                                 <option value="<?= $key ?>" <?= ($bulan == $key) ? 'selected' : '' ?>><?= $label ?></option>
                                 <?php endforeach; ?>
                             </select>
-                        </div>
-                        <div class="col-md-4">
-                            <input type="hidden" name="year" value="<?= $year ?>">
                         </div>
                     </div>
                 </form>
@@ -215,6 +224,25 @@
         // Show empty state
         document.getElementById('belanjaChart').getContext('2d').fillText('No Data', 100, 100);
     }
+
+    // Enhanced dropdown change handlers for database search
+    document.getElementById('yearSelect').addEventListener('change', function(){
+        var params = new URLSearchParams(window.location.search);
+        params.set('year', this.value);
+        window.location.href = window.location.pathname + '?' + params.toString();
+    });
+
+    document.getElementById('tahapanSelect').addEventListener('change', function(){
+        var params = new URLSearchParams(window.location.search);
+        params.set('tahapan', this.value);
+        window.location.href = window.location.pathname + '?' + params.toString();
+    });
+
+    document.getElementById('bulanSelect').addEventListener('change', function(){
+        var params = new URLSearchParams(window.location.search);
+        params.set('bulan', this.value);
+        window.location.href = window.location.pathname + '?' + params.toString();
+    });
 })();
 </script>
 <?= $this->endSection() ?>

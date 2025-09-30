@@ -38,28 +38,25 @@ class BanmasBansos extends BaseController
 
         $tahun = (int)$this->request->getPost('tahun');
         $bulan = (int)$this->request->getPost('bulan');
-        $jenis_bansos = $this->request->getPost('jenis_bansos');
 
-        if (!$tahun || !$bulan || !$jenis_bansos) {
+        if (!$tahun || !$bulan) {
             return $this->response->setJSON(['ok' => false, 'message' => 'Data tidak lengkap']);
         }
 
         try {
-            // Check if data exists for this year, month, and jenis_bansos
+            // Check if data exists for this year and month
             $existing = $this->banmasBansosModel->where([
                 'tahun' => $tahun,
-                'bulan' => $bulan,
-                'jenis_bansos' => $jenis_bansos
+                'bulan' => $bulan
             ])->first();
 
             $data = [
                 'tahun' => $tahun,
-                'bulan' => $bulan,
-                'jenis_bansos' => $jenis_bansos
+                'bulan' => $bulan
             ];
 
             // Only update fields that are provided
-            if ($this->request->getPost('nama_bansos')) {
+            if ($this->request->getPost('nama_bansos') !== null) {
                 $data['nama_bansos'] = $this->request->getPost('nama_bansos');
             }
             if ($this->request->getPost('deskripsi')) {
@@ -71,10 +68,10 @@ class BanmasBansos extends BaseController
             if ($this->request->getPost('status')) {
                 $data['status'] = $this->request->getPost('status');
             }
-            if ($this->request->getPost('catatan_kendala')) {
+            if ($this->request->getPost('catatan_kendala') !== null) {
                 $data['catatan_kendala'] = $this->request->getPost('catatan_kendala');
             }
-            if ($this->request->getPost('rencana_tindak_lanjut')) {
+            if ($this->request->getPost('rencana_tindak_lanjut') !== null) {
                 $data['rencana_tindak_lanjut'] = $this->request->getPost('rencana_tindak_lanjut');
             }
             if ($this->request->getPost('feedback_unit_kerja')) {
@@ -84,9 +81,11 @@ class BanmasBansos extends BaseController
             if ($existing) {
                 // Update only provided fields
                 $this->banmasBansosModel->update($existing['id'], $data);
+                $resultData = $existing;
+                $resultData['id'] = $existing['id'];
             } else {
                 // Insert new data with default values
-                $data = array_merge($data, [
+                $insertData = array_merge($data, [
                     'nama_bansos' => $this->request->getPost('nama_bansos') ?: '',
                     'deskripsi' => $this->request->getPost('deskripsi') ?: '',
                     'nilai_bansos' => (float)($this->request->getPost('nilai_bansos') ?: 0),
@@ -97,13 +96,14 @@ class BanmasBansos extends BaseController
                     'uploaded_by' => $this->ionAuth->user()->row()->id ?? null,
                     'uploaded_at' => date('Y-m-d H:i:s')
                 ]);
-                $this->banmasBansosModel->insert($data);
+                $this->banmasBansosModel->insert($insertData);
+                $resultData = ['id' => $this->banmasBansosModel->getInsertID()];
             }
 
             return $this->response->setJSON([
                 'ok' => true, 
                 'message' => 'Data bantuan sosial berhasil disimpan',
-                'data' => $existing ? $existing : ['id' => $this->banmasBansosModel->getInsertID()],
+                'data' => $resultData,
                 'csrf_token' => csrf_token(),
                 'csrf_hash' => csrf_hash()
             ]);
@@ -125,14 +125,14 @@ class BanmasBansos extends BaseController
 
         $tahun = (int)$this->request->getPost('tahun');
         $bulan = (int)$this->request->getPost('bulan');
-        $jenisBansos = $this->request->getPost('jenis_bansos');
 
-        if (!$tahun || !$bulan || !$jenisBansos) {
+        if (!$tahun || !$bulan) {
             return $this->response->setJSON(['ok' => false, 'message' => 'Data tidak lengkap']);
         }
 
         try {
             $file = $this->request->getFile('file');
+            $isDokAdmin = $this->request->getPost('dok_admin') === '1';
             
             if ($file && $file->isValid() && !$file->hasMoved()) {
                 // Create upload directory if not exists
@@ -144,15 +144,18 @@ class BanmasBansos extends BaseController
                 $newName = $file->getRandomName();
                 $file->move($uploadPath, $newName);
 
+                // decide target columns for file fields
+                $filePathColumn = $isDokAdmin ? 'file_path_dok' : 'file_path';
+                $fileNameColumn = $isDokAdmin ? 'file_name_dok' : 'file_name';
+
                 $data = [
                     'tahun' => $tahun,
                     'bulan' => $bulan,
-                    'jenis_bansos' => $jenisBansos,
                     'nama_bansos' => $this->request->getPost('nama_bansos'),
                     'deskripsi' => $this->request->getPost('deskripsi'),
-                    'nilai_bansos' => (int)($this->request->getPost('nilai_bansos') ?: 0),
-                    'file_path' => 'file/bantuan/bansos/' . $newName,
-                    'file_name' => $file->getClientName(),
+                    'nilai_bansos' => (float)($this->request->getPost('nilai_bansos') ?: 0),
+                    $filePathColumn => 'file/bantuan/bansos/' . $newName,
+                    $fileNameColumn => $file->getClientName(),
                     'file_size' => $file->getSize(),
                     'uploaded_by' => $this->ionAuth->user()->row()->id ?? null,
                     'uploaded_at' => date('Y-m-d H:i:s')
@@ -161,23 +164,29 @@ class BanmasBansos extends BaseController
                 // Check if data exists
                 $existing = $this->banmasBansosModel->where([
                     'tahun' => $tahun,
-                    'bulan' => $bulan,
-                    'jenis_bansos' => $jenisBansos
+                    'bulan' => $bulan
                 ])->first();
 
                 if ($existing) {
-                    // Delete old file if exists
-                    if ($existing['file_path'] && file_exists(FCPATH . $existing['file_path'])) {
-                        unlink(FCPATH . $existing['file_path']);
+                    // Delete old file if exists for the same target column
+                    $existingPath = $existing[$filePathColumn] ?? null;
+                    if ($existingPath && file_exists(FCPATH . $existingPath)) {
+                        unlink(FCPATH . $existingPath);
                     }
                     $this->banmasBansosModel->update($existing['id'], $data);
+                    $resultData = $existing;
+                    $resultData['id'] = $existing['id'];
+                    $resultData[$fileNameColumn] = $file->getClientName();
                 } else {
                     $this->banmasBansosModel->insert($data);
+                    $resultData = ['id' => $this->banmasBansosModel->getInsertID()];
+                    $resultData[$fileNameColumn] = $file->getClientName();
                 }
 
                 return $this->response->setJSON([
                     'ok' => true, 
                     'message' => 'File berhasil diupload',
+                    'data' => $resultData,
                     'csrf_token' => csrf_token(),
                     'csrf_hash' => csrf_hash()
                 ]);
@@ -241,17 +250,13 @@ class BanmasBansos extends BaseController
         $data = $this->banmasBansosModel->where([
             'tahun' => $tahun,
             'bulan' => $bulan
-        ])->findAll();
+        ])->first();
         
-        $result = [];
-        foreach ($data as $row) {
-            if ($row['feedback_unit_kerja']) {
-                $row['feedback_unit_kerja'] = json_decode($row['feedback_unit_kerja'], true);
-            }
-            $result[$row['jenis_bansos']] = $row;
+        if ($data && $data['feedback_unit_kerja']) {
+            $data['feedback_unit_kerja'] = json_decode($data['feedback_unit_kerja'], true);
         }
         
-        return $result;
+        return $data ? ['monitoring_progres' => $data] : [];
     }
 
     private function getBansosList()

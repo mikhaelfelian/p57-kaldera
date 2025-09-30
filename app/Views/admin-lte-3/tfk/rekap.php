@@ -21,14 +21,18 @@ $tahapanList = [
                     <form class="form-inline mr-3" method="get">
                         <label class="mr-2">Tahun:</label>
                         <?php $current = (int)($year ?? date('Y')); ?>
-                        <select name="year" class="form-control form-control-sm" disabled readonly>
-                            <option value="<?= $current ?>" selected><?= $current ?></option>
+                        <select name="year" class="form-control form-control-sm" id="yearSelect">
+                            <?php 
+                            $currentYear = date('Y');
+                            for($i = $currentYear - 0; $i <= $currentYear + 1; $i++): 
+                            ?>
+                            <option value="<?= $i ?>" <?= ($current == $i) ? 'selected' : '' ?>><?= $i ?></option>
+                            <?php endfor; ?>
                         </select>
-                        <input type="hidden" name="year" value="<?= $current ?>">
                         
                         <label class="mr-2 ml-3">Tahapan:</label>
                         <?php $currentTahapan = $tahapan ?? 'penetapan'; ?>
-                        <select name="tahapan" class="form-control form-control-sm">
+                        <select name="tahapan" class="form-control form-control-sm" id="tahapanSelect">
                             <?php foreach ($tahapanList as $key => $label): ?>
                                 <option value="<?= $key ?>" <?= $key === $currentTahapan ? 'selected' : '' ?>><?= $label ?></option>
                             <?php endforeach; ?>
@@ -41,7 +45,6 @@ $tahapanList = [
 				</div>
 			</div>
 			<div class="card-body">
-				<?php if (!empty($details)): ?>
 				<div class="row">
 					<!-- Data Table -->
 					<div class="col-md-7">
@@ -61,21 +64,21 @@ $tahapanList = [
                                     <tr>
                                         <td class="red-box"><strong>Target Fisik (%)</strong></td>
                                         <?php foreach ($months as $k=>$label): $d = $map[$k] ?? []; $val = isset($d['target_fisik']) ? (float)$d['target_fisik'] : 0; ?>
-                                        <td class="text-center"><?= format_angka($val, 0) ?></td>
+                                        <td class="text-center"><?= format_angka($val, 2) ?></td>
 										<?php endforeach; ?>
 									</tr>
 									<!-- Realisasi Fisik -->
 									<tr>
 										<td><strong>Realisasi Fisik (%)</strong></td>
 										<?php foreach ($months as $k=>$label): $d = $map[$k] ?? []; $val = isset($d['realisasi_fisik']) ? (float)$d['realisasi_fisik'] : 0; ?>
-										<td class="text-center"><?= format_angka($val, 0) ?></td>
+										<td class="text-center"><?= format_angka($val, 2) ?></td>
 										<?php endforeach; ?>
 									</tr>
 									<!-- Realisasi Fisik Prov -->
 									<tr>
 										<td><strong>Realisasi Fisik Prov (%)</strong></td>
                                         <?php foreach ($months as $k=>$label): $d = $map[$k] ?? []; $val = isset($d['realisasi_fisik_prov']) ? (float)$d['realisasi_fisik_prov'] : 0; ?>
-										<td class="text-center"><?= format_angka($val, 0) ?></td>
+										<td class="text-center"><?= format_angka($val, 2) ?></td>
 										<?php endforeach; ?>
 									</tr>
 									<!-- Deviasi Fisik -->
@@ -88,7 +91,7 @@ $tahapanList = [
 											$deviasi = $realisasi - $target;
 										?>
 										<td class="text-center <?= $deviasi < 0 ? 'text-danger' : ($deviasi > 0 ? 'text-success' : '') ?>">
-											<?= format_angka($deviasi, 0) ?>
+											<?= format_angka($deviasi, 2) ?>
 										</td>
 										<?php endforeach; ?>
 									</tr>
@@ -96,21 +99,21 @@ $tahapanList = [
 									<tr>
                                         <td class="red-box"><strong>Target Keuangan (%)</strong></td>
                                         <?php foreach ($months as $k=>$label): $d = $map[$k] ?? []; $val = isset($d['target_keuangan']) ? (float)$d['target_keuangan'] : 0; ?>
-										<td class="text-center"><?= format_angka($val, 0) ?></td>
+										<td class="text-center"><?= format_angka($val, 2) ?></td>
 										<?php endforeach; ?>
 									</tr>
 									<!-- Realisasi Keuangan -->
 									<tr>
 										<td><strong>Realisasi Keuangan (%)</strong></td>
                                         <?php foreach ($months as $k=>$label): $d = $map[$k] ?? []; $val = isset($d['realisasi_keuangan']) ? (float)$d['realisasi_keuangan'] : 0; ?>
-										<td class="text-center"><?= format_angka($val, 0) ?></td>
+										<td class="text-center"><?= format_angka($val, 2) ?></td>
 										<?php endforeach; ?>
 									</tr>
 									<!-- Realisasi Keu Prov -->
 									<tr>
 										<td><strong>Realisasi Keu Prov (%)</strong></td>
                                         <?php foreach ($months as $k=>$label): $d = $map[$k] ?? []; $val = isset($d['realisasi_keuangan_prov']) ? (float)$d['realisasi_keuangan_prov'] : 0; ?>
-										<td class="text-center"><?= format_angka($val, 0) ?></td>
+										<td class="text-center"><?= format_angka($val, 2) ?></td>
 										<?php endforeach; ?>
 									</tr>
 									<!-- Deviasi Keuangan -->
@@ -123,7 +126,7 @@ $tahapanList = [
 											$deviasi = $realisasi - $target;
 										?>
 										<td class="text-center <?= $deviasi < 0 ? 'text-danger' : ($deviasi > 0 ? 'text-success' : '') ?>">
-											<?= format_angka($deviasi, 0) ?>
+											<?= format_angka($deviasi, 2) ?>
 										</td>
 										<?php endforeach; ?>
 									</tr>
@@ -151,14 +154,6 @@ $tahapanList = [
 						</div>
 					</div>
 				</div>
-				<?php else: ?>
-				<div class="alert alert-warning text-center">
-					<h4>Tidak Ada Data</h4>
-					<p>Belum ada data untuk tahun <strong><?= $year ?></strong> dan tahapan <strong><?= $tahapanList[$tahapan] ?? $tahapan ?></strong>.</p>
-					<p>Silakan input data terlebih dahulu di halaman <a href="<?= base_url('tfk/input') ?>" class="btn btn-primary btn-sm">Input Data</a></p>
-					<p><small><strong>Debug Info:</strong> Master ID: <?= $masterId ?>, Records Found: <?= $recordCount ?? 0 ?></small></p>
-				</div>
-				<?php endif; ?>
 			</div>
 		</div>
 	</div>
@@ -186,9 +181,11 @@ $tahapanList = [
 // Chart Data
 const chartData = <?= json_encode($chartData ?? []) ?>;
 
-// Create Chart
-const ctx = document.getElementById('progressChart').getContext('2d');
-const chart = new Chart(ctx, {
+// Create Chart (only if element exists)
+const chartElement = document.getElementById('progressChart');
+if (chartElement) {
+    const ctx = chartElement.getContext('2d');
+    const chart = new Chart(ctx, {
     type: 'line',
     data: {
         labels: chartData.map(d => d.month),
@@ -238,12 +235,20 @@ const chart = new Chart(ctx, {
             }
         }
     }
-});
+    });
+}
 
 // Handle tahapan dropdown change
 document.querySelector('select[name="tahapan"]').addEventListener('change', function(){
     var params = new URLSearchParams(window.location.search);
     params.set('tahapan', this.value);
+    window.location.href = window.location.pathname + '?' + params.toString();
+});
+
+// Handle year dropdown change
+document.querySelector('select[name="year"]').addEventListener('change', function(){
+    var params = new URLSearchParams(window.location.search);
+    params.set('year', this.value);
     window.location.href = window.location.pathname + '?' + params.toString();
 });
 

@@ -11,7 +11,6 @@ class BanmasBsModel extends Model
     protected $allowedFields = [
         'tahun',
         'bulan',
-        'jenis_barang',
         'nama_barang',
         'deskripsi',
         'nilai_barang',
@@ -21,6 +20,8 @@ class BanmasBsModel extends Model
         'feedback_unit_kerja',
         'file_path',
         'file_name',
+        'file_path_dok',
+        'file_name_dok',
         'file_size',
         'uploaded_by',
         'uploaded_at'
@@ -32,8 +33,7 @@ class BanmasBsModel extends Model
     protected $validationRules = [
         'tahun' => 'required|integer|min_length[4]|max_length[4]',
         'bulan' => 'required|integer|min_length[1]|max_length[2]',
-        'jenis_barang' => 'required|max_length[100]',
-        'nama_barang' => 'required|max_length[255]',
+        'nama_barang' => 'permit_empty|max_length[255]',
         'nilai_barang' => 'permit_empty|integer',
         'status' => 'permit_empty|in_list[Sesuai,Tidak Sesuai,Belum Diperiksa]',
     ];
@@ -51,12 +51,7 @@ class BanmasBsModel extends Model
             'min_length' => 'Bulan harus 1-2 digit',
             'max_length' => 'Bulan harus 1-2 digit'
         ],
-        'jenis_barang' => [
-            'required' => 'Jenis barang harus diisi',
-            'max_length' => 'Jenis barang maksimal 100 karakter'
-        ],
         'nama_barang' => [
-            'required' => 'Nama barang harus diisi',
             'max_length' => 'Nama barang maksimal 255 karakter'
         ],
         'status' => [
