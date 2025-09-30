@@ -268,7 +268,7 @@
     <div class="row">
         <div class="col-12">
             <div class="d-flex align-items-center justify-content-between py-2">
-                <h3 class="m-0 font-weight-bold">KONSEP <em>LAYOUT</em> KALDERA ESDM</h3>
+                <h3 class="m-0 font-weight-bold">KALDERA ESDM</h3>
                 <div class="text-right small text-muted">
                     <div><strong><?= esc($user->first_name ?? '') ?></strong></div>
                     <div>OPD Program - NIP</div>
@@ -283,55 +283,6 @@
                     <div class="title">KALDERA ESDM <span class="font-weight-normal">2025</span></div>
                     <div class="desc">Sistem Kinerja Pengendalian Dan</div>
                     <div class="desc">Pelaporan Digital ESDM</div>
-                </div>
-                <div class="text-right">
-                    <i class="fas fa-chart-line fa-5x" style="opacity:.8"></i>
-                </div>
-            </div>
-        </div>
-    </div>
-    <div class="row">
-        <div class="col-12">
-            <div class="year-selection-container">
-                <div class="text-center mb-4">
-                    <h2 class="font-weight-bold text-dark mb-2">
-                        <i class="fas fa-calendar-check text-primary mr-2"></i>
-                        Pilih Tahun Data Fiskal
-                    </h2>
-                    <p class="text-muted">Silakan pilih tahun untuk mengakses data fiskal yang tersedia</p>
-                </div>
-                
-                <div class="row" id="year-selection">
-                    <?php if (!empty($availableYears)): ?>
-                        <?php foreach ($availableYears as $year): ?>
-                            <div class="col-lg-3 col-md-4 col-sm-6 mb-4">
-                                <div class="year-card" data-year="<?= $year ?>" style="cursor: pointer;">
-                                    <div class="card h-100">
-                                        <div class="card-body text-center">
-                                            <div class="year-icon">
-                                                <div class="icon-wrapper">
-                                                    <i class="fas fa-calendar-alt"></i>
-                                                </div>
-                                            </div>
-                                            <h5 class="card-title">E-Penatausahaan</h5>
-                                            <h2 class="year-number"><?= $year ?></h2>
-                                            <p class="card-subtitle">Data Fiskal</p>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        <?php endforeach; ?>
-                    <?php else: ?>
-                        <div class="col-12">
-                            <div class="text-center py-5">
-                                <div class="mb-4">
-                                    <i class="fas fa-database fa-4x text-muted"></i>
-                                </div>
-                                <h4 class="text-muted mb-3">Belum Ada Data Fiskal</h4>
-                                <p class="text-muted">Data fiskal belum tersedia. Silakan hubungi administrator untuk menambahkan data.</p>
-                            </div>
-                        </div>
-                    <?php endif; ?>
                 </div>
             </div>
         </div>
@@ -396,12 +347,12 @@ $(document).ready(function() {
     
     function showLoading() {
         // You can implement a loading spinner here
-        console.log('Loading data...');
+        // Loading logic here
     }
     
     function hideLoading() {
         // Hide loading spinner
-        console.log('Data loaded');
+        // Hide logic here
     }
     
     function showYearData(year) {
@@ -422,12 +373,12 @@ $(document).ready(function() {
             confirmButtonColor: '#667eea',
             showCancelButton: true,
             cancelButtonText: 'Batal',
-            cancelButtonColor: '#6c757d'
+            cancelButtonColor: '#6c757d',
         }).then((result) => {
             if (result.isConfirmed) {
                 // You can redirect to a specific page or load data here
                 // window.location.href = '<?= base_url() ?>target-fisik-keu?year=' + year;
-                console.log('Proceeding with year:', year);
+                // Proceeding with year logic here
             }
         });
     }
