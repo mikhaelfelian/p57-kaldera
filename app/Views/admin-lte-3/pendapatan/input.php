@@ -131,15 +131,15 @@
                     <tr>
                         <td class="text-center"><?= $row['no'] ?></td>
                         <td class="font-weight-bold"><?= $row['label'] ?></td>
-                        <td class="text-right"><?= format_angka_rp($target) ?></td>
+                        <td class="text-right"><?= format_angka($target, 2) ?></td>
                         <td class="text-right">
                             <span class="editable-span" data-field="<?= $row['field'] ?>_realisasi" data-value="<?= $realisasi ?>">
-                                <?= $realisasi > 0 ? format_angka_rp($realisasi) : '-' ?>
+                                <?= $realisasi > 0 ? format_angka($realisasi, 2) : '-' ?>
                             </span>
                             <i class="fas fa-pencil-alt text-muted ml-1 edit-icon" data-field="<?= $row['field'] ?>_realisasi"></i>
                         </td>
                         <td class="text-right">
-                            <span class="calculated-percent" data-field="<?= $row['field'] ?>_percent"><?= format_angka($persen, 0) ?></span>%
+                            <span class="calculated-percent" data-field="<?= $row['field'] ?>_percent"><?= format_angka($persen, 2) ?></span>%
                         </td>
                     </tr>
                     <?php endforeach; ?>
@@ -151,9 +151,9 @@
                     <tr style="background-color: #3b6ea8; color: white;">
                         <td class="text-center font-weight-bold">-</td>
                         <td class="font-weight-bold">TOTAL</td>
-                        <td class="text-right font-weight-bold"><?= format_angka_rp($totalTarget) ?></td>
+                        <td class="text-right font-weight-bold"><?= format_angka($totalTarget) ?></td>
                         <td class="text-right font-weight-bold">
-                            <span id="totalRealisasi"><?= format_angka_rp($totalRealisasi) ?></span>
+                            <span id="totalRealisasi"><?= format_angka($totalRealisasi) ?></span>
                         </td>
                         <td class="text-right font-weight-bold">
                             <span id="totalPersen"><?= format_angka($totalPersen, 0) ?></span>%
