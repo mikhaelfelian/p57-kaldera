@@ -172,14 +172,6 @@
                                     <p>Input</p>
                                 </a>
                             </li>
-                            <!-- Rekap -->
-                            <li class="nav-item">
-                                <a href="<?= base_url('indikator/rekap') ?>" class="nav-link <?= isMenuActive('indikator/rekap') ? 'active' : '' ?>">
-                                    <?= nbs(3) ?>
-                                    <i class="fas fa-chart-bar nav-icon"></i>
-                                    <p>Rekap</p>
-                                </a>
-                            </li>
                         </ul>
                     </li>
                     <li class="nav-item has-treeview <?= isMenuActive([
