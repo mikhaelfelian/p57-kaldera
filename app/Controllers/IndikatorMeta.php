@@ -118,6 +118,54 @@ class IndikatorMeta extends BaseController
         return $this->response->download($filePath, null);
     }
 
+    public function preview($id)
+    {
+        $data = $this->indikatorMetaModel->find($id);
+        
+        if (!$data) {
+            throw new \CodeIgniter\Exceptions\PageNotFoundException('File tidak ditemukan');
+        }
+
+        $filePath = FCPATH . $data['file_path'];
+        
+        if (!file_exists($filePath)) {
+            throw new \CodeIgniter\Exceptions\PageNotFoundException('File tidak ditemukan');
+        }
+
+        // Get file extension to determine content type
+        $extension = pathinfo($data['file_name'], PATHINFO_EXTENSION);
+        $contentType = $this->getContentType($extension);
+
+        // Set appropriate headers
+        $this->response->setHeader('Content-Type', $contentType);
+        $this->response->setHeader('Content-Disposition', 'inline; filename="' . $data['file_name'] . '"');
+        
+        // Output file content
+        return $this->response->setBody(file_get_contents($filePath));
+    }
+
+    private function getContentType($extension)
+    {
+        $contentTypes = [
+            'pdf' => 'application/pdf',
+            'doc' => 'application/msword',
+            'docx' => 'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+            'xls' => 'application/vnd.ms-excel',
+            'xlsx' => 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+            'ppt' => 'application/vnd.ms-powerpoint',
+            'pptx' => 'application/vnd.openxmlformats-officedocument.presentationml.presentation',
+            'txt' => 'text/plain',
+            'jpg' => 'image/jpeg',
+            'jpeg' => 'image/jpeg',
+            'png' => 'image/png',
+            'gif' => 'image/gif',
+            'html' => 'text/html',
+            'xml' => 'application/xml',
+        ];
+
+        return $contentTypes[strtolower($extension)] ?? 'application/octet-stream';
+    }
+
     private function getIndikatorList()
     {
         return [

@@ -83,22 +83,8 @@
             </div>
             <form id="uploadForm" enctype="multipart/form-data">
                 <div class="modal-body">
-                    <div class="form-group">
-                        <label class="font-weight-bold">Jenis Indikator</label>
-                        <input type="text" class="form-control rounded-0" id="jenis_indikator" name="jenis_indikator" readonly>
-                    </div>
-                    <div class="form-group">
-                        <label class="font-weight-bold">Nama Indikator</label>
-                        <input type="text" class="form-control rounded-0" id="nama_indikator" name="nama_indikator" required>
-                    </div>
-                    <div class="form-group">
-                        <label class="font-weight-bold">Formulasi</label>
-                        <textarea class="form-control rounded-0" id="formulasi" name="formulasi" rows="2" required></textarea>
-                    </div>
-                    <div class="form-group">
-                        <label class="font-weight-bold">Definisi Operasional</label>
-                        <textarea class="form-control rounded-0" id="definisi_operasional" name="definisi_operasional" rows="3" required></textarea>
-                    </div>
+                    <input type="hidden" class="form-control rounded-0" id="jenis_indikator" name="jenis_indikator" readonly>
+                    <input type="hidden" class="form-control rounded-0" id="nama_indikator" name="nama_indikator" required>
                     <div class="form-group">
                         <label class="font-weight-bold">File</label>
                         <input type="file" class="form-control-file rounded-0" id="file" name="file" required 
@@ -119,7 +105,7 @@
 
 <!-- View Modal -->
 <div class="modal fade" id="viewModal" tabindex="-1" role="dialog" aria-labelledby="viewModalLabel" aria-hidden="true">
-    <div class="modal-dialog modal-lg" role="document">
+    <div class="modal-dialog modal-xl" role="document">
         <div class="modal-content rounded-0">
             <div class="modal-header" style="background-color: #3b6ea8; color: white;">
                 <h5 class="modal-title" id="viewModalLabel">Detail Data Indikator</h5>
@@ -128,59 +114,15 @@
                 </button>
             </div>
             <div class="modal-body">
-                <div class="row">
-                    <div class="col-md-6">
-                        <div class="form-group">
-                            <label class="font-weight-bold">Jenis Indikator</label>
-                            <p id="view_jenis_indikator" class="form-control-plaintext"></p>
-                        </div>
-                    </div>
-                    <div class="col-md-6">
-                        <div class="form-group">
-                            <label class="font-weight-bold">Nama Indikator</label>
-                            <p id="view_nama_indikator" class="form-control-plaintext"></p>
-                        </div>
-                    </div>
+                <div class="text-center mb-3">
+                    <button type="button" class="btn btn-primary btn-sm rounded-0" id="downloadBtn">
+                        <i class="fas fa-download"></i> Download File
+                    </button>
                 </div>
-                <div class="form-group">
-                    <label class="font-weight-bold">Formulasi</label>
-                    <p id="view_formulasi" class="form-control-plaintext"></p>
-                </div>
-                <div class="form-group">
-                    <label class="font-weight-bold">Definisi Operasional</label>
-                    <p id="view_definisi_operasional" class="form-control-plaintext"></p>
-                </div>
-                <div class="row">
-                    <div class="col-md-6">
-                        <div class="form-group">
-                            <label class="font-weight-bold">File Name</label>
-                            <p id="view_file_name" class="form-control-plaintext"></p>
-                        </div>
-                    </div>
-                    <div class="col-md-6">
-                        <div class="form-group">
-                            <label class="font-weight-bold">File Size</label>
-                            <p id="view_file_size" class="form-control-plaintext"></p>
-                        </div>
-                    </div>
-                </div>
-                <div class="row">
-                    <div class="col-md-6">
-                        <div class="form-group">
-                            <label class="font-weight-bold">Uploaded At</label>
-                            <p id="view_uploaded_at" class="form-control-plaintext"></p>
-                        </div>
-                    </div>
-                    <div class="col-md-6">
-                        <div class="form-group">
-                            <label class="font-weight-bold">Actions</label>
-                            <div>
-                                <button type="button" class="btn btn-primary btn-sm rounded-0" id="downloadBtn">
-                                    <i class="fas fa-download"></i> Download
-                                </button>
-                            </div>
-                        </div>
-                    </div>
+                <div class="file-preview-container" style="height: 600px; border: 1px solid #ddd; border-radius: 4px;">
+                    <iframe id="filePreviewFrame" src="" style="width: 100%; height: 100%; border: none;" frameborder="0">
+                        <p>Your browser does not support iframes. <a href="#" id="fallbackLink">Click here to view the file</a></p>
+                    </iframe>
                 </div>
             </div>
             <div class="modal-footer">
@@ -258,20 +200,16 @@
         
         $.get('<?= base_url('indikator/view') ?>/' + id, function(res){
             if(res && res.ok){
-                $('#view_jenis_indikator').text(res.data.jenis_indikator);
-                $('#view_nama_indikator').text(res.data.nama_indikator);
+                // Update modal title with file name
+                $('#viewModalLabel').text('Preview: ' + res.data.file_name);
                 
-                // Parse deskripsi to separate formulasi and definisi operasional
-                var deskripsi = res.data.deskripsi || '';
-                var parts = deskripsi.split('\n\nDefinisi Operasional:\n');
-                var formulasi = parts[0] || '-';
-                var definisiOperasional = parts[1] || '-';
+                // Set iframe source to file preview URL
+                var filePreviewUrl = '<?= base_url('indikator/preview') ?>/' + id;
+                $('#filePreviewFrame').attr('src', filePreviewUrl);
+                $('#fallbackLink').attr('href', filePreviewUrl);
                 
-                $('#view_formulasi').text(formulasi);
-                $('#view_definisi_operasional').text(definisiOperasional);
-                $('#view_file_name').text(res.data.file_name);
-                $('#view_file_size').text(formatFileSize(res.data.file_size));
-                $('#view_uploaded_at').text(formatDate(res.data.uploaded_at));
+                // Store file data for download button
+                currentFileData = res.data;
                 
                 $('#viewModal').modal('show');
             } else {

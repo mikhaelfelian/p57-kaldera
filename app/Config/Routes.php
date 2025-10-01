@@ -201,6 +201,7 @@ $routes->group('indikator', ['namespace' => 'App\\Controllers', 'filter' => 'aut
     $routes->get('metadata', 'IndikatorMeta::metadata', ['as' => 'indikator.metadata']);
     $routes->post('upload', 'IndikatorMeta::upload', ['as' => 'indikator.upload']);
     $routes->get('view/(:num)', 'IndikatorMeta::viewData/$1', ['as' => 'indikator.view']);
+    $routes->get('preview/(:num)', 'IndikatorMeta::preview/$1', ['as' => 'indikator.preview']);
     $routes->get('download/(:num)', 'IndikatorMeta::download/$1', ['as' => 'indikator.download']);
     
     // Input routes

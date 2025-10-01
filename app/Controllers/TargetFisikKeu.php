@@ -1143,7 +1143,7 @@ class TargetFisikKeu extends BaseController
 		$pdf = new \TCPDF('L', 'mm', 'A4', true, 'UTF-8', false);
 		$pdf->SetCreator('Belanja Rekap System');
 		$pdf->SetTitle('Rekap Belanja - ' . bulan_ke_str($bulan) . ' ' . $year);
-		$pdf->SetHeaderData('', 0, 'REKAP BELANJA', 'Tahapan: ' . ucfirst($tahapan));
+		$pdf->SetHeaderData('', 0, 'HASIL REKAP', 'Tahapan: ' . ucfirst($tahapan));
 		$pdf->setHeaderFont(Array('helvetica', '', 12));
 		$pdf->setFooterFont(Array('helvetica', '', 8));
 		$pdf->SetMargins(15, 25, 15);
