@@ -79,6 +79,7 @@ class IndikatorInput extends BaseController
         $tahun = (int)$this->request->getPost('tahun');
         $triwulan = (int)$this->request->getPost('triwulan');
         $jenisIndikator = $this->request->getPost('jenis_indikator');
+        $catatanIndikator = $this->request->getPost('catatan_indikator');
 
         if (!$tahun || !$triwulan || !$jenisIndikator) {
             return $this->response->setJSON(['ok' => false, 'message' => 'Tahun, triwulan dan jenis indikator harus diisi']);
@@ -108,6 +109,7 @@ class IndikatorInput extends BaseController
         ])->first();
 
         $data = [
+            'catatan_indikator' => $catatanIndikator,
             'file_catatan_path' => 'public/file/indikator/input/' . $fileName,
             'file_catatan_name' => $file->getClientName(),
             'file_catatan_size' => $file->getSize(),
@@ -117,19 +119,24 @@ class IndikatorInput extends BaseController
         ];
 
         try {
+            $recordId = null;
             if ($existing) {
                 $this->indikatorInputModel->update($existing['id'], $data);
+                $recordId = $existing['id'];
             } else {
                 $data['tahun'] = $tahun;
                 $data['triwulan'] = $triwulan;
                 $data['jenis_indikator'] = $jenisIndikator;
                 $data['created_at'] = date('Y-m-d H:i:s');
-                $this->indikatorInputModel->insert($data);
+                $recordId = $this->indikatorInputModel->insert($data);
             }
             
             return $this->response->setJSON([
                 'ok' => true, 
                 'message' => 'File catatan berhasil diupload',
+                'filename' => $file->getClientName(),
+                'id' => $recordId,
+                'jenis_indikator' => $jenisIndikator,
                 'csrf_token' => csrf_token(),
                 'csrf_hash' => csrf_hash()
             ]);
@@ -155,6 +162,7 @@ class IndikatorInput extends BaseController
         $tahun = (int)$this->request->getPost('tahun');
         $triwulan = (int)$this->request->getPost('triwulan');
         $jenisIndikator = $this->request->getPost('jenis_indikator');
+        $rencanaTindakLanjut = $this->request->getPost('rencana_tindak_lanjut');
 
         if (!$tahun || !$triwulan || !$jenisIndikator) {
             return $this->response->setJSON(['ok' => false, 'message' => 'Tahun, triwulan dan jenis indikator harus diisi']);
@@ -167,7 +175,7 @@ class IndikatorInput extends BaseController
         }
 
         // Create upload directory if not exists
-        $uploadPath = FCPATH . '/file/indikator/input/';
+        $uploadPath = FCPATH . 'file/indikator/input/';
         if (!is_dir($uploadPath)) {
             mkdir($uploadPath, 0755, true);
         }
@@ -184,6 +192,7 @@ class IndikatorInput extends BaseController
         ])->first();
 
         $data = [
+            'rencana_tindak_lanjut' => $rencanaTindakLanjut,
             'file_rencana_path' => 'public/file/indikator/input/' . $fileName,
             'file_rencana_name' => $file->getClientName(),
             'file_rencana_size' => $file->getSize(),
