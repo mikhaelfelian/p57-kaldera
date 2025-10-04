@@ -37,9 +37,9 @@
                 <?php // if (isset($_GET['year']) && !empty($_GET['year'])): ?>
                     <li class="nav-header">MASTER DATA</li>
                     <li
-                        class="nav-item has-treeview <?= isMenuActive(['tfk', 'tfk/data', 'tfk/input', 'tfk/rekap', 'tfk/master'], true) ? 'menu-open' : '' ?>">
-                        <a href="#"
-                            class="nav-link <?= isMenuActive(['tfk', 'tfk/data', 'tfk/input', 'tfk/rekap', 'tfk/master'], true) ? 'active' : '' ?>">
+                        class="nav-item has-treeview <?= isMenuActive(['tfk', 'tfk/data', 'tfk/input', 'tfk/rekap', 'tfk/master']) ? 'menu-open' : '' ?>">
+                    <a href="#" 
+                        class="nav-link <?= isMenuActive(['tfk', 'tfk/data', 'tfk/input', 'tfk/rekap', 'tfk/master']) ? 'active' : '' ?>">
                             <i class="nav-icon fas fa-bullseye"></i>
                             <p>
                                 Target Fisik & Keu
@@ -83,8 +83,8 @@
                             </li>
                         </ul>
                     </li>
-                    <li class="nav-item has-treeview <?= isMenuActive(['belanja/master','belanja/input','belanja/rekap'], true) ? 'menu-open' : '' ?>">
-                        <a href="<?= base_url('belanja/master') ?>" class="nav-link <?= isMenuActive(['belanja/master','belanja/input','belanja/rekap'], true) ? 'active' : '' ?>">
+                    <li class="nav-item has-treeview <?= isMenuActive(['belanja/master','belanja/input','belanja/rekap']) ? 'menu-open' : '' ?>">
+                        <a href="<?= base_url('belanja/master') ?>" class="nav-link <?= isMenuActive(['belanja/master','belanja/input','belanja/rekap']) ? 'active' : '' ?>">
                             <i class="nav-icon fas fa-shopping-basket"></i>
                             <p>
                                 Belanja
@@ -115,8 +115,8 @@
                             </li>
                         </ul>
                     </li>
-                    <li class="nav-item has-treeview <?= isMenuActive(['pendapatan/master','pendapatan/input','pendapatan/rekap'], true) ? 'menu-open' : '' ?>">
-                        <a href="#" class="nav-link <?= isMenuActive(['pendapatan/master','pendapatan/input','pendapatan/rekap'], true) ? 'active' : '' ?>">
+                    <li class="nav-item has-treeview <?= isMenuActive(['pendapatan/master','pendapatan/input','pendapatan/rekap']) ? 'menu-open' : '' ?>">
+                        <a href="#" class="nav-link <?= isMenuActive(['pendapatan/master','pendapatan/input','pendapatan/rekap']) ? 'active' : '' ?>">
                             <i class="nav-icon fas fa-wallet"></i>
                             <p>
                                 Pendapatan
@@ -147,8 +147,8 @@
                             </li>
                         </ul>
                     </li>
-                    <li class="nav-item has-treeview <?= isMenuActive(['indikator/metadata','indikator/input','indikator/rekap'], true) ? 'menu-open' : '' ?>">
-                        <a href="#" class="nav-link <?= isMenuActive(['indikator/metadata','indikator/input','indikator/rekap'], true) ? 'active' : '' ?>">
+                    <li class="nav-item has-treeview <?= isMenuActive(['indikator/metadata','indikator/input','indikator/rekap']) ? 'menu-open' : '' ?>">
+                        <a href="#" class="nav-link <?= isMenuActive(['indikator/metadata','indikator/input','indikator/rekap']) ? 'active' : '' ?>">
                             <i class="nav-icon fas fa-chart-line"></i>
                             <p>
                                 Indikator Kinerja
@@ -281,8 +281,8 @@
                             </li>
                         </ul>
                     </li>
-                    <li class="nav-item has-treeview <?= isMenuActive(['pt-minerba', 'pt-gat', 'pt-gatrik', 'pt-ebt'], true) ? 'menu-open' : '' ?>">
-                        <a href="#" class="nav-link <?= isMenuActive(['pt-minerba', 'pt-gat', 'pt-gatrik', 'pt-ebt'], true) ? 'active' : '' ?>">
+                    <li class="nav-item has-treeview <?= isMenuActive(['pt-minerba', 'pt-gat', 'pt-gatrik', 'pt-ebt']) ? 'menu-open' : '' ?>">
+                        <a href="#" class="nav-link <?= isMenuActive(['pt-minerba', 'pt-gat', 'pt-gatrik', 'pt-ebt']) ? 'active' : '' ?>">
                             <i class="nav-icon fas fa-check-circle"></i>
                             <p>
                                 Persetujuan Teknis
@@ -290,19 +290,19 @@
                             </p>
                         </a>
                         <ul class="nav nav-treeview">
-                            <!-- Sektor Minerba -->
-                            <li class="nav-header font-weight-bold"><?= nbs(2) ?>Sektor Minerba</li>
-                            <li class="nav-item">
-                                <a href="<?= base_url('pt-minerba/input') ?>" class="nav-link <?= isMenuActive('pt-minerba/input') ? 'active' : '' ?>">
+                                                        <li class="nav-item">
+                                <a href="<?= base_url('pt-minerba/master') ?>" class="nav-link <?= isMenuActive(['pt-minerba/master']) ? 'active' : '' ?>">
                                     <?= nbs(5) ?>
-                                    <i class="fas fa-edit nav-icon"></i>
+                                    <i class="fas fa-building nav-icon"></i>
                                     <p>Master Unit Kerja</p>
                                 </a>
                             </li>
+                            <!-- Sektor Minerba -->
+                            <li class="nav-header font-weight-bold"><?= nbs(2) ?>Sektor Minerba</li>
                             <li class="nav-item">
-                                <a href="<?= base_url('pt-minerba/input') ?>" class="nav-link <?= isMenuActive('pt-minerba/input') ? 'active' : '' ?>">
+                                <a href="<?= base_url('pt-minerba/input') ?>" class="nav-link <?= isMenuActive('pt-minerba/master') ? 'active' : '' ?>">
                                     <?= nbs(5) ?>
-                                    <i class="fas fa-edit nav-icon"></i>
+                                    <i class="fas fa-table nav-icon"></i>
                                     <p>Input</p>
                                 </a>
                             </li>
@@ -367,8 +367,8 @@
                         </ul>
                     </li>
                     <!-- Additional menu items as in the image -->
-                    <li class="nav-item has-treeview <?= isMenuActive('gender', true) ? 'menu-open' : '' ?>">
-                        <a href="<?= base_url('gender') ?>" class="nav-link <?= isMenuActive('gender', true) ? 'active' : '' ?>">
+                    <li class="nav-item has-treeview <?= isMenuActive('gender') ? 'menu-open' : '' ?>">
+                        <a href="<?= base_url('gender') ?>" class="nav-link <?= isMenuActive('gender') ? 'active' : '' ?>">
                             <i class="nav-icon fas fa-venus-mars"></i>
                             <p>
                                 Gender
@@ -385,8 +385,8 @@
                             </li>
                         </ul>
                     </li>
-                    <li class="nav-item has-treeview <?= isMenuActive('risiko', true) ? 'menu-open' : '' ?>">
-                        <a href="<?= base_url('risiko') ?>" class="nav-link <?= isMenuActive('risiko', true) ? 'active' : '' ?>">
+                    <li class="nav-item has-treeview <?= isMenuActive('risiko') ? 'menu-open' : '' ?>">
+                        <a href="<?= base_url('risiko') ?>" class="nav-link <?= isMenuActive('risiko') ? 'active' : '' ?>">
                             <i class="nav-icon fas fa-shield-alt"></i>
                             <p>
                                 Manajemen Risiko
@@ -403,8 +403,8 @@
                             </li>
                         </ul>
                     </li>
-                    <li class="nav-item has-treeview <?= isMenuActive('sdgs', true) ? 'menu-open' : '' ?>">
-                        <a href="<?= base_url('sdgs') ?>" class="nav-link <?= isMenuActive('sdgs', true) ? 'active' : '' ?>">
+                    <li class="nav-item has-treeview <?= isMenuActive('sdgs') ? 'menu-open' : '' ?>">
+                        <a href="<?= base_url('sdgs') ?>" class="nav-link <?= isMenuActive('sdgs') ? 'active' : '' ?>">
                             <i class="nav-icon fas fa-globe"></i>
                             <p>
                                 SDG's
@@ -421,8 +421,8 @@
                             </li>
                         </ul>
                     </li>
-                    <li class="nav-item has-treeview <?= isMenuActive('gulkin', true) ? 'menu-open' : '' ?>">
-                        <a href="<?= base_url('gulkin') ?>" class="nav-link <?= isMenuActive('gulkin', true) ? 'active' : '' ?>">
+                    <li class="nav-item has-treeview <?= isMenuActive('gulkin') ? 'menu-open' : '' ?>">
+                        <a href="<?= base_url('gulkin') ?>" class="nav-link <?= isMenuActive('gulkin') ? 'active' : '' ?>">
                             <i class="nav-icon fas fa-industry"></i>
                             <p>
                                 Gulkin
@@ -439,8 +439,8 @@
                             </li>
                         </ul>
                     </li>
-                    <li class="nav-item has-treeview <?= isMenuActive('links', true) ? 'menu-open' : '' ?>">
-                        <a href="<?= base_url('links') ?>" class="nav-link <?= isMenuActive('links', true) ? 'active' : '' ?>">
+                    <li class="nav-item has-treeview <?= isMenuActive('links') ? 'menu-open' : '' ?>">
+                        <a href="<?= base_url('links') ?>" class="nav-link <?= isMenuActive('links') ? 'active' : '' ?>">
                             <i class="nav-icon fas fa-map-marked-alt"></i>
                             <p>
                                 Web Gis ESDM
@@ -457,8 +457,8 @@
                             </li>
                         </ul>
                     </li>
-                    <li class="nav-item has-treeview <?= isMenuActive('uploads', true) ? 'menu-open' : '' ?>">
-                        <a href="<?= base_url('uploads') ?>" class="nav-link <?= isMenuActive('uploads', true) ? 'active' : '' ?>">
+                    <li class="nav-item has-treeview <?= isMenuActive('uploads') ? 'menu-open' : '' ?>">
+                        <a href="<?= base_url('uploads') ?>" class="nav-link <?= isMenuActive('uploads') ? 'active' : '' ?>">
                             <i class="nav-icon fas fa-file-alt"></i>
                             <p>
                                 Pelaporan

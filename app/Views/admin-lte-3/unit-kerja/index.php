@@ -32,51 +32,59 @@
             </div>
         </div>
 
-        <!-- Data Table -->
+        <!-- Simple 2-column table -->
         <div class="table-responsive">
             <table class="table table-bordered table-striped rounded-0" id="unitKerjaTable">
                 <thead style="background-color: #3b6ea8; color: white;">
                     <tr>
-                        <th style="width: 50px;">No</th>
-                        <th>Kode Unit Kerja</th>
-                        <th>Nama Unit Kerja</th>
-                        <th>Kepala Unit Kerja</th>
-                        <th>Telepon</th>
-                        <th>Status</th>
-                        <th style="width: 120px;">Aksi</th>
+                        <th style="width: 50%;">Unit Kerja</th>
+                        <th style="width: 50%;">Alamat</th>
                     </tr>
                 </thead>
                 <tbody>
                     <?php if (!empty($unitKerjaList)): ?>
                         <?php foreach ($unitKerjaList as $index => $unit): ?>
                         <tr>
-                            <td><?= $index + 1 ?></td>
-                            <td><?= $unit['kode_unit_kerja'] ?></td>
-                            <td><?= $unit['nama_unit_kerja'] ?></td>
-                            <td><?= $unit['kepala_unit_kerja'] ?: '-' ?></td>
-                            <td><?= $unit['telepon'] ?: '-' ?></td>
                             <td>
-                                <span class="badge badge-<?= $unit['status'] == 'Aktif' ? 'success' : 'danger' ?>">
-                                    <?= $unit['status'] ?>
-                                </span>
+                                <div class="d-flex justify-content-between align-items-start">
+                                    <div>
+                                        <h6 class="mb-1"><strong><?= $unit['nama_unit_kerja'] ?></strong></h6>
+                                        <p class="mb-1"><small class="text-muted">Kode: <?= $unit['kode_unit_kerja'] ?></small></p>
+                                        <p class="mb-1"><small>Kepala: <?= $unit['kepala_unit_kerja'] ?: '-' ?></small></p>
+                                        <p class="mb-1"><small>Telepon: <?= $unit['telepon'] ?: '-' ?></small></p>
+                                        <span class="badge badge-<?= $unit['status'] == 'Aktif' ? 'success' : 'danger' ?> badge-sm">
+                                            <?= $unit['status'] ?>
+                                        </span>
+                                    </div>
+                                    <div class="btn-group-vertical" role="group">
+                                        <button type="button" class="btn btn-info btn-sm rounded-0 edit-btn" 
+                                                data-id="<?= $unit['id'] ?>" title="Edit">
+                                            <i class="fas fa-edit"></i>
+                                        </button>
+                                        <button type="button" class="btn btn-danger btn-sm rounded-0 delete-btn" 
+                                                data-id="<?= $unit['id'] ?>" data-name="<?= $unit['nama_unit_kerja'] ?>" title="Hapus">
+                                            <i class="fas fa-trash"></i>
+                                        </button>
+                                    </div>
+                                </div>
                             </td>
                             <td>
-                                <div class="btn-group" role="group">
-                                    <button type="button" class="btn btn-info btn-sm rounded-0 edit-btn" 
-                                            data-id="<?= $unit['id'] ?>" title="Edit">
-                                        <i class="fas fa-edit"></i>
-                                    </button>
-                                    <button type="button" class="btn btn-danger btn-sm rounded-0 delete-btn" 
-                                            data-id="<?= $unit['id'] ?>" data-name="<?= $unit['nama_unit_kerja'] ?>" title="Hapus">
-                                        <i class="fas fa-trash"></i>
-                                    </button>
+                                <div>
+                                    <h6 class="mb-1"><strong>Alamat:</strong></h6>
+                                    <p class="mb-2"><?= $unit['alamat'] ?: 'Alamat belum diisi' ?></p>
+                                    <?php if (!empty($unit['email'])): ?>
+                                    <p class="mb-1"><small><strong>Email:</strong> <?= $unit['email'] ?></small></p>
+                                    <?php endif; ?>
+                                    <?php if (!empty($unit['keterangan'])): ?>
+                                    <p class="mb-1"><small><strong>Keterangan:</strong> <?= $unit['keterangan'] ?></small></p>
+                                    <?php endif; ?>
                                 </div>
                             </td>
                         </tr>
                         <?php endforeach; ?>
                     <?php else: ?>
                         <tr>
-                            <td colspan="7" class="text-center">Tidak ada data unit kerja</td>
+                            <td colspan="2" class="text-center">Tidak ada data unit kerja</td>
                         </tr>
                     <?php endif; ?>
                 </tbody>
@@ -100,63 +108,16 @@
                     <div class="row">
                         <div class="col-md-6">
                             <div class="form-group">
-                                <label class="font-weight-bold">Kode Unit Kerja <span class="text-danger">*</span></label>
-                                <input type="text" class="form-control rounded-0" name="kode_unit_kerja" required>
-                            </div>
-                        </div>
-                        <div class="col-md-6">
-                            <div class="form-group">
-                                <label class="font-weight-bold">Nama Unit Kerja <span class="text-danger">*</span></label>
+                                <label class="font-weight-bold">Unit Kerja <span class="text-danger">*</span></label>
                                 <input type="text" class="form-control rounded-0" name="nama_unit_kerja" required>
                             </div>
                         </div>
-                    </div>
-                    <div class="form-group">
-                        <label class="font-weight-bold">Alamat</label>
-                        <textarea class="form-control rounded-0" name="alamat" rows="3"></textarea>
-                    </div>
-                    <div class="row">
                         <div class="col-md-6">
                             <div class="form-group">
-                                <label class="font-weight-bold">Telepon</label>
-                                <input type="text" class="form-control rounded-0" name="telepon">
+                                <label class="font-weight-bold">Alamat</label>
+                                <textarea class="form-control rounded-0" name="alamat" rows="3"></textarea>
                             </div>
                         </div>
-                        <div class="col-md-6">
-                            <div class="form-group">
-                                <label class="font-weight-bold">Email</label>
-                                <input type="email" class="form-control rounded-0" name="email">
-                            </div>
-                        </div>
-                    </div>
-                    <div class="row">
-                        <div class="col-md-6">
-                            <div class="form-group">
-                                <label class="font-weight-bold">Kepala Unit Kerja</label>
-                                <input type="text" class="form-control rounded-0" name="kepala_unit_kerja">
-                            </div>
-                        </div>
-                        <div class="col-md-6">
-                            <div class="form-group">
-                                <label class="font-weight-bold">NIP Kepala</label>
-                                <input type="text" class="form-control rounded-0" name="nip_kepala">
-                            </div>
-                        </div>
-                    </div>
-                    <div class="row">
-                        <div class="col-md-6">
-                            <div class="form-group">
-                                <label class="font-weight-bold">Status</label>
-                                <select class="form-control rounded-0" name="status">
-                                    <option value="Aktif">Aktif</option>
-                                    <option value="Tidak Aktif">Tidak Aktif</option>
-                                </select>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="form-group">
-                        <label class="font-weight-bold">Keterangan</label>
-                        <textarea class="form-control rounded-0" name="keterangan" rows="2"></textarea>
                     </div>
                 </div>
                 <div class="modal-footer">
@@ -186,63 +147,16 @@
                     <div class="row">
                         <div class="col-md-6">
                             <div class="form-group">
-                                <label class="font-weight-bold">Kode Unit Kerja <span class="text-danger">*</span></label>
-                                <input type="text" class="form-control rounded-0" name="kode_unit_kerja" id="edit_kode_unit_kerja" required>
-                            </div>
-                        </div>
-                        <div class="col-md-6">
-                            <div class="form-group">
-                                <label class="font-weight-bold">Nama Unit Kerja <span class="text-danger">*</span></label>
+                                <label class="font-weight-bold">Unit Kerja <span class="text-danger">*</span></label>
                                 <input type="text" class="form-control rounded-0" name="nama_unit_kerja" id="edit_nama_unit_kerja" required>
                             </div>
                         </div>
-                    </div>
-                    <div class="form-group">
-                        <label class="font-weight-bold">Alamat</label>
-                        <textarea class="form-control rounded-0" name="alamat" id="edit_alamat" rows="3"></textarea>
-                    </div>
-                    <div class="row">
                         <div class="col-md-6">
                             <div class="form-group">
-                                <label class="font-weight-bold">Telepon</label>
-                                <input type="text" class="form-control rounded-0" name="telepon" id="edit_telepon">
+                                <label class="font-weight-bold">Alamat</label>
+                                <textarea class="form-control rounded-0" name="alamat" id="edit_alamat" rows="3"></textarea>
                             </div>
                         </div>
-                        <div class="col-md-6">
-                            <div class="form-group">
-                                <label class="font-weight-bold">Email</label>
-                                <input type="email" class="form-control rounded-0" name="email" id="edit_email">
-                            </div>
-                        </div>
-                    </div>
-                    <div class="row">
-                        <div class="col-md-6">
-                            <div class="form-group">
-                                <label class="font-weight-bold">Kepala Unit Kerja</label>
-                                <input type="text" class="form-control rounded-0" name="kepala_unit_kerja" id="edit_kepala_unit_kerja">
-                            </div>
-                        </div>
-                        <div class="col-md-6">
-                            <div class="form-group">
-                                <label class="font-weight-bold">NIP Kepala</label>
-                                <input type="text" class="form-control rounded-0" name="nip_kepala" id="edit_nip_kepala">
-                            </div>
-                        </div>
-                    </div>
-                    <div class="row">
-                        <div class="col-md-6">
-                            <div class="form-group">
-                                <label class="font-weight-bold">Status</label>
-                                <select class="form-control rounded-0" name="status" id="edit_status">
-                                    <option value="Aktif">Aktif</option>
-                                    <option value="Tidak Aktif">Tidak Aktif</option>
-                                </select>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="form-group">
-                        <label class="font-weight-bold">Keterangan</label>
-                        <textarea class="form-control rounded-0" name="keterangan" id="edit_keterangan" rows="2"></textarea>
                     </div>
                 </div>
                 <div class="modal-footer">
@@ -365,15 +279,8 @@
         $.get('<?= base_url('pt-minerba/unit-kerja/get') ?>/' + id, function(res){
             if(res && res.ok){
                 $('#edit_id').val(res.data.id);
-                $('#edit_kode_unit_kerja').val(res.data.kode_unit_kerja);
                 $('#edit_nama_unit_kerja').val(res.data.nama_unit_kerja);
                 $('#edit_alamat').val(res.data.alamat);
-                $('#edit_telepon').val(res.data.telepon);
-                $('#edit_email').val(res.data.email);
-                $('#edit_kepala_unit_kerja').val(res.data.kepala_unit_kerja);
-                $('#edit_nip_kepala').val(res.data.nip_kepala);
-                $('#edit_status').val(res.data.status);
-                $('#edit_keterangan').val(res.data.keterangan);
                 
                 $('#editModal').modal('show');
             } else {

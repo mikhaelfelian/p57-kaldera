@@ -100,4 +100,28 @@ class UnitKerjaModel extends Model
             ->groupEnd()
             ->findAll();
     }
+
+    /**
+     * Get unit kerja data optimized for 2-column display
+     */
+    public function getUnitKerjaForDisplay()
+    {
+        return $this->select('id, kode_unit_kerja, nama_unit_kerja, alamat, telepon, email, kepala_unit_kerja, status, keterangan')
+                   ->orderBy('nama_unit_kerja', 'ASC')
+                   ->findAll();
+    }
+
+    /**
+     * Get unit kerja with address information
+     */
+    public function getUnitKerjaWithAddress($id = null)
+    {
+        if ($id === null) {
+            return $this->select('id, nama_unit_kerja, alamat, email, keterangan, status')
+                       ->orderBy('nama_unit_kerja', 'ASC')
+                       ->findAll();
+        }
+        return $this->select('id, nama_unit_kerja, alamat, email, keterangan, status')
+                   ->find($id);
+    }
 }

@@ -18,7 +18,7 @@ class UnitKerja extends BaseController
     {
         $data = [
             'title' => 'Master Unit Kerja',
-            'unitKerjaList' => $this->unitKerjaModel->findAll()
+            'unitKerjaList' => $this->unitKerjaModel->getUnitKerjaForDisplay()
         ];
 
         return $this->view($this->theme->getThemePath() . '/unit-kerja/index', $data);
@@ -36,41 +36,13 @@ class UnitKerja extends BaseController
         $validation = \Config\Services::validation();
         $validation->setRules(
             [
-                'kode_unit_kerja'    => 'required|max_length[50]|is_unique[tbl_m_unit_kerja.kode_unit_kerja]',
                 'nama_unit_kerja'    => 'required|max_length[255]',
-                'alamat'             => 'permit_empty',
-                'telepon'            => 'permit_empty|max_length[20]',
-                'email'              => 'permit_empty|valid_email|max_length[100]',
-                'kepala_unit_kerja'  => 'permit_empty|max_length[255]',
-                'nip_kepala'         => 'permit_empty|max_length[50]',
-                'status'             => 'permit_empty|in_list[Aktif,Tidak Aktif]',
-                'keterangan'         => 'permit_empty'
+                'alamat'             => 'permit_empty'
             ],
             [
-                'kode_unit_kerja' => [
-                    'required'   => 'Kode unit kerja harus diisi',
-                    'max_length' => 'Kode unit kerja maksimal 50 karakter',
-                    'is_unique'  => 'Kode unit kerja sudah digunakan'
-                ],
                 'nama_unit_kerja' => [
                     'required'   => 'Nama unit kerja harus diisi',
                     'max_length' => 'Nama unit kerja maksimal 255 karakter'
-                ],
-                'telepon' => [
-                    'max_length' => 'Nomor telepon maksimal 20 karakter'
-                ],
-                'email' => [
-                    'valid_email' => 'Format email tidak valid',
-                    'max_length'  => 'Email maksimal 100 karakter'
-                ],
-                'kepala_unit_kerja' => [
-                    'max_length' => 'Nama kepala unit kerja maksimal 255 karakter'
-                ],
-                'nip_kepala' => [
-                    'max_length' => 'NIP kepala maksimal 50 karakter'
-                ],
-                'status' => [
-                    'in_list' => 'Status harus Aktif atau Tidak Aktif'
                 ]
             ]
         );
@@ -86,26 +58,22 @@ class UnitKerja extends BaseController
         }
 
         try {
-            $kode_unit_kerja    = $this->request->getPost('kode_unit_kerja');
             $nama_unit_kerja    = $this->request->getPost('nama_unit_kerja');
             $alamat             = $this->request->getPost('alamat') ?: '';
-            $telepon            = $this->request->getPost('telepon') ?: '';
-            $email              = $this->request->getPost('email') ?: '';
-            $kepala_unit_kerja  = $this->request->getPost('kepala_unit_kerja') ?: '';
-            $nip_kepala         = $this->request->getPost('nip_kepala') ?: '';
-            $status             = $this->request->getPost('status') ?: 'Aktif';
-            $keterangan         = $this->request->getPost('keterangan') ?: '';
+
+            // Generate kode_unit_kerja automatically
+            $kode_unit_kerja = 'UK' . str_pad($this->unitKerjaModel->countAll() + 1, 3, '0', STR_PAD_LEFT);
 
             $data = [
                 'kode_unit_kerja'    => $kode_unit_kerja,
                 'nama_unit_kerja'    => $nama_unit_kerja,
                 'alamat'             => $alamat,
-                'telepon'            => $telepon,
-                'email'              => $email,
-                'kepala_unit_kerja'  => $kepala_unit_kerja,
-                'nip_kepala'         => $nip_kepala,
-                'status'             => $status,
-                'keterangan'         => $keterangan
+                'telepon'            => '',
+                'email'              => '',
+                'kepala_unit_kerja'  => '',
+                'nip_kepala'         => '',
+                'status'             => 'Aktif',
+                'keterangan'         => ''
             ];
 
             $this->unitKerjaModel->insert($data);
@@ -139,40 +107,12 @@ class UnitKerja extends BaseController
 
         $validation = \Config\Services::validation();
         $validation->setRules([
-            'kode_unit_kerja' => "required|max_length[50]|is_unique[tbl_m_unit_kerja.kode_unit_kerja,id,{$id}]",
             'nama_unit_kerja' => 'required|max_length[255]',
-            'alamat' => 'permit_empty',
-            'telepon' => 'permit_empty|max_length[20]',
-            'email' => 'permit_empty|valid_email|max_length[100]',
-            'kepala_unit_kerja' => 'permit_empty|max_length[255]',
-            'nip_kepala' => 'permit_empty|max_length[50]',
-            'status' => 'permit_empty|in_list[Aktif,Tidak Aktif]',
-            'keterangan' => 'permit_empty'
+            'alamat' => 'permit_empty'
         ], [
-            'kode_unit_kerja' => [
-                'required' => 'Kode unit kerja harus diisi',
-                'max_length' => 'Kode unit kerja maksimal 50 karakter',
-                'is_unique' => 'Kode unit kerja sudah digunakan'
-            ],
             'nama_unit_kerja' => [
                 'required' => 'Nama unit kerja harus diisi',
                 'max_length' => 'Nama unit kerja maksimal 255 karakter'
-            ],
-            'telepon' => [
-                'max_length' => 'Nomor telepon maksimal 20 karakter'
-            ],
-            'email' => [
-                'valid_email' => 'Format email tidak valid',
-                'max_length' => 'Email maksimal 100 karakter'
-            ],
-            'kepala_unit_kerja' => [
-                'max_length' => 'Nama kepala unit kerja maksimal 255 karakter'
-            ],
-            'nip_kepala' => [
-                'max_length' => 'NIP kepala maksimal 50 karakter'
-            ],
-            'status' => [
-                'in_list' => 'Status harus Aktif atau Tidak Aktif'
             ]
         ]);
 
@@ -188,15 +128,8 @@ class UnitKerja extends BaseController
 
         try {
             $data = [
-                'kode_unit_kerja' => $this->request->getPost('kode_unit_kerja'),
                 'nama_unit_kerja' => $this->request->getPost('nama_unit_kerja'),
-                'alamat' => $this->request->getPost('alamat') ?: '',
-                'telepon' => $this->request->getPost('telepon') ?: '',
-                'email' => $this->request->getPost('email') ?: '',
-                'kepala_unit_kerja' => $this->request->getPost('kepala_unit_kerja') ?: '',
-                'nip_kepala' => $this->request->getPost('nip_kepala') ?: '',
-                'status' => $this->request->getPost('status') ?: 'Aktif',
-                'keterangan' => $this->request->getPost('keterangan') ?: ''
+                'alamat' => $this->request->getPost('alamat') ?: ''
             ];
 
             $this->unitKerjaModel->update($id, $data);

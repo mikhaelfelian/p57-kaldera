@@ -306,13 +306,17 @@ $routes->group('pengaturan', ['namespace' => 'App\Controllers', 'filter' => 'aut
 
 // ==================== PT Minerba ====================
 $routes->group('pt-minerba', ['namespace' => 'App\Controllers', 'filter' => 'auth'], function ($routes) {
-    // Unit Kerja routes
-    $routes->get('input', 'UnitKerja::index', ['as' => 'pt-minerba.unit-kerja.index']);
+    // Unit Kerja routes (master)
+    $routes->get('master', 'UnitKerja::index', ['as' => 'pt-minerba.unit-kerja.index']);
     $routes->post('unit-kerja/create', 'UnitKerja::create', ['as' => 'pt-minerba.unit-kerja.create']);
     $routes->post('unit-kerja/update/(:num)', 'UnitKerja::update/$1', ['as' => 'pt-minerba.unit-kerja.update']);
     $routes->post('unit-kerja/delete/(:num)', 'UnitKerja::delete/$1', ['as' => 'pt-minerba.unit-kerja.delete']);
     $routes->get('unit-kerja/get/(:num)', 'UnitKerja::get/$1', ['as' => 'pt-minerba.unit-kerja.get']);
     $routes->post('unit-kerja/search', 'UnitKerja::search', ['as' => 'pt-minerba.unit-kerja.search']);
+    
+    // PT Minerba Input page
+    $routes->get('input', 'PtMinerba::index', ['as' => 'pt-minerba.input']);
+    $routes->post('save-data', 'PtMinerba::saveData', ['as' => 'pt-minerba.save_data']);
 });
 
 // ==================== Utility/Test ====================
