@@ -25,7 +25,7 @@
             <div class="row mb-3">
                 <div class="col-md-3">
                     <label class="font-weight-bold">Tahun</label>
-                    <select name="year" class="form-control rounded-0" onchange="document.getElementById('filterForm').submit()" readonly disabled>
+                    <select name="year" class="form-control rounded-0" onchange="document.getElementById('filterForm').submit()">
                         <?php 
                         $currentYear = date('Y');
                         for($i = $currentYear - 5; $i <= $currentYear + 5; $i++): 
@@ -48,23 +48,18 @@
         </form>
 
         <div class="table-responsive rounded-0">
-            <table class="table table-bordered rounded-0">
+            <table class="table table-striped table-bordered rounded-0">
                 <thead style="background-color: #3b6ea8; color: white;">
                     <tr>
-                        <th style="width: 200px;">Indikator</th>
-                        <th class="text-center">Upload Data</th>
-                        <th class="text-center">Status</th>
-                        <th class="text-center">Aksi</th>
+                        <th style="width: 200px; vertical-align: middle;" rowspan="2">Indikator</th>
+                        <th class="text-center" style="vertical-align: middle;" rowspan="2">Upload Data</th>
+                        <th class="text-center" style="vertical-align: middle;" rowspan="2">Status</th>
+                        <th class="text-center" style="vertical-align: middle;" colspan="7">Aksi</th>
                     </tr>
                     <tr>
-                        <th></th>
-                        <th class="text-center">Catatan Indikator</th>
-                        <th class="text-center">Rencana Tindak Lanjut</th>
-                        <th class="text-center">Sesuai</th>
-                        <th class="text-center">Preview</th>
-                        <th class="text-center">Verifikasi Bidang</th>
-                        <th class="text-center">Feed back Unit Kerja</th>
-                        <th class="text-center">Cetak (excel, Pdf)</th>
+                        <th class="text-center" style="vertical-align: middle;">Verifikasi Bidang</th>
+                        <th class="text-center" style="vertical-align: middle;">Hasil Tindak Lanjut</th>
+                        <th class="text-center" style="vertical-align: middle;">Cetak</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -84,21 +79,15 @@
                         $data = $hasData ? $existing[$key] : null;
                     ?>
                     <tr>
-                        <td class="font-weight-bold" style="background-color: #2f5f93; color: white;">
+                        <td >
                             <?= $label ?>
                         </td>
-                        <td class="text-center">
+                        <td class="text-center" style="width: 30%;">
                             <button type="button" class="btn btn-success btn-sm rounded-0 upload-catatan-btn" 
                                     data-jenis="<?= $key ?>" data-label="<?= $label ?>"
                                     style="background-color: #28a745; border-color: #28a745;">
                                 <i class="fas fa-upload"></i>
-                            </button>
-                        </td>
-                        <td class="text-center">
-                            <button type="button" class="btn btn-info btn-sm rounded-0 upload-rencana-btn" 
-                                    data-jenis="<?= $key ?>" data-label="<?= $label ?>"
-                                    style="background-color: #17a2b8; border-color: #17a2b8;">
-                                <i class="fas fa-upload"></i>
+                                <div class="uploaded-filename" style="display: none; font-size: 9px; margin-top: 2px; color: white; font-weight: bold; word-break: break-all;"></div>
                             </button>
                         </td>
                         <td class="text-center">
@@ -106,33 +95,29 @@
                                 Sesuai
                             </button>
                         </td>
-                        <td class="text-center">
+                        <td class="text-center align-middle" style="vertical-align: middle;">
+                            <button type="button" class="btn btn-warning btn-sm rounded-0 d-flex justify-content-center align-items-center mx-auto" style="height: 38px; width: 38px;" disabled>
+                                <i class="fas fa-check mx-auto" style="display: block; margin: 0 auto;"></i>
+                            </button>
+                        </td>
+                        <td class="text-center align-middle" style="vertical-align: middle;">
+                            <button type="button" class="btn btn-info btn-sm rounded-0 upload-rencana-btn d-flex justify-content-center align-items-center mx-auto" 
+                                    data-jenis="<?= $key ?>" data-label="<?= $label ?>"
+                                    style="background-color: #17a2b8; border-color: #17a2b8; height: 38px; width: 38px;">
+                                <i class="fas fa-comment mx-auto" style="display: block; margin: 0 auto;"></i>
+                            </button>
+                        </td>
+                        <td class="text-center align-middle" style="vertical-align: middle;">
                             <?php if ($hasData): ?>
-                            <button type="button" class="btn btn-primary btn-sm rounded-0 preview-btn" 
-                                    data-id="<?= $data['id'] ?>" data-jenis="<?= $key ?>"
-                                    style="background-color: #6f42c1; border-color: #6f42c1;">
-                                <i class="fas fa-eye"></i>
+                            <button type="button" class="btn btn-default btn-sm rounded-0 preview-btn d-flex justify-content-center align-items-center mx-auto" 
+                                    data-id="<?= $data['id'] ?>" data-jenis="<?= $key ?>" style="height: 38px; width: 38px;">
+                                <i class="fas fa-print mx-auto" style="display: block; margin: 0 auto;"></i>
                             </button>
                             <?php else: ?>
-                            <button type="button" class="btn btn-secondary btn-sm rounded-0" disabled>
-                                <i class="fas fa-eye"></i>
+                            <button type="button" class="btn btn-warning btn-sm rounded-0 d-flex justify-content-center align-items-center mx-auto" style="height: 38px; width: 38px;" disabled>
+                                <i class="fas fa-print mx-auto" style="display: block; margin: 0 auto;"></i>
                             </button>
                             <?php endif; ?>
-                        </td>
-                        <td class="text-center">
-                            <button type="button" class="btn btn-warning btn-sm rounded-0" disabled>
-                                <i class="fas fa-check"></i>
-                            </button>
-                        </td>
-                        <td class="text-center">
-                            <button type="button" class="btn btn-info btn-sm rounded-0" disabled>
-                                <i class="fas fa-comment"></i>
-                            </button>
-                        </td>
-                        <td class="text-center">
-                            <button type="button" class="btn btn-secondary btn-sm rounded-0" disabled>
-                                <i class="fas fa-print"></i>
-                            </button>
                         </td>
                     </tr>
                     <?php endforeach; ?>
@@ -177,6 +162,11 @@
                         <input type="file" class="form-control-file rounded-0" id="file_catatan" name="file" 
                                accept=".xlsx,.xls,.pdf,.doc,.docx">
                         <small class="form-text text-muted">Format yang diperbolehkan: Excel, PDF, Word</small>
+                        <div id="uploaded_filename" class="mt-2" style="display: none;">
+                            <small class="text-success">
+                                <i class="fas fa-check-circle"></i> File berhasil diupload: <span id="filename_display"></span>
+                            </small>
+                        </div>
                     </div>
                 </div>
                 <div class="modal-footer">
@@ -200,27 +190,18 @@
                     <span aria-hidden="true">&times;</span>
                 </button>
             </div>
-            <form id="uploadRencanaForm" enctype="multipart/form-data">
+            <form id="rencanaForm" onsubmit="return false;">
                 <div class="modal-body">
-                    <div class="form-group">
-                        <label class="font-weight-bold">Jenis Indikator</label>
-                        <input type="text" class="form-control rounded-0" id="rencana_jenis_indikator" name="jenis_indikator" readonly>
-                    </div>
+                    <input type="hidden" name="jenis_indikator" id="rencana_jenis_indikator" value="">
                     <div class="form-group">
                         <label class="font-weight-bold">Rencana Tindak Lanjut</label>
                         <textarea class="form-control rounded-0" id="rencana_tindak_lanjut" name="rencana_tindak_lanjut" rows="4"></textarea>
                     </div>
-                    <div class="form-group">
-                        <label class="font-weight-bold">File Rencana</label>
-                        <input type="file" class="form-control-file rounded-0" id="file_rencana" name="file" 
-                               accept=".xlsx,.xls,.pdf,.doc,.docx">
-                        <small class="form-text text-muted">Format yang diperbolehkan: Excel, PDF, Word</small>
-                    </div>
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary rounded-0" data-dismiss="modal">Batal</button>
-                    <button type="submit" class="btn btn-info rounded-0">
-                        <i class="fas fa-upload"></i> Upload
+                    <button type="button" class="btn btn-info rounded-0">
+                        <i class="fas fa-save"></i> Simpan
                     </button>
                 </div>
             </form>
@@ -364,6 +345,10 @@
         $('#catatan_jenis_indikator').val(jenis);
         $('#catatan_indikator').val('');
         $('#file_catatan').val('');
+        $('#uploaded_filename').hide();
+        
+        // Reset upload button state
+        $('#uploadCatatanForm button[type="submit"]').prop('disabled', false).html('<i class="fas fa-upload"></i> Upload');
         
         $('#uploadCatatanModal').modal('show');
     });
@@ -435,9 +420,25 @@
             success: function(res){
                 if(res && res.csrf_hash){ csrfHash = res.csrf_hash; }
                 if(res && res.ok){
+                    // Show uploaded filename in the button
+                    if(res.filename) {
+                        var jenis = $('#catatan_jenis_indikator').val();
+                        var button = $('.upload-catatan-btn[data-jenis="' + jenis + '"]');
+                        var filenameDiv = button.find('.uploaded-filename');
+                        filenameDiv.text(res.filename).show();
+                        button.find('i').hide();
+                        
+                        // Change button style to show success
+                        button.css({
+                            'background-color': '#28a745',
+                            'border-color': '#28a745',
+                            'color': 'white'
+                        });
+                    }
                     if(window.toastr){ toastr.success(res.message || 'File catatan berhasil diupload'); }
+                    
+                    // Hide modal after showing result
                     $('#uploadCatatanModal').modal('hide');
-                    location.reload();
                 } else {
                     if(window.toastr){ toastr.error(res.message || 'Gagal mengupload file'); }
                 }

@@ -245,8 +245,8 @@
                             </li>
                         </ul>
                     </li>
-                    <li class="nav-item has-treeview <?= isMenuActive(['bantuan/hibah', 'bantuan/bansos', 'bantuan/barang']) ? 'menu-open' : '' ?>">
-                        <a href="#" class="nav-link <?= isMenuActive(['bantuan/hibah', 'bantuan/bansos', 'bantuan/barang']) ? 'active' : '' ?>">
+                    <li class="nav-item has-treeview <?= isMenuActive(['banmas']) ? 'menu-open' : '' ?>">
+                        <a href="#" class="nav-link <?= isMenuActive(['banmas']) ? 'active' : '' ?>">
                             <i class="nav-icon fas fa-hand-holding-heart"></i>
                             <p>
                                 Bantuan Masyarakat
@@ -254,26 +254,11 @@
                             </p>
                         </a>
                         <ul class="nav nav-treeview">
-                            <li class="nav-header font-weight-bold" style="font-size: 1rem;"><?= nbs(3) ?>Input</li>
                             <li class="nav-item">
-                                <a href="<?= base_url('bantuan/hibah') ?>" class="nav-link <?= isMenuActive('bantuan/hibah') ? 'active' : '' ?>">
+                                <a href="<?= base_url('banmas') ?>" class="nav-link <?= isMenuActive('bantuan/hibah') ? 'active' : '' ?>">
                                     <?= nbs(5) ?>
-                                    <i class="fas fa-gift nav-icon"></i>
-                                    <p>Hibah</p>
-                                </a>
-                            </li>
-                            <li class="nav-item">
-                                <a href="<?= base_url('bantuan/bansos') ?>" class="nav-link <?= isMenuActive('bantuan/bansos') ? 'active' : '' ?>">
-                                    <?= nbs(5) ?>
-                                    <i class="fas fa-hands-helping nav-icon"></i>
-                                    <p>Bantuan Sosial</p>
-                                </a>
-                            </li>
-                            <li class="nav-item">
-                                <a href="<?= base_url('bantuan/barang') ?>" class="nav-link <?= isMenuActive('bantuan/barang') ? 'active' : '' ?>">
-                                    <?= nbs(5) ?>
-                                    <i class="fas fa-box-open nav-icon"></i>
-                                    <p>Barang diserahkan</p>
+                                    <i class="fas fa-keyboard nav-icon"></i>
+                                    <p>Input</p>
                                 </a>
                             </li>
                         </ul>

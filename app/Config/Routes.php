@@ -255,6 +255,15 @@ $routes->group('bantuan', ['namespace' => 'App\\Controllers', 'filter' => 'auth'
     $routes->get('barang/download/(:num)', 'BanmasBs::download/$1', ['as' => 'bantuan.barang.download']);
 });
 
+// ==================== Banmas (Bantuan Masyarakat) ====================
+$routes->group('banmas', ['namespace' => 'App\\Controllers', 'filter' => 'auth'], function ($routes) {
+    $routes->get('/', 'Banmas::index', ['as' => 'banmas.index']);
+    $routes->post('upload-data', 'Banmas::uploadData', ['as' => 'banmas.upload_data']);
+    $routes->post('save-doc-link', 'Banmas::saveDocLink', ['as' => 'banmas.save_doc_link']);
+    $routes->get('view/(:num)', 'Banmas::viewFile/$1', ['as' => 'banmas.view']);
+    $routes->post('delete/(:num)', 'Banmas::delete/$1', ['as' => 'banmas.delete']);
+});
+
 // ==================== PK (Rancangan Aksi Perubahan) ====================
 $routes->group('pk', ['namespace' => 'App\\Controllers', 'filter' => 'auth'], function ($routes) {
     $routes->get('/', 'Pg::pk', ['as' => 'pk.index']);
