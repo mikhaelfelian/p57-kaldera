@@ -18,7 +18,7 @@ CI_ENVIRONMENT = development
 #--------------------------------------------------------------------
 # APP
 #--------------------------------------------------------------------
-app.baseURL                     = 'http://localhost/kaldera'
+app.baseURL                     = 'http://localhost/p57-kaldera'
 app.name                        = 'Kaldera'
 app.version                     = '1.0.0'
 app.domain                      = 'kaldera.com'
@@ -34,7 +34,7 @@ app.CSPEnabled                  = false
 # DATABASE
 #--------------------------------------------------------------------
 database.default.hostname   = localhost
-database.default.database   = kaldera
+database.default.database   = db_p57_kaldera
 database.default.username   = root
 database.default.password   = 
 database.default.DBDriver   = MySQLi
@@ -93,3 +93,8 @@ logger.threshold = 0
 recaptcha.sitekey           = '6LfGMLMqAAAAAFiFBRqO_VRv_R9aihfNzGp7SBb1'
 recaptcha.secretkey         = '6LfGMLMqAAAAAPk13LbbBWB7v1aBdrjnn3CCD6nB'
 recaptcha.score             = 0.5
+
+#
+# API ENDPOINT
+#
+JWT_SECRET_KEY              = '6LfGMLMqAAAAAFiFBRqO_VRv_R9aihfNzGp7SBb1'
