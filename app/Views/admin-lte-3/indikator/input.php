@@ -190,18 +190,28 @@
                     <span aria-hidden="true">&times;</span>
                 </button>
             </div>
-            <form id="rencanaForm" onsubmit="return false;">
+            <form id="uploadRencanaForm" enctype="multipart/form-data">
                 <div class="modal-body">
                     <input type="hidden" name="jenis_indikator" id="rencana_jenis_indikator" value="">
+                    <div class="form-group">
+                        <label class="font-weight-bold">Jenis Indikator</label>
+                        <input type="text" class="form-control rounded-0" id="rencana_jenis_indikator_label" readonly>
+                    </div>
                     <div class="form-group">
                         <label class="font-weight-bold">Rencana Tindak Lanjut</label>
                         <textarea class="form-control rounded-0" id="rencana_tindak_lanjut" name="rencana_tindak_lanjut" rows="4"></textarea>
                     </div>
+                    <div class="form-group">
+                        <label class="font-weight-bold">File Rencana</label>
+                        <input type="file" class="form-control-file rounded-0" id="file_rencana" name="file" 
+                               accept=".xlsx,.xls,.pdf,.doc,.docx">
+                        <small class="form-text text-muted">Format yang diperbolehkan: Excel, PDF, Word</small>
+                    </div>
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary rounded-0" data-dismiss="modal">Batal</button>
-                    <button type="button" class="btn btn-info rounded-0">
-                        <i class="fas fa-save"></i> Simpan
+                    <button type="submit" class="btn btn-info rounded-0">
+                        <i class="fas fa-upload"></i> Upload
                     </button>
                 </div>
             </form>
@@ -359,8 +369,12 @@
         var label = $(this).data('label');
         
         $('#rencana_jenis_indikator').val(jenis);
+        $('#rencana_jenis_indikator_label').val(label);
         $('#rencana_tindak_lanjut').val('');
         $('#file_rencana').val('');
+        
+        // Reset upload button state
+        $('#uploadRencanaForm button[type="submit"]').prop('disabled', false).html('<i class="fas fa-upload"></i> Upload');
         
         $('#uploadRencanaModal').modal('show');
     });
@@ -434,6 +448,14 @@
                             'border-color': '#28a745',
                             'color': 'white'
                         });
+                        
+                        // Enable preview button if ID is returned
+                        if(res.id) {
+                            var row = button.closest('tr');
+                            var previewBtn = row.find('.preview-btn');
+                            previewBtn.data('id', res.id).prop('disabled', false)
+                                .removeClass('btn-warning').addClass('btn-default');
+                        }
                     }
                     if(window.toastr){ toastr.success(res.message || 'File catatan berhasil diupload'); }
                     
