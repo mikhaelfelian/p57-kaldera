@@ -104,8 +104,8 @@ $master = $masterData ?? [];
                         ];
                         $totalAnggaran = 0;
                         $totalRealisasi = 0;
+                        $totalSisa = 0;
                         ?>
-
                         <?php foreach ($rows as $key => $row): ?>
                             <?php
                             // Get anggaran from master data, fallback to existing data
@@ -117,6 +117,7 @@ $master = $masterData ?? [];
 
                             $totalAnggaran += $anggaran;
                             $totalRealisasi += $realisasi;
+                            $totalSisa = $totalSisa + $sisa;
                             ?>
                             <tr>
                                 <td class="font-weight-bold" style="background-color: #2f5f93; color: white;">
@@ -143,7 +144,6 @@ $master = $masterData ?? [];
 
                         <!-- TOTAL Row -->
                         <?php
-                        $totalSisa = $totalAnggaran - $totalRealisasi;
                         $totalPersen = $totalAnggaran > 0 ? ($totalRealisasi / $totalAnggaran) * 100 : 0;
                         $totalSisaPersen = $totalAnggaran > 0 ? ($totalSisa / $totalAnggaran) * 100 : 0;
                         ?>
@@ -266,14 +266,14 @@ $master = $masterData ?? [];
             });
 
             // Update totals
-            var totalSisa = totalAnggaran - totalRealisasi;
-            var totalPersen = totalAnggaran > 0 ? (totalRealisasi / totalAnggaran) * 100 : 0;
-            var totalSisaPersen = totalAnggaran > 0 ? (totalSisa / totalAnggaran) * 100 : 0;
+            // var totalSisa = totalAnggaran - totalRealisasi;
+            // var totalPersen = totalAnggaran > 0 ? (totalRealisasi / totalAnggaran) * 100 : 0;
+            // var totalSisaPersen = totalAnggaran > 0 ? (totalSisa / totalAnggaran) * 100 : 0;
 
-            $('#totalRealisasi').text(formatCurrencyRp(totalRealisasi));
-            $('#totalPersen').text(totalPersen.toFixed(2));
-            $('#totalSisa').text(formatCurrencyRp(totalSisa));
-            $('#totalSisaPersen').text(totalSisaPersen.toFixed(2));
+            // $('#totalRealisasi').text(formatCurrencyRp(totalRealisasi));
+            // $('#totalPersen').text(totalPersen.toFixed(2));
+            // $('#totalSisa').text(formatCurrencyRp(totalSisa));
+            // $('#totalSisaPersen').text(totalSisaPersen.toFixed(2));
         }
 
         // Initialize jQuery number formatting for inputs (library loaded in main layout)
