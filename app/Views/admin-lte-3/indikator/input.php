@@ -1180,6 +1180,80 @@ $indikatorList = $indikatorList ?? [];
             });
         });
 
+        // Selesai hasil tindak lanjut button click handler
+        $(document).on('click', '#selesaiHasilBtn', function () {
+            var btn = $(this);
+            var originalText = btn.html();
+            
+            // Disable button and show loading
+            btn.prop('disabled', true).html('<i class="fas fa-spinner fa-spin"></i> Menyimpan...');
+            
+            // Save new verifikators (if any)
+            saveHasilTindakLanjutNames().then(function(res) {
+                if (res && res.csrf_hash) { csrfHash = res.csrf_hash; }
+                
+                // Close modal
+                $('#hasilTindakLanjutModal').modal('hide');
+                
+                // Show success message
+                if (window.toastr) {
+                    toastr.success('Data hasil tindak lanjut berhasil disimpan');
+                }
+            }).catch(function(xhr) {
+                // Re-enable button on error
+                btn.prop('disabled', false).html(originalText);
+                
+                try {
+                    var data = JSON.parse(xhr.responseText);
+                    if (data && data.csrf_hash) { csrfHash = data.csrf_hash; }
+                    if (window.toastr) { 
+                        toastr.error(data.message || 'Gagal menyimpan data'); 
+                    }
+                } catch (e) {
+                    if (window.toastr) { 
+                        toastr.error('Gagal menyimpan data'); 
+                    }
+                }
+            });
+        });
+
+        // Save hasil tindak lanjut names only when adding new verifikators without files
+        function saveHasilTindakLanjutNames() {
+            // Collect only NEW verifikators (without verif_id) that haven't uploaded files yet
+            var newVerifikators = [];
+            $('.hasil-tindak-lanjut-row').each(function() {
+                var verifId = $(this).data('verif-id');
+                var verifikatorName = $(this).find('input[name="hasil_verifikator[]"]').val();
+                
+                // Only include new verifikators that don't have an ID yet
+                if (!verifId && verifikatorName.trim() !== '') {
+                    newVerifikators.push({
+                        nama: verifikatorName.trim()
+                    });
+                }
+            });
+
+            // Only save if there are new verifikators
+            if (newVerifikators.length === 0) {
+                return Promise.resolve(); // Nothing to save
+            }
+
+            var formData = {
+                tahun: <?= $tahun ?>,
+                triwulan: <?= $triwulan ?>,
+                jenis_indikator: $('#hasil_jenis_indikator').val(),
+                verifikator_data: JSON.stringify(newVerifikators)
+            };
+            formData[csrfTokenName] = csrfHash;
+
+            return $.ajax({
+                url: '<?= base_url('indikator/input/upload-rencana') ?>',
+                type: 'POST',
+                data: formData,
+                dataType: 'json'
+            });
+        }
+
         // Save button
         $('#btnSave').on('click', function () {
             var formData = {
