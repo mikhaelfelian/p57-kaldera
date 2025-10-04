@@ -265,14 +265,16 @@ $routes->group('banmas', ['namespace' => 'App\\Controllers', 'filter' => 'auth']
     $routes->get('get-data', 'Banmas::getData', ['as' => 'banmas.get_data']);
 });
 
-// ==================== PK (Rancangan Aksi Perubahan) ====================
-$routes->group('pk', ['namespace' => 'App\\Controllers', 'filter' => 'auth'], function ($routes) {
-    $routes->get('/', 'Pg::pk', ['as' => 'pk.index']);
-    $routes->post('save', 'Pg::save', ['as' => 'pk.save']);
-    $routes->post('upload', 'Pg::upload', ['as' => 'pk.upload']);
-    $routes->get('preview/(:num)', 'Pg::preview/$1', ['as' => 'pk.preview']);
-    $routes->get('download/(:num)', 'Pg::download/$1', ['as' => 'pk.download']);
+// ==================== Prokons (Progres Konsultasi) ====================
+$routes->group('prokons', ['namespace' => 'App\\Controllers', 'filter' => 'auth'], function ($routes) {
+    $routes->get('/', 'Prokons::index', ['as' => 'prokons.index']);
+    $routes->post('upload-data', 'Prokons::uploadData', ['as' => 'prokons.upload_data']);
+    $routes->post('save-doc-link', 'Prokons::saveDocLink', ['as' => 'prokons.save_doc_link']);
+    $routes->get('view/(:num)', 'Prokons::viewFile/$1', ['as' => 'prokons.view']);
+    $routes->post('delete/(:num)', 'Prokons::delete/$1', ['as' => 'prokons.delete']);
+    $routes->get('get-data', 'Prokons::getData', ['as' => 'prokons.get_data']);
 });
+
 
 // ==================== PT Master UKP ====================
 $routes->group('pt', ['namespace' => 'App\\Controllers', 'filter' => 'auth'], function ($routes) {

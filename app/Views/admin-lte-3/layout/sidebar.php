@@ -255,7 +255,7 @@
                         </a>
                         <ul class="nav nav-treeview">
                             <li class="nav-item">
-                                <a href="<?= base_url('banmas') ?>" class="nav-link <?= isMenuActive('bantuan/hibah') ? 'active' : '' ?>">
+                                <a href="<?= base_url('banmas') ?>" class="nav-link <?= isMenuActive('banmas') ? 'active' : '' ?>">
                                     <?= nbs(5) ?>
                                     <i class="fas fa-keyboard nav-icon"></i>
                                     <p>Input</p>
@@ -263,19 +263,19 @@
                             </li>
                         </ul>
                     </li>
-                    <li class="nav-item has-treeview <?= isMenuActive(['pk']) ? 'menu-open' : '' ?>">
-                        <a href="#" class="nav-link <?= isMenuActive(['pk']) ? 'active' : '' ?>">
-                            <i class="nav-icon fas fa-project-diagram"></i>
+                    <li class="nav-item has-treeview <?= isMenuActive(['prokons']) ? 'menu-open' : '' ?>">
+                        <a href="#" class="nav-link <?= isMenuActive(['prokons']) ? 'active' : '' ?>">
+                            <i class="nav-icon fas fa-chart-line"></i>
                             <p>
-                                Progres Konsultansi
+                                Progres Konsultasi
                                 <i class="right fas fa-angle-left"></i>
                             </p>
                         </a>
                         <ul class="nav nav-treeview">
                             <li class="nav-item">
-                                <a href="<?= base_url('pk') ?>" class="nav-link <?= isMenuActive('pk') ? 'active' : '' ?>">
-                                    <?= nbs(3) ?>
-                                    <i class="fas fa-plus nav-icon"></i>
+                                <a href="<?= base_url('prokons') ?>" class="nav-link <?= isMenuActive('prokons') ? 'active' : '' ?>">
+                                    <?= nbs(5) ?>
+                                    <i class="fas fa-keyboard nav-icon"></i>
                                     <p>Input</p>
                                 </a>
                             </li>
