@@ -24,7 +24,7 @@
                             <label for="month">Bulan</label>
                             <select id="month" name="month" class="form-control rounded-0" required>
                                 <?php for ($m = 1; $m <= 12; $m++): $v = str_pad($m, 2, '0', STR_PAD_LEFT); ?>
-                                    <option value="<?= $v ?>"><?= $v ?> = <?= bulan_ke_str($m) ?></option>
+                                    <option value="<?= $v ?>"><?= bulan_ke_str($m) ?></option>
                                 <?php endfor; ?>
                             </select>
                         </div>
