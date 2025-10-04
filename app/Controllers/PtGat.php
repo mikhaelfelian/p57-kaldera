@@ -5,7 +5,7 @@ namespace App\Controllers;
 use App\Models\UnitKerjaModel;
 use App\Models\PtModel;
 
-class PtMinerba extends BaseController
+class PtGat extends BaseController
 {
     protected $unitKerjaModel;
     protected $ptModel;
@@ -27,7 +27,7 @@ class PtMinerba extends BaseController
         $unitKerjaList = $this->unitKerjaModel->where('status', 'Aktif')->findAll();
 
         // Get existing data for this periode
-        $existingData = $this->ptModel->getByPeriode($year, $bulan, 'minerba');
+        $existingData = $this->ptModel->getByPeriode($year, $bulan, 'gat');
 
         // Create a map of existing data by unit kerja name
         $existingMap = [];
@@ -36,14 +36,14 @@ class PtMinerba extends BaseController
         }
 
         $data = [
-            'title' => 'Persetujuan Teknis - Minerba',
+            'title' => 'Persetujuan Teknis - GAT',
             'year' => (int)$year,
             'bulan' => (int)$bulan,
             'unitKerjaList' => $unitKerjaList,
             'existingData' => $existingMap
         ];
 
-        return $this->view($this->theme->getThemePath() . '/pt-minerba/input', $data);
+        return $this->view($this->theme->getThemePath() . '/pt-gat/input', $data);
     }
 
     public function saveData()
@@ -74,7 +74,7 @@ class PtMinerba extends BaseController
                 $saveData = [
                     'tahun' => $tahun,
                     'bulan' => $bulan,
-                    'sektor' => 'minerba',
+                    'sektor' => 'gat',
                     'unit_kerja_id' => $row['unit_kerja_id'] ?? null,
                     'unit_kerja_nama' => $row['unit_kerja_nama'],
                     'permohonan_masuk' => (int)($row['permohonan_masuk'] ?? 0),
@@ -96,7 +96,7 @@ class PtMinerba extends BaseController
             ]);
 
         } catch (\Exception $e) {
-            log_message('error', 'Error saving PT data: ' . $e->getMessage());
+            log_message('error', 'Error saving PT GAT data: ' . $e->getMessage());
             return $this->response->setJSON([
                 'ok' => false,
                 'message' => 'Gagal menyimpan data: ' . $e->getMessage(),
@@ -113,10 +113,10 @@ class PtMinerba extends BaseController
         $bulan = $this->request->getGet('bulan') ?? date('n');
 
         // Get data for this periode
-        $rekapData = $this->ptModel->getByPeriode($year, $bulan, 'minerba');
+        $rekapData = $this->ptModel->getByPeriode($year, $bulan, 'gat');
 
         // Get totals
-        $totalsData = $this->ptModel->getTotals($year, $bulan, 'minerba');
+        $totalsData = $this->ptModel->getTotals($year, $bulan, 'gat');
 
         // Calculate chart data
         $total = (int)($totalsData->total_permohonan_masuk ?? 0);
@@ -133,7 +133,7 @@ class PtMinerba extends BaseController
         ];
 
         $data = [
-            'title' => 'Rekap Persetujuan Teknis - Minerba',
+            'title' => 'Rekap Persetujuan Teknis - GAT',
             'year' => (int)$year,
             'bulan' => (int)$bulan,
             'rekapData' => $rekapData,
@@ -141,7 +141,7 @@ class PtMinerba extends BaseController
             'chartData' => $chartData
         ];
 
-        return $this->view($this->theme->getThemePath() . '/pt-minerba/rekap', $data);
+        return $this->view($this->theme->getThemePath() . '/pt-gat/rekap', $data);
     }
 
     public function exportExcel()

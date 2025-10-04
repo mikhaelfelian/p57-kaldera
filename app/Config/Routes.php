@@ -317,6 +317,47 @@ $routes->group('pt-minerba', ['namespace' => 'App\Controllers', 'filter' => 'aut
     // PT Minerba Input page
     $routes->get('input', 'PtMinerba::index', ['as' => 'pt-minerba.input']);
     $routes->post('save-data', 'PtMinerba::saveData', ['as' => 'pt-minerba.save_data']);
+    
+    // PT Minerba Rekap page
+    $routes->get('rekap', 'PtMinerba::rekap', ['as' => 'pt-minerba.rekap']);
+    $routes->get('rekap/export-excel', 'PtMinerba::exportExcel', ['as' => 'pt-minerba.export_excel']);
+    $routes->get('rekap/export-pdf', 'PtMinerba::exportPdf', ['as' => 'pt-minerba.export_pdf']);
+});
+
+// ==================== PT GAT ====================
+$routes->group('pt-gat', ['namespace' => 'App\Controllers', 'filter' => 'auth'], function ($routes) {
+    // PT GAT Input page
+    $routes->get('input', 'PtGat::index', ['as' => 'pt-gat.input']);
+    $routes->post('save-data', 'PtGat::saveData', ['as' => 'pt-gat.save_data']);
+    
+    // PT GAT Rekap page
+    $routes->get('rekap', 'PtGat::rekap', ['as' => 'pt-gat.rekap']);
+    $routes->get('rekap/export-excel', 'PtGat::exportExcel', ['as' => 'pt-gat.export_excel']);
+    $routes->get('rekap/export-pdf', 'PtGat::exportPdf', ['as' => 'pt-gat.export_pdf']);
+});
+
+// ==================== PT Gatrik ====================
+$routes->group('pt-gatrik', ['namespace' => 'App\Controllers', 'filter' => 'auth'], function ($routes) {
+    // PT Gatrik Input page
+    $routes->get('input', 'PtGatrik::index', ['as' => 'pt-gatrik.input']);
+    $routes->post('save-data', 'PtGatrik::saveData', ['as' => 'pt-gatrik.save_data']);
+    
+    // PT Gatrik Rekap page
+    $routes->get('rekap', 'PtGatrik::rekap', ['as' => 'pt-gatrik.rekap']);
+    $routes->get('rekap/export-excel', 'PtGatrik::exportExcel', ['as' => 'pt-gatrik.export_excel']);
+    $routes->get('rekap/export-pdf', 'PtGatrik::exportPdf', ['as' => 'pt-gatrik.export_pdf']);
+});
+
+// ==================== PT EBT ====================
+$routes->group('pt-ebt', ['namespace' => 'App\Controllers', 'filter' => 'auth'], function ($routes) {
+    // PT EBT Input page
+    $routes->get('input', 'PtEbt::index', ['as' => 'pt-ebt.input']);
+    $routes->post('save-data', 'PtEbt::saveData', ['as' => 'pt-ebt.save_data']);
+    
+    // PT EBT Rekap page
+    $routes->get('rekap', 'PtEbt::rekap', ['as' => 'pt-ebt.rekap']);
+    $routes->get('rekap/export-excel', 'PtEbt::exportExcel', ['as' => 'pt-ebt.export_excel']);
+    $routes->get('rekap/export-pdf', 'PtEbt::exportPdf', ['as' => 'pt-ebt.export_pdf']);
 });
 
 // ==================== Utility/Test ====================
