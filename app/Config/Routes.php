@@ -209,6 +209,11 @@ $routes->group('indikator', ['namespace' => 'App\\Controllers', 'filter' => 'aut
     $routes->post('input/save', 'IndikatorInput::save', ['as' => 'indikator.input.save']);
     $routes->post('input/upload-catatan', 'IndikatorInput::uploadCatatan', ['as' => 'indikator.input.upload_catatan']);
     $routes->post('input/upload-rencana', 'IndikatorInput::uploadRencana', ['as' => 'indikator.input.upload_rencana']);
+    $routes->post('input/upload-verifikator-file', 'IndikatorInput::uploadVerifikatorFile', ['as' => 'indikator.input.upload_verifikator_file']);
+    $routes->post('input/update-verifikasi', 'IndikatorInput::updateVerifikasi', ['as' => 'indikator.input.update_verifikasi']);
+    $routes->get('input/get-verifikator', 'IndikatorInput::getVerifikatorData', ['as' => 'indikator.input.get_verifikator']);
+    $routes->get('input/preview-verifikator-file/(:num)/(:alpha)', 'IndikatorInput::previewVerifikatorFile/$1/$2', ['as' => 'indikator.input.preview_verifikator_file']);
+    $routes->get('input/download-verifikator-file/(:num)/(:alpha)', 'IndikatorInput::downloadVerifikatorFile/$1/$2', ['as' => 'indikator.input.download_verifikator_file']);
     $routes->get('input/preview/(:num)', 'IndikatorInput::preview/$1', ['as' => 'indikator.input.preview']);
     $routes->get('input/download-catatan/(:num)', 'IndikatorInput::downloadCatatan/$1', ['as' => 'indikator.input.download_catatan']);
     $routes->get('input/download-rencana/(:num)', 'IndikatorInput::downloadRencana/$1', ['as' => 'indikator.input.download_rencana']);

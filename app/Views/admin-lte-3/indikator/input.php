@@ -101,12 +101,25 @@ $indikatorList = $indikatorList ?? [];
                                 </span>
                             </td>
                             <td class="text-center">
-                                <div class="btn-group" role="group" aria-label="Verifikasi">
-                                    <button type="button" class="btn btn-success btn-sm rounded-0" title="Sesuai"
+                                <?php 
+                                $statusVerifikasi = $data['status_verifikasi_bidang'] ?? 'Belum Diperiksa';
+                                $isSesuai = $statusVerifikasi === 'Sesuai';
+                                $isTidakSesuai = $statusVerifikasi === 'Tidak Sesuai';
+                                ?>
+                                <div class="btn-group verifikasi-group" role="group" aria-label="Verifikasi" data-jenis="<?= $key ?>">
+                                    <button type="button" 
+                                        class="btn btn-sm rounded-0 btn-verifikasi-sesuai <?= $isSesuai ? 'btn-success' : 'btn-outline-success' ?>" 
+                                        title="Sesuai"
+                                        data-jenis="<?= $key ?>"
+                                        data-status="Sesuai"
                                         style="border-top-right-radius: 0; border-bottom-right-radius: 0;">
                                         <i class="fas fa-check"></i>
                                     </button>
-                                    <button type="button" class="btn btn-danger btn-sm rounded-0" title="Tidak Sesuai"
+                                    <button type="button" 
+                                        class="btn btn-sm rounded-0 btn-verifikasi-tidak-sesuai <?= $isTidakSesuai ? 'btn-danger' : 'btn-outline-danger' ?>" 
+                                        title="Tidak Sesuai"
+                                        data-jenis="<?= $key ?>"
+                                        data-status="Tidak Sesuai"
                                         style="border-top-left-radius: 0; border-bottom-left-radius: 0;">
                                         <i class="fas fa-times"></i>
                                     </button>
@@ -114,8 +127,9 @@ $indikatorList = $indikatorList ?? [];
                             </td>
                             <td class="text-center align-middle" style="vertical-align: middle;">
                                 <button type="button"
-                                    class="btn btn-warning btn-sm rounded-0 d-flex justify-content-center align-items-center mx-auto"
-                                    style="height: 38px; width: 38px;">
+                                    class="btn btn-warning btn-sm rounded-0 d-flex justify-content-center align-items-center mx-auto verifikasi-bidang-btn"
+                                    style="height: 38px; width: 38px;"
+                                    data-jenis="<?= $key ?>" data-label="<?= $label ?>">
                                     <i class="fas fa-check mx-auto" style="display: block; margin: 0 auto;"></i>
                                 </button>
                             </td>
@@ -129,18 +143,6 @@ $indikatorList = $indikatorList ?? [];
                             </td>
                             <td class="text-center align-middle" style="vertical-align: middle;">
                                 <?php if ($hasData): ?>
-                                    <button type="button"
-                                        class="btn btn-default btn-sm rounded-0 preview-btn d-flex justify-content-center align-items-center mx-auto"
-                                        data-id="<?= $data['id'] ?>" data-jenis="<?= $key ?>"
-                                        style="height: 38px; width: 38px;">
-                                        <i class="fas fa-print mx-auto" style="display: block; margin: 0 auto;"></i>
-                                    </button>
-                                    <button type="button"
-                                        class="btn btn-default btn-sm rounded-0 preview-btn d-flex justify-content-center align-items-center mx-auto"
-                                        data-id="<?= $data['id'] ?>" data-jenis="<?= $key ?>"
-                                        style="height: 38px; width: 38px;">
-                                        <i class="fas fa-print mx-auto" style="display: block; margin: 0 auto;"></i>
-                                    </button>
                                     <button type="button"
                                         class="btn btn-default btn-sm rounded-0 preview-btn d-flex justify-content-center align-items-center mx-auto"
                                         data-id="<?= $data['id'] ?>" data-jenis="<?= $key ?>"
@@ -221,29 +223,45 @@ $indikatorList = $indikatorList ?? [];
 </div>
 
 <!-- Upload Rencana Modal -->
-<div class="modal fade" id="uploadRencanaModal" tabindex="-1" role="dialog" aria-labelledby="uploadRencanaModalLabel"
+<div class="modal fade" id="verifikasiBidangModal" tabindex="-1" role="dialog" aria-labelledby="verifikasiBidangModalLabel"
     aria-hidden="true">
-    <div class="modal-dialog modal-lg" role="document">
+    <div class="modal-dialog modal-xl" role="document">
         <div class="modal-content rounded-0">
             <div class="modal-header" style="background-color: #3b6ea8; color: white;">
-                <h5 class="modal-title" id="uploadRencanaModalLabel">Upload Rencana Tindak Lanjut</h5>
+                <h5 class="modal-title" id="verifikasiBidangModalLabel">Verifikasi Bidang</h5>
                 <button type="button" class="close" data-dismiss="modal" aria-label="Close" style="color: white;">
                     <span aria-hidden="true">&times;</span>
                 </button>
             </div>
-            <form id="rencanaForm" onsubmit="return false;">
+            <form id="verifikasiBidangForm">
                 <div class="modal-body">
                     <input type="hidden" name="jenis_indikator" id="rencana_jenis_indikator" value="">
-                    <div class="form-group">
-                        <label class="font-weight-bold">Rencana Tindak Lanjut</label>
-                        <textarea class="form-control rounded-0" id="rencana_tindak_lanjut" name="rencana_tindak_lanjut"
-                            rows="4"></textarea>
+                    
+                    <div class="table-responsive">
+                        <table class="table table-bordered" id="verifikatorTable">
+                            <thead style="background-color: #3b6ea8; color: white;">
+                                <tr>
+                                    <th style="width: 30%; vertical-align: middle;">Verifikator</th>
+                                    <th class="text-center" style="width: 30%; vertical-align: middle;">Hasil Verifikasi</th>
+                                    <th class="text-center" style="width: 30%; vertical-align: middle;">Rencana Tindak Lanjut</th>
+                                    <th class="text-center" style="width: 10%; vertical-align: middle;">Aksi</th>
+                                </tr>
+                            </thead>
+                            <tbody id="verifikatorTableBody">
+                                <!-- Rows will be dynamically added here -->
+                            </tbody>
+                        </table>
+                    </div>
+                    
+                    <div class="text-left mb-3">
+                        <button type="button" class="btn btn-primary btn-sm rounded-0" id="addRowBtn">
+                            <i class="fas fa-plus"></i> Tambah Baris
+                        </button>
                     </div>
                 </div>
                 <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary rounded-0" data-dismiss="modal">Batal</button>
-                    <button type="button" class="btn btn-info rounded-0">
-                        <i class="fas fa-save"></i> Simpan
+                    <button type="button" class="btn btn-info rounded-0" id="selesaiBtn">
+                        <i class="fas fa-check"></i> Selesai
                     </button>
                 </div>
             </form>
@@ -251,78 +269,149 @@ $indikatorList = $indikatorList ?? [];
     </div>
 </div>
 
-<!-- Preview Modal -->
-<div class="modal fade" id="previewModal" tabindex="-1" role="dialog" aria-labelledby="previewModalLabel"
+<!-- Hasil Tindak Lanjut Modal -->
+<div class="modal fade" id="hasilTindakLanjutModal" tabindex="-1" role="dialog" aria-labelledby="hasilTindakLanjutModalLabel"
     aria-hidden="true">
-    <div class="modal-dialog modal-lg" role="document">
+    <div class="modal-dialog modal-xl" role="document">
         <div class="modal-content rounded-0">
             <div class="modal-header" style="background-color: #3b6ea8; color: white;">
-                <h5 class="modal-title" id="previewModalLabel">Preview Data Indikator</h5>
+                <h5 class="modal-title" id="hasilTindakLanjutModalLabel">Hasil Tindak Lanjut</h5>
                 <button type="button" class="close" data-dismiss="modal" aria-label="Close" style="color: white;">
                     <span aria-hidden="true">&times;</span>
                 </button>
             </div>
+            <form id="hasilTindakLanjutForm">
             <div class="modal-body">
-                <div class="row">
-                    <div class="col-md-6">
-                        <div class="form-group">
-                            <label class="font-weight-bold">Jenis Indikator</label>
-                            <p id="preview_jenis_indikator" class="form-control-plaintext"></p>
+                    <input type="hidden" name="jenis_indikator" id="hasil_jenis_indikator" value="">
+                    
+                    <div class="table-responsive">
+                        <table class="table table-bordered" id="hasilTindakLanjutTable">
+                            <thead style="background-color: #3b6ea8; color: white;">
+                                <tr>
+                                    <th style="width: 50%; vertical-align: middle;">Verifikator</th>
+                                    <th class="text-center" style="width: 50%; vertical-align: middle;">Hasil Tindak Lanjut</th>
+                                </tr>
+                            </thead>
+                            <tbody id="hasilTindakLanjutTableBody">
+                                <!-- Rows will be dynamically added here -->
+                            </tbody>
+                        </table>
                         </div>
+                    
+                    <div class="text-left mb-3">
+                        <button type="button" class="btn btn-primary btn-sm rounded-0" id="addHasilRowBtn">
+                            <i class="fas fa-plus"></i> Tambah Baris
+                        </button>
                     </div>
-                    <div class="col-md-6">
-                        <div class="form-group">
-                            <label class="font-weight-bold">Triwulan</label>
-                            <p id="preview_triwulan" class="form-control-plaintext"></p>
                         </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-info rounded-0" id="selesaiHasilBtn">
+                        <i class="fas fa-check"></i> Selesai
+                    </button>
                     </div>
+            </form>
                 </div>
+                </div>
+</div>
+
+<!-- Upload Verifikator File Modal -->
+<div class="modal fade" id="uploadVerifikatorFileModal" tabindex="-1" role="dialog" aria-labelledby="uploadVerifikatorFileModalLabel"
+    aria-hidden="true">
+    <div class="modal-dialog modal-lg" role="document">
+        <div class="modal-content rounded-0">
+            <div class="modal-header" style="background-color: #3b6ea8; color: white;">
+                <h5 class="modal-title" id="uploadVerifikatorFileModalLabel">Upload File Verifikator</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close" style="color: white;">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <form id="uploadVerifikatorFileForm" enctype="multipart/form-data">
+                <div class="modal-body">
+                    <input type="hidden" id="verif_id" name="verif_id" value="">
+                    <input type="hidden" id="verif_type" name="verif_type" value="">
+                    <input type="hidden" id="verif_tahun" name="verif_tahun" value="">
+                    <input type="hidden" id="verif_triwulan" name="verif_triwulan" value="">
+                    <input type="hidden" id="verif_jenis_indikator" name="verif_jenis_indikator" value="">
+                    <input type="hidden" id="verif_nama" name="verif_nama" value="">
+                    
+                    <div class="alert alert-info rounded-0">
+                        <i class="fas fa-info-circle"></i> Upload file untuk: <strong id="verif_info_text"></strong>
+                    </div>
+
                 <div class="form-group">
-                    <label class="font-weight-bold">Catatan Indikator</label>
-                    <p id="preview_catatan_indikator" class="form-control-plaintext"></p>
+                        <label class="font-weight-bold">Nama Verifikator</label>
+                        <input type="text" class="form-control rounded-0" id="display_verif_nama" readonly>
                 </div>
-                <div class="form-group">
-                    <label class="font-weight-bold">Rencana Tindak Lanjut</label>
-                    <p id="preview_rencana_tindak_lanjut" class="form-control-plaintext"></p>
-                </div>
-                <div class="row">
-                    <div class="col-md-6">
+
                         <div class="form-group">
-                            <label class="font-weight-bold">File Catatan</label>
-                            <p id="preview_file_catatan" class="form-control-plaintext"></p>
+                        <label class="font-weight-bold">Pilih File <span class="text-danger">*</span></label>
+                        <div class="custom-file">
+                            <input type="file" class="custom-file-input" id="verif_file" name="file" 
+                                accept=".pdf,.doc,.docx,.xls,.xlsx,.jpg,.jpeg,.png" required>
+                            <label class="custom-file-label rounded-0" for="verif_file">Pilih file...</label>
+                        </div>
+                        <small class="form-text text-muted">
+                            Format yang diperbolehkan: PDF, Word, Excel, atau gambar (JPG, PNG). Maksimal 10MB.
+                        </small>
+                    </div>
+
+                    <div id="current_file_info" style="display: none;">
+                        <div class="alert alert-success rounded-0">
+                            <i class="fas fa-file"></i> File saat ini: <strong id="current_file_name"></strong>
+                            <br>
+                            <small>File baru akan menggantikan file yang ada.</small>
                         </div>
                     </div>
-                    <div class="col-md-6">
-                        <div class="form-group">
-                            <label class="font-weight-bold">File Rencana</label>
-                            <p id="preview_file_rencana" class="form-control-plaintext"></p>
-                        </div>
-                    </div>
                 </div>
-                <div class="row">
-                    <div class="col-md-6">
-                        <div class="form-group">
-                            <label class="font-weight-bold">Uploaded At</label>
-                            <p id="preview_uploaded_at" class="form-control-plaintext"></p>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary rounded-0" data-dismiss="modal">Batal</button>
+                    <button type="submit" class="btn btn-primary rounded-0">
+                        <i class="fas fa-upload"></i> Upload
+                    </button>
                         </div>
+            </form>
                     </div>
-                    <div class="col-md-6">
-                        <div class="form-group">
-                            <label class="font-weight-bold">Actions</label>
-                            <div>
-                                <button type="button" class="btn btn-primary btn-sm rounded-0" id="downloadCatatanBtn">
-                                    <i class="fas fa-download"></i> Download Catatan
-                                </button>
-                                <button type="button" class="btn btn-info btn-sm rounded-0" id="downloadRencanaBtn">
-                                    <i class="fas fa-download"></i> Download Rencana
+    </div>
+</div>
+
+<!-- Preview File Modal -->
+<div class="modal fade" id="previewFileModal" tabindex="-1" role="dialog" aria-labelledby="previewFileModalLabel"
+    aria-hidden="true">
+    <div class="modal-dialog modal-xl" role="document">
+        <div class="modal-content rounded-0">
+            <div class="modal-header" style="background-color: #3b6ea8; color: white;">
+                <h5 class="modal-title" id="previewFileModalLabel">
+                    <i class="fas fa-eye"></i> Preview File: <span id="preview_file_title"></span>
+                </h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close" style="color: white;">
+                    <span aria-hidden="true">&times;</span>
                                 </button>
                             </div>
+            <div class="modal-body p-0">
+                <div id="preview_loading" class="text-center py-5">
+                    <i class="fas fa-spinner fa-spin fa-3x text-primary"></i>
+                    <p class="mt-3">Loading file...</p>
                         </div>
+                <div id="preview_error" style="display: none;" class="alert alert-danger m-3 rounded-0">
+                    <i class="fas fa-exclamation-triangle"></i> <span id="preview_error_message"></span>
                     </div>
+                <div id="preview_content" style="display: none;">
+                    <iframe id="preview_iframe" style="width: 100%; height: 600px; border: none;"></iframe>
+                </div>
+                <div id="preview_download_notice" style="display: none;" class="alert alert-info m-3 rounded-0">
+                    <i class="fas fa-info-circle"></i> 
+                    File ini tidak dapat ditampilkan di browser. Silakan download untuk melihat isi file.
+                    <br>
+                    <button type="button" class="btn btn-primary btn-sm rounded-0 mt-2" id="preview_download_btn">
+                        <i class="fas fa-download"></i> Download File
+                    </button>
                 </div>
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-secondary rounded-0" data-dismiss="modal">Tutup</button>
+                <button type="button" class="btn btn-primary rounded-0" id="preview_download_btn_footer">
+                    <i class="fas fa-download"></i> Download
+                </button>
             </div>
         </div>
     </div>
@@ -371,6 +460,68 @@ $indikatorList = $indikatorList ?? [];
         border: 1px solid #ced4da;
         border-radius: 0.25rem;
     }
+
+    .btn-verifikasi-sesuai,
+    .btn-verifikasi-tidak-sesuai {
+        min-width: 45px;
+        transition: all 0.3s ease;
+    }
+
+    .btn-outline-success {
+        color: #28a745;
+        border-color: #28a745;
+        background-color: transparent;
+    }
+
+    .btn-outline-success:hover {
+        color: #fff;
+        background-color: #28a745;
+        border-color: #28a745;
+    }
+
+    .btn-outline-danger {
+        color: #dc3545;
+        border-color: #dc3545;
+        background-color: transparent;
+    }
+
+    .btn-outline-danger:hover {
+        color: #fff;
+        background-color: #dc3545;
+        border-color: #dc3545;
+    }
+
+    .verifikasi-group .btn:disabled {
+        opacity: 0.6;
+        cursor: not-allowed;
+    }
+
+    /* Verifikator Table Styles */
+    #verifikatorTable {
+        margin-bottom: 0;
+    }
+
+    #verifikatorTable thead th {
+        border: 1px solid #dee2e6;
+    }
+
+    #verifikatorTable tbody td {
+        vertical-align: middle;
+    }
+
+    #verifikatorTable .verifikator-row input[type="text"] {
+        border: 1px solid #ced4da;
+    }
+
+    #verifikatorTable .verifikator-row input[type="text"]:focus {
+        border-color: #3b6ea8;
+        box-shadow: 0 0 0 0.2rem rgba(59, 110, 168, 0.25);
+    }
+
+    .remove-row-btn:hover {
+        background-color: #c82333 !important;
+        border-color: #bd2130 !important;
+    }
 </style>
 <?= $this->endSection() ?>
 
@@ -379,7 +530,7 @@ $indikatorList = $indikatorList ?? [];
     (function () {
         var csrfToken = '<?= csrf_token() ?>';
         var csrfHash = '<?= csrf_hash() ?>';
-        var csrfTokenName = '<?= config('Security')->tokenName ?>';
+        var csrfTokenName = '<?= service('security')->getTokenName() ?>';
         var currentDataId = null;
 
         // Upload Catatan button click
@@ -398,16 +549,460 @@ $indikatorList = $indikatorList ?? [];
             $('#uploadCatatanModal').modal('show');
         });
 
-        // Upload Rencana button click
-        $(document).on('click', '.upload-rencana-btn', function () {
+        // Verifikasi Bidang button click
+        $(document).on('click', '.verifikasi-bidang-btn', function () {
             var jenis = $(this).data('jenis');
             var label = $(this).data('label');
 
             $('#rencana_jenis_indikator').val(jenis);
-            $('#rencana_tindak_lanjut').val('');
-            $('#file_rencana').val('');
+            
+            // Load existing data or use defaults
+            loadVerifikatorData(jenis);
 
-            $('#uploadRencanaModal').modal('show');
+            $('#verifikasiBidangModal').modal('show');
+        });
+
+        // Hasil Tindak Lanjut button click
+        $(document).on('click', '.upload-rencana-btn', function () {
+            var jenis = $(this).data('jenis');
+            var label = $(this).data('label');
+
+            $('#hasil_jenis_indikator').val(jenis);
+            
+            // Load existing data or use defaults
+            loadHasilTindakLanjutData(jenis);
+
+            $('#hasilTindakLanjutModal').modal('show');
+        });
+
+        // Load verifikator data from database or use defaults
+        function loadVerifikatorData(jenisIndikator) {
+            var tbody = $('#verifikatorTableBody');
+            tbody.empty();
+            tbody.append('<tr><td colspan="4" class="text-center">Loading...</td></tr>');
+
+            $.ajax({
+                url: '<?= base_url('indikator/input/get-verifikator') ?>',
+                type: 'GET',
+                data: {
+                    tahun: <?= $tahun ?>,
+                    triwulan: <?= $triwulan ?>,
+                    jenis_indikator: jenisIndikator
+                },
+                dataType: 'json',
+                success: function (res) {
+                    tbody.empty();
+                    
+                    if (res && res.ok && res.data && res.data.length > 0) {
+                        // Load existing data from database
+                        res.data.forEach(function(verif) {
+                            addVerifikatorRow(verif.nama_verifikator, verif);
+                        });
+                    } else {
+                        // Use default verifikators
+                        resetVerifikatorTable();
+                    }
+                },
+                error: function () {
+                    tbody.empty();
+                    // Use default verifikators on error
+                    resetVerifikatorTable();
+                }
+            });
+        }
+
+        // Load hasil tindak lanjut data from database or use defaults
+        function loadHasilTindakLanjutData(jenisIndikator) {
+            var tbody = $('#hasilTindakLanjutTableBody');
+            tbody.empty();
+            tbody.append('<tr><td colspan="2" class="text-center">Loading...</td></tr>');
+
+            $.ajax({
+                url: '<?= base_url('indikator/input/get-verifikator') ?>',
+                type: 'GET',
+                data: {
+                    tahun: <?= $tahun ?>,
+                    triwulan: <?= $triwulan ?>,
+                    jenis_indikator: jenisIndikator
+                },
+                dataType: 'json',
+                success: function (res) {
+                    tbody.empty();
+                    
+                    if (res && res.ok && res.data && res.data.length > 0) {
+                        // Load existing data from database
+                        res.data.forEach(function(verif) {
+                            addHasilTindakLanjutRow(verif.nama_verifikator, verif);
+                        });
+                    } else {
+                        // Use default verifikators
+                        resetHasilTindakLanjutTable();
+                    }
+                },
+                error: function () {
+                    tbody.empty();
+                    // Use default verifikators on error
+                    resetHasilTindakLanjutTable();
+                }
+            });
+        }
+
+        // Reset verifikator table with default rows
+        function resetVerifikatorTable() {
+            var defaultVerifikators = ['Sekretariat', 'Bidang Minerba', 'Bidang GAT', 'Bidang EBT', 'Bidang Gatrik'];
+            var tbody = $('#verifikatorTableBody');
+            tbody.empty();
+            
+            defaultVerifikators.forEach(function(verifikator) {
+                addVerifikatorRow(verifikator);
+            });
+        }
+
+        // Reset hasil tindak lanjut table with default rows
+        function resetHasilTindakLanjutTable() {
+            var defaultVerifikators = ['Sekretariat', 'Bidang Minerba', 'Bidang GAT', 'Bidang EBT', 'Bidang Gatrik'];
+            var tbody = $('#hasilTindakLanjutTableBody');
+            tbody.empty();
+            
+            defaultVerifikators.forEach(function(verifikator) {
+                addHasilTindakLanjutRow(verifikator);
+            });
+        }
+
+        // Add new row to verifikator table
+        function addVerifikatorRow(verifikatorName = '', verifData = null) {
+            var rowId = 'verif_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
+            
+            // Get verif ID if data exists
+            var verifId = verifData ? verifData.id : '';
+            var hasilFile = verifData ? verifData.hasil_verifikasi_file_name : '';
+            var rencanaFile = verifData ? verifData.rencana_tindak_lanjut_file_name : '';
+            
+            var newRow = `
+                <tr class="verifikator-row" data-row-id="${rowId}" data-verif-id="${verifId}">
+                    <td>
+                        <input type="text" class="form-control rounded-0 verifikator-name-input" name="verifikator[]" placeholder="Nama Verifikator" value="${verifikatorName}" data-row-id="${rowId}">
+                    </td>
+                    <td class="text-center">
+                        <button type="button" class="btn btn-success btn-sm rounded-0 mr-1 btn-check-status" title="Check" data-row-id="${rowId}" data-type="hasil">
+                            <i class="fas fa-eye"></i>
+                        </button>
+                        <button type="button" class="btn btn-sm rounded-0 btn-upload-verif ${hasilFile ? 'btn-success' : ''}" title="${hasilFile ? hasilFile : 'Upload Dokumen'}" 
+                            data-row-id="${rowId}" data-type="hasil" data-verif-name="${verifikatorName}"
+                            style="background-color: ${hasilFile ? '#28a745' : '#6f42c1'}; border-color: ${hasilFile ? '#28a745' : '#6f42c1'};">
+                            <i class="fas ${hasilFile ? 'fa-check-circle' : 'fa-file-alt'}"></i>
+                        </button>
+                    </td>
+                    <td class="text-center">
+                        <button type="button" class="btn btn-success btn-sm rounded-0 mr-1 btn-check-status" title="Check" data-row-id="${rowId}" data-type="rencana">
+                            <i class="fas fa-eye"></i>
+                        </button>
+                        <button type="button" class="btn btn-sm rounded-0 btn-upload-verif ${rencanaFile ? 'btn-success' : ''}" title="${rencanaFile ? rencanaFile : 'Upload Dokumen'}"
+                            data-row-id="${rowId}" data-type="rencana" data-verif-name="${verifikatorName}"
+                            style="background-color: ${rencanaFile ? '#28a745' : '#6f42c1'}; border-color: ${rencanaFile ? '#28a745' : '#6f42c1'};">
+                            <i class="fas ${rencanaFile ? 'fa-check-circle' : 'fa-file-alt'}"></i>
+                        </button>
+                    </td>
+                    <td class="text-center">
+                        <button type="button" class="btn btn-danger btn-sm rounded-0 remove-row-btn" title="Hapus">
+                            <i class="fas fa-trash"></i>
+                        </button>
+                    </td>
+                </tr>
+            `;
+            $('#verifikatorTableBody').append(newRow);
+        }
+
+        // Add new row to hasil tindak lanjut table
+        function addHasilTindakLanjutRow(verifikatorName = '', verifData = null) {
+            var rowId = 'hasil_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
+            
+            // Get verif ID if data exists
+            var verifId = verifData ? verifData.id : '';
+            var hasilFile = verifData ? verifData.hasil_verifikasi_file_name : '';
+            
+            var newRow = `
+                <tr class="hasil-tindak-lanjut-row" data-row-id="${rowId}" data-verif-id="${verifId}">
+                    <td>
+                        <input type="text" class="form-control rounded-0 hasil-verifikator-name-input" name="hasil_verifikator[]" placeholder="Nama Verifikator" value="${verifikatorName}" data-row-id="${rowId}">
+                    </td>
+                    <td class="text-center">
+                        <div class="d-flex justify-content-center">
+                            <button type="button" class="btn btn-success btn-sm rounded-0 mr-1 btn-check-hasil-status" title="Check" data-row-id="${rowId}">
+                                <i class="fas fa-lock"></i>
+                            </button>
+                            <button type="button" class="btn btn-sm rounded-0 btn-upload-hasil ${hasilFile ? 'btn-success' : ''}" title="${hasilFile ? hasilFile : 'Upload Dokumen'}" 
+                                data-row-id="${rowId}" data-verif-name="${verifikatorName}"
+                                style="background-color: ${hasilFile ? '#28a745' : '#6f42c1'}; border-color: ${hasilFile ? '#28a745' : '#6f42c1'};">
+                                <i class="fas ${hasilFile ? 'fa-check-circle' : 'fa-file-alt'}"></i>
+                            </button>
+                        </div>
+                    </td>
+                </tr>
+            `;
+            $('#hasilTindakLanjutTableBody').append(newRow);
+        }
+
+        // Add row button click
+        $(document).on('click', '#addRowBtn', function () {
+            addVerifikatorRow();
+        });
+
+        // Add hasil row button click
+        $(document).on('click', '#addHasilRowBtn', function () {
+            addHasilTindakLanjutRow();
+        });
+
+        // Remove row button click
+        $(document).on('click', '.remove-row-btn', function () {
+            // Ensure at least one row remains
+            if ($('.verifikator-row').length > 1) {
+                $(this).closest('tr').remove();
+            } else {
+                if (window.toastr) {
+                    toastr.warning('Minimal harus ada 1 baris verifikator');
+                } else {
+                    alert('Minimal harus ada 1 baris verifikator');
+                }
+            }
+        });
+
+        // Upload verifikator file button click
+        $(document).on('click', '.btn-upload-verif', function () {
+            var rowId = $(this).data('row-id');
+            var type = $(this).data('type'); // 'hasil' or 'rencana'
+            var row = $('tr[data-row-id="' + rowId + '"]');
+            var verifId = row.data('verif-id');
+            var verifName = row.find('.verifikator-name-input').val();
+            var jenisIndikator = $('#rencana_jenis_indikator').val();
+
+            console.log('Upload button clicked:', {
+                rowId: rowId,
+                type: type,
+                verifId: verifId,
+                verifName: verifName,
+                jenisIndikator: jenisIndikator
+            });
+
+            if (!verifName || verifName.trim() === '') {
+                if (window.toastr) {
+                    toastr.warning('Nama verifikator harus diisi terlebih dahulu');
+                }
+                return;
+            }
+
+            if (!jenisIndikator || jenisIndikator.trim() === '') {
+                if (window.toastr) {
+                    toastr.error('Jenis indikator tidak ditemukan. Silakan tutup dan buka kembali modal.');
+                }
+                return;
+            }
+
+            // Set modal data
+            $('#verif_id').val(verifId || '');
+            $('#verif_type').val(type);
+            $('#verif_tahun').val(<?= $tahun ?>);
+            $('#verif_triwulan').val(<?= $triwulan ?>);
+            $('#verif_jenis_indikator').val(jenisIndikator);
+            $('#verif_nama').val(verifName);
+            $('#display_verif_nama').val(verifName);
+
+            var infoText = type === 'hasil' ? 'Hasil Verifikasi' : 'Rencana Tindak Lanjut';
+            $('#verif_info_text').text(infoText + ' - ' + verifName);
+
+            // Reset file input
+            $('#verif_file').val('');
+            $('.custom-file-label').text('Pilih file...');
+            $('#current_file_info').hide();
+
+            // Show current file if exists
+            var currentFile = $(this).attr('title');
+            if (currentFile && currentFile !== 'Upload Dokumen') {
+                $('#current_file_name').text(currentFile);
+                $('#current_file_info').show();
+            }
+
+            $('#uploadVerifikatorFileModal').modal('show');
+        });
+
+        // Update file input label
+        $('#verif_file').on('change', function() {
+            var fileName = $(this).val().split('\\').pop();
+            $(this).next('.custom-file-label').html(fileName);
+        });
+
+        // Upload verifikator file form submit
+        $('#uploadVerifikatorFileForm').on('submit', function (e) {
+            e.preventDefault();
+
+            // Debug: Check form values before submission
+            console.log('Form submission - Hidden field values:', {
+                verif_id: $('#verif_id').val(),
+                verif_type: $('#verif_type').val(),
+                verif_tahun: $('#verif_tahun').val(),
+                verif_triwulan: $('#verif_triwulan').val(),
+                verif_jenis_indikator: $('#verif_jenis_indikator').val(),
+                verif_nama: $('#verif_nama').val()
+            });
+
+            var formData = new FormData(this);
+            formData.append(csrfTokenName, csrfHash);
+
+            var submitBtn = $(this).find('button[type="submit"]');
+            var originalBtnText = submitBtn.html();
+            submitBtn.prop('disabled', true).html('<i class="fas fa-spinner fa-spin"></i> Uploading...');
+
+            $.ajax({
+                url: '<?= base_url('indikator/input/upload-verifikator-file') ?>',
+                type: 'POST',
+                data: formData,
+                processData: false,
+                contentType: false,
+                dataType: 'json',
+                success: function (res) {
+                    if (res && res.csrf_hash) { csrfHash = res.csrf_hash; }
+                    
+                    submitBtn.prop('disabled', false).html(originalBtnText);
+
+                    if (res && res.ok) {
+                        if (window.toastr) { 
+                            toastr.success(res.message || 'File berhasil diupload'); 
+                        }
+                        $('#uploadVerifikatorFileModal').modal('hide');
+                        
+                        // Update button appearance
+                        var type = $('#verif_type').val();
+                        var verifId = $('#verif_id').val();
+                        var fileName = res.file_name;
+                        
+                        // Find and update the button
+                        var btn = $('.btn-upload-verif[data-type="' + type + '"]').filter(function() {
+                            var row = $(this).closest('tr');
+                            return row.data('verif-id') == verifId || 
+                                   row.find('.verifikator-name-input').val() === $('#verif_nama').val();
+                        }).first();
+
+                        if (btn.length > 0) {
+                            btn.attr('title', fileName);
+                            btn.css({
+                                'background-color': '#28a745',
+                                'border-color': '#28a745'
+                            });
+                            btn.removeClass('btn-info').addClass('btn-success');
+                            btn.find('i').removeClass('fa-file-alt').addClass('fa-check-circle');
+                            
+                            // Update row verif ID if new
+                            if (res.verif_id && !verifId) {
+                                btn.closest('tr').attr('data-verif-id', res.verif_id);
+                            }
+                        }
+                    } else {
+                        if (window.toastr) { 
+                            toastr.error(res.message || 'Gagal mengupload file'); 
+                        }
+                    }
+                },
+                error: function (xhr) {
+                    submitBtn.prop('disabled', false).html(originalBtnText);
+                    
+                    try {
+                        var data = JSON.parse(xhr.responseText);
+                        if (data && data.csrf_hash) { csrfHash = data.csrf_hash; }
+                        if (window.toastr) { 
+                            toastr.error(data.message || 'Gagal mengupload file'); 
+                        }
+                    } catch (e) {
+                        if (window.toastr) { 
+                            toastr.error('Gagal mengupload file'); 
+                        }
+                    }
+                }
+            });
+        });
+
+        // Preview file button click (eye button in verifikator table)
+        $(document).on('click', '.btn-check-status', function () {
+            var rowId = $(this).data('row-id');
+            var type = $(this).data('type'); // 'hasil' or 'rencana'
+            var row = $('tr[data-row-id="' + rowId + '"]');
+            var verifId = row.data('verif-id');
+
+            if (!verifId) {
+                if (window.toastr) {
+                    toastr.warning('Belum ada file yang diupload untuk verifikator ini');
+                }
+                return;
+            }
+
+            // Get file info from button
+            var uploadBtn = row.find('.btn-upload-verif[data-type="' + type + '"]');
+            var fileName = uploadBtn.attr('title');
+
+            if (!fileName || fileName === 'Upload Dokumen') {
+                if (window.toastr) {
+                    toastr.warning('Belum ada file yang diupload');
+                }
+                return;
+            }
+
+            // Open preview modal
+            openFilePreview(verifId, type, fileName);
+        });
+
+        // Function to open file preview
+        function openFilePreview(verifId, type, fileName) {
+            // Reset modal state
+            $('#preview_loading').show();
+            $('#preview_error').hide();
+            $('#preview_content').hide();
+            $('#preview_download_notice').hide();
+            $('#preview_iframe').attr('src', '');
+            $('#preview_file_title').text(fileName);
+
+            var typeText = type === 'hasil' ? 'Hasil Verifikasi' : 'Rencana Tindak Lanjut';
+            
+            // Open modal
+            $('#previewFileModal').modal('show');
+
+            // Get file extension
+            var extension = fileName.split('.').pop().toLowerCase();
+            var previewUrl = '<?= base_url('indikator/input/preview-verifikator-file') ?>/' + verifId + '/' + type;
+            var downloadUrl = '<?= base_url('indikator/input/download-verifikator-file') ?>/' + verifId + '/' + type;
+
+            // Set download button URLs
+            $('#preview_download_btn').off('click').on('click', function() {
+                window.open(downloadUrl, '_blank');
+            });
+            $('#preview_download_btn_footer').off('click').on('click', function() {
+                window.open(downloadUrl, '_blank');
+            });
+
+            // Check if file can be previewed
+            var canPreview = ['pdf', 'jpg', 'jpeg', 'png', 'gif'].indexOf(extension) !== -1;
+
+            if (canPreview) {
+                // Load file in iframe
+                $('#preview_iframe').on('load', function() {
+                    $('#preview_loading').hide();
+                    $('#preview_content').show();
+                }).on('error', function() {
+                    $('#preview_loading').hide();
+                    $('#preview_error_message').text('Gagal memuat file preview');
+                    $('#preview_error').show();
+                });
+
+                // Set iframe source
+                $('#preview_iframe').attr('src', previewUrl);
+            } else {
+                // Show download notice for non-previewable files
+                $('#preview_loading').hide();
+                $('#preview_download_notice').show();
+            }
+        }
+
+        // Close preview modal cleanup
+        $('#previewFileModal').on('hidden.bs.modal', function () {
+            $('#preview_iframe').attr('src', '');
         });
 
         // Preview button click
@@ -424,6 +1019,17 @@ $indikatorList = $indikatorList ?? [];
                     $('#preview_file_catatan').text(res.data.file_catatan_name || '-');
                     $('#preview_file_rencana').text(res.data.file_rencana_name || '-');
                     $('#preview_uploaded_at').text(formatDate(res.data.uploaded_at));
+                    
+                    // Display verification status with badge
+                    var statusVerifikasi = res.data.status_verifikasi_bidang || 'Belum Diperiksa';
+                    var badgeClass = 'badge-secondary';
+                    if (statusVerifikasi === 'Sesuai') {
+                        badgeClass = 'badge-success';
+                    } else if (statusVerifikasi === 'Tidak Sesuai') {
+                        badgeClass = 'badge-danger';
+                    }
+                    $('#preview_status_verifikasi').html('<span class="badge ' + badgeClass + '">' + statusVerifikasi + '</span>');
+                    $('#preview_tanggal_verifikasi').text(formatDate(res.data.tanggal_verifikasi));
 
                     $('#previewModal').modal('show');
                 } else {
@@ -500,38 +1106,75 @@ $indikatorList = $indikatorList ?? [];
             });
         });
 
-        // Upload Rencana form submit
-        $('#uploadRencanaForm').on('submit', function (e) {
-            e.preventDefault();
+        // Save verifikator names only when adding new verifikators without files
+        function saveVerifikatorNames() {
+            // Collect only NEW verifikators (without verif_id) that haven't uploaded files yet
+            var newVerifikators = [];
+            $('.verifikator-row').each(function() {
+                var verifId = $(this).data('verif-id');
+                var verifikatorName = $(this).find('input[name="verifikator[]"]').val();
+                
+                // Only include new verifikators that don't have an ID yet
+                if (!verifId && verifikatorName.trim() !== '') {
+                    newVerifikators.push({
+                        nama: verifikatorName.trim()
+                    });
+                }
+            });
 
-            var formData = new FormData(this);
-            formData.append('tahun', <?= $tahun ?>);
-            formData.append('triwulan', <?= $triwulan ?>);
-            formData.append(csrfTokenName, csrfHash);
+            // Only save if there are new verifikators
+            if (newVerifikators.length === 0) {
+                return Promise.resolve(); // Nothing to save
+            }
 
-            $.ajax({
+            var formData = {
+                tahun: <?= $tahun ?>,
+                triwulan: <?= $triwulan ?>,
+                jenis_indikator: $('#rencana_jenis_indikator').val(),
+                verifikator_data: JSON.stringify(newVerifikators)
+            };
+            formData[csrfTokenName] = csrfHash;
+
+            return $.ajax({
                 url: '<?= base_url('indikator/input/upload-rencana') ?>',
                 type: 'POST',
                 data: formData,
-                processData: false,
-                contentType: false,
-                success: function (res) {
+                dataType: 'json'
+            });
+        }
+
+        // Selesai button click handler
+        $(document).on('click', '#selesaiBtn', function () {
+            var btn = $(this);
+            var originalText = btn.html();
+            
+            // Disable button and show loading
+            btn.prop('disabled', true).html('<i class="fas fa-spinner fa-spin"></i> Menyimpan...');
+            
+            // Save new verifikators (if any)
+            saveVerifikatorNames().then(function(res) {
                     if (res && res.csrf_hash) { csrfHash = res.csrf_hash; }
-                    if (res && res.ok) {
-                        if (window.toastr) { toastr.success(res.message || 'File rencana berhasil diupload'); }
-                        $('#uploadRencanaModal').modal('hide');
-                        location.reload();
-                    } else {
-                        if (window.toastr) { toastr.error(res.message || 'Gagal mengupload file'); }
-                    }
-                },
-                error: function (xhr) {
+                
+                // Close modal
+                $('#verifikasiBidangModal').modal('hide');
+                
+                // Show success message
+                if (window.toastr) {
+                    toastr.success('Data verifikator berhasil disimpan');
+                }
+            }).catch(function(xhr) {
+                // Re-enable button on error
+                btn.prop('disabled', false).html(originalText);
+                
                     try {
                         var data = JSON.parse(xhr.responseText);
                         if (data && data.csrf_hash) { csrfHash = data.csrf_hash; }
-                        if (window.toastr) { toastr.error(data.message || 'Gagal mengupload file'); }
+                    if (window.toastr) { 
+                        toastr.error(data.message || 'Gagal menyimpan data'); 
+                    }
                     } catch (e) {
-                        if (window.toastr) { toastr.error('Gagal mengupload file'); }
+                    if (window.toastr) { 
+                        toastr.error('Gagal menyimpan data'); 
                     }
                 }
             });
@@ -577,6 +1220,82 @@ $indikatorList = $indikatorList ?? [];
                 minute: '2-digit'
             });
         }
+
+        // Verification button click handlers
+        $(document).on('click', '.btn-verifikasi-sesuai, .btn-verifikasi-tidak-sesuai', function () {
+            var jenis = $(this).data('jenis');
+            var status = $(this).data('status');
+            var btnGroup = $(this).closest('.verifikasi-group');
+            var btnSesuai = btnGroup.find('.btn-verifikasi-sesuai');
+            var btnTidakSesuai = btnGroup.find('.btn-verifikasi-tidak-sesuai');
+
+            // Show confirmation
+            if (!confirm('Apakah Anda yakin ingin mengubah status verifikasi menjadi "' + status + '"?')) {
+                return;
+            }
+
+            var formData = {
+                tahun: <?= $tahun ?>,
+                triwulan: <?= $triwulan ?>,
+                jenis_indikator: jenis,
+                status: status
+            };
+            formData[csrfTokenName] = csrfHash;
+
+            // Disable buttons during request
+            btnSesuai.prop('disabled', true);
+            btnTidakSesuai.prop('disabled', true);
+
+            $.ajax({
+                url: '<?= base_url('indikator/input/update-verifikasi') ?>',
+                type: 'POST',
+                data: formData,
+                dataType: 'json',
+                success: function (res) {
+                    if (res && res.csrf_hash) { csrfHash = res.csrf_hash; }
+                    
+                    // Re-enable buttons
+                    btnSesuai.prop('disabled', false);
+                    btnTidakSesuai.prop('disabled', false);
+
+                    if (res && res.ok) {
+                        // Update button styles based on the selected status
+                        if (status === 'Sesuai') {
+                            btnSesuai.removeClass('btn-outline-success').addClass('btn-success');
+                            btnTidakSesuai.removeClass('btn-danger').addClass('btn-outline-danger');
+                        } else {
+                            btnTidakSesuai.removeClass('btn-outline-danger').addClass('btn-danger');
+                            btnSesuai.removeClass('btn-success').addClass('btn-outline-success');
+                        }
+                        
+                        if (window.toastr) { 
+                            toastr.success(res.message || 'Status verifikasi berhasil diperbarui'); 
+                        }
+                    } else {
+                        if (window.toastr) { 
+                            toastr.error(res.message || 'Gagal memperbarui status verifikasi'); 
+                        }
+                    }
+                },
+                error: function (xhr) {
+                    // Re-enable buttons
+                    btnSesuai.prop('disabled', false);
+                    btnTidakSesuai.prop('disabled', false);
+
+                    try {
+                        var data = JSON.parse(xhr.responseText);
+                        if (data && data.csrf_hash) { csrfHash = data.csrf_hash; }
+                        if (window.toastr) { 
+                            toastr.error(data.message || 'Gagal memperbarui status verifikasi'); 
+                        }
+                    } catch (e) {
+                        if (window.toastr) { 
+                            toastr.error('Gagal memperbarui status verifikasi'); 
+                        }
+                    }
+                }
+            });
+        });
     })();
 </script>
 <?= $this->endSection() ?>
