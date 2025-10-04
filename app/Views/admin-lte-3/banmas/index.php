@@ -37,7 +37,7 @@
                 </div>
             </div>
         </form>
-
+        
         <div class="table-responsive rounded-0">
             <table class="table table-striped table-bordered rounded-0">
                 <thead style="background-color: #3b6ea8; color: white;">
@@ -49,7 +49,13 @@
                     </tr>
                 </thead>
                 <tbody>
-                    <?php foreach ($categories as $category): ?>
+                    <?php 
+                    // Debug: Log categories data
+                    log_message('debug', 'Categories data in view: ' . json_encode($categories));
+                    foreach ($categories as $category): 
+                        // Debug: Log each category
+                        log_message('debug', 'Category: ' . $category['key'] . ', Data count: ' . count($category['data']));
+                    ?>
                     <tr>
                         <td class="text-left" style="vertical-align: middle; padding-left: 15px;">
                             <strong><?= $category['nama'] ?></strong>
@@ -201,6 +207,34 @@
     </div>
 </div>
 
+<!-- Preview Modal -->
+<div class="modal fade" id="previewModal" tabindex="-1" role="dialog" aria-labelledby="previewModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="previewModalLabel">Preview File</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body" style="padding: 0; position: relative;">
+                <div id="previewLoading" style="display: none; position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); z-index: 1000;">
+                    <div class="spinner-border text-primary" role="status">
+                        <span class="sr-only">Loading...</span>
+                    </div>
+                </div>
+                <iframe id="previewIframe" src="" style="width: 100%; height: 500px; border: none;"></iframe>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                <button type="button" class="btn btn-primary" id="downloadPreviewBtn">
+                    <i class="fas fa-download"></i> Download
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
 <?= $this->endSection() ?>
 
 <?= $this->section('css') ?>
@@ -242,6 +276,37 @@
     max-width: 200px;
     overflow: hidden;
     text-indent: overflow;
+}
+
+/* Preview Modal Styles */
+#previewModal .modal-dialog {
+    max-width: 90%;
+    width: 90%;
+}
+
+#previewModal .modal-body {
+    padding: 0;
+    background: #f8f9fa;
+}
+
+#previewIframe {
+    border-radius: 0.375rem;
+    box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
+}
+
+#previewModal .modal-header {
+    background: #3b6ea8;
+    color: white;
+    border-bottom: none;
+}
+
+#previewModal .modal-header .close {
+    color: white;
+    opacity: 0.8;
+}
+
+#previewModal .modal-header .close:hover {
+    opacity: 1;
 }
 </style>
 <?= $this->endSection() ?>
@@ -286,7 +351,12 @@
         
         switch(action) {
             case 'view':
-                window.open('<?= base_url('banmas/view') ?>/' + id, '_blank');
+                // Show preview modal
+                var previewUrl = '<?= base_url('banmas/view') ?>/' + id + '?preview=1';
+                $('#previewLoading').show();
+                $('#previewIframe').attr('src', previewUrl);
+                $('#downloadPreviewBtn').data('id', id);
+                $('#previewModal').modal('show');
                 break;
             case 'download':
                 window.open('<?= base_url('banmas/view') ?>/' + id, '_blank');
@@ -361,7 +431,10 @@
         var formData = $(this).serialize();
         formData += '&tahun=' + <?= $tahun ?> + '&bulan=' + <?= $bulan ?> + '&' + csrfTokenName + '=' + csrfHash;
         
+        console.log('Submitting doc link form with data:', formData);
+        
         $.post('<?= base_url('banmas/save-doc-link') ?>', formData, function(res) {
+            console.log('Doc link response:', res);
             if(res && res.csrf_hash) csrfHash = res.csrf_hash;
             if(res && res.ok) {
                 if(window.toastr) toastr.success(res.message || 'Link dokumen berhasil disimpan');
@@ -379,6 +452,25 @@
                 if(window.toastr) toastr.error('Gagal menyimpan link dokumen');
             }
         });
+    });
+    
+    // Download button in preview modal
+    $(document).on('click', '#downloadPreviewBtn', function(){
+        var id = $(this).data('id');
+        if(id) {
+            window.open('<?= base_url('banmas/view') ?>/' + id, '_blank');
+        }
+    });
+    
+    // Clear iframe when modal is hidden
+    $('#previewModal').on('hidden.bs.modal', function () {
+        $('#previewIframe').attr('src', '');
+        $('#previewLoading').hide();
+    });
+    
+    // Hide loading when iframe loads
+    $('#previewIframe').on('load', function() {
+        $('#previewLoading').hide();
     });
 })();
 </script>

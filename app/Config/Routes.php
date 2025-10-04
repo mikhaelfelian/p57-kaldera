@@ -262,6 +262,7 @@ $routes->group('banmas', ['namespace' => 'App\\Controllers', 'filter' => 'auth']
     $routes->post('save-doc-link', 'Banmas::saveDocLink', ['as' => 'banmas.save_doc_link']);
     $routes->get('view/(:num)', 'Banmas::viewFile/$1', ['as' => 'banmas.view']);
     $routes->post('delete/(:num)', 'Banmas::delete/$1', ['as' => 'banmas.delete']);
+    $routes->get('get-data', 'Banmas::getData', ['as' => 'banmas.get_data']);
 });
 
 // ==================== PK (Rancangan Aksi Perubahan) ====================
