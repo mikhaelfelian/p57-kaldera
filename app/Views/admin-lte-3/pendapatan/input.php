@@ -123,7 +123,8 @@
                     <?php 
                         $target = $row['target'];
                         $realisasi = $row['realisasi'];
-                        $persen = $target > 0 ? ($realisasi / $target) * 100 : 0;
+                        // Force capaian to 0.00
+                        $persen = 0.00;
                         
                         $totalTarget += $target;
                         $totalRealisasi += $realisasi;
@@ -139,24 +140,25 @@
                             <i class="fas fa-pencil-alt text-muted ml-1 edit-icon" data-field="<?= $row['field'] ?>_realisasi"></i>
                         </td>
                         <td class="text-right">
-                            <span class="calculated-percent" data-field="<?= $row['field'] ?>_percent"><?= format_angka($persen, 2) ?></span>%
+                            <span class="calculated-percent" data-field="<?= $row['field'] ?>_percent"><?= format_angka(0.00, 2) ?></span>%
                         </td>
                     </tr>
                     <?php endforeach; ?>
                     
                     <!-- TOTAL Row -->
                     <?php 
-                        $totalPersen = $totalTarget > 0 ? ($totalRealisasi / $totalTarget) * 100 : 0;
+                        // Force totalPersen to 0.00
+                        $totalPersen = 0.00;
                     ?>
                     <tr style="background-color: #3b6ea8; color: white;">
                         <td class="text-center font-weight-bold">-</td>
                         <td class="font-weight-bold">TOTAL</td>
-                        <td class="text-right font-weight-bold"><?= format_angka($totalTarget) ?></td>
+                        <td class="text-right font-weight-bold"><?= format_angka($totalTarget, 2) ?></td>
                         <td class="text-right font-weight-bold">
-                            <span id="totalRealisasi"><?= format_angka($totalRealisasi) ?></span>
+                            <span id="totalRealisasi"><?= format_angka($totalRealisasi,2) ?></span>
                         </td>
                         <td class="text-right font-weight-bold">
-                            <span id="totalPersen"><?= format_angka($totalPersen, 0) ?></span>%
+                            <span id="totalPersen"><?= format_angka(0.00, 2) ?></span>%
                         </td>
                     </tr>
                 </tbody>
@@ -226,9 +228,9 @@
     
     function formatCurrencyRp(n){ 
         try { 
-            return 'Rp ' + new Intl.NumberFormat('id-ID').format(Number(n)); 
+            return '' + new Intl.NumberFormat('id-ID').format(Number(n)); 
         } catch(e){ 
-            return 'Rp ' + Number(n).toLocaleString('id-ID'); 
+            return '' + Number(n).toLocaleString('id-ID'); 
         } 
     }
     
@@ -255,15 +257,15 @@
                 totalRealisasi += realisasi;
                 
                 // Calculate percentage
-                var persen = target > 0 ? (realisasi / target) * 100 : 0;
-                $row.find('.calculated-percent').text(Math.round(persen));
+                var persen = target > 0 ? (realisasi / target) * 100 : 0.00;
+                $row.find('.calculated-percent').text(persen.toFixed(2));
             }
         });
         
         // Update totals
         var totalPersen = totalTarget > 0 ? (totalRealisasi / totalTarget) * 100 : 0;
-        $('#totalRealisasi').text(formatCurrencyRp(totalRealisasi));
-        $('#totalPersen').text(Math.round(totalPersen));
+        $('#totalRealisasi').text(formatCurrencyRp(totalRealisasi.toFixed(2)));
+        $('#totalPersen').text(totalPersen.toFixed(2));
     }
     
     // Handle span and icon clicks for editing
