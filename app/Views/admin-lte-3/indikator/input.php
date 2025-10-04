@@ -56,12 +56,11 @@ $indikatorList = $indikatorList ?? [];
                         <th style="width: 200px; vertical-align: middle;" rowspan="2">Indikator</th>
                         <th class="text-center" style="vertical-align: middle;" rowspan="2" colspan="2">Upload Data</th>
                         <th class="text-center" style="vertical-align: middle;" rowspan="2">Status</th>
-                        <th class="text-center" style="vertical-align: middle;" colspan="7">Aksi</th>
+                        <th class="text-center" style="vertical-align: middle;" colspan="6">Aksi</th>
                     </tr>
                     <tr>
                         <th class="text-center" style="vertical-align: middle;">Verifikasi Bidang</th>
                         <th class="text-center" style="vertical-align: middle;">Hasil Tindak Lanjut</th>
-                        <th class="text-center" style="vertical-align: middle;">Cetak</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -140,22 +139,6 @@ $indikatorList = $indikatorList ?? [];
                                     style="background-color: #17a2b8; border-color: #17a2b8; height: 38px; width: 38px;">
                                     <i class="fas fa-comment mx-auto" style="display: block; margin: 0 auto;"></i>
                                 </button>
-                            </td>
-                            <td class="text-center align-middle" style="vertical-align: middle;">
-                                <?php if ($hasData): ?>
-                                    <button type="button"
-                                        class="btn btn-default btn-sm rounded-0 preview-btn d-flex justify-content-center align-items-center mx-auto"
-                                        data-id="<?= $data['id'] ?>" data-jenis="<?= $key ?>"
-                                        style="height: 38px; width: 38px;">
-                                        <i class="fas fa-print mx-auto" style="display: block; margin: 0 auto;"></i>
-                                    </button>
-                                <?php else: ?>
-                                    <button type="button"
-                                        class="btn btn-warning btn-sm rounded-0 d-flex justify-content-center align-items-center mx-auto"
-                                        style="height: 38px; width: 38px;" disabled>
-                                        <i class="fas fa-print mx-auto" style="display: block; margin: 0 auto;"></i>
-                                    </button>
-                                <?php endif; ?>
                             </td>
                         </tr>
                     <?php endforeach; ?>
@@ -312,6 +295,108 @@ $indikatorList = $indikatorList ?? [];
             </form>
                 </div>
                 </div>
+</div>
+
+<!-- Upload Hasil Tindak Lanjut File Modal -->
+<div class="modal fade" id="uploadHasilTindakLanjutFileModal" tabindex="-1" role="dialog" aria-labelledby="uploadHasilTindakLanjutFileModalLabel"
+    aria-hidden="true">
+    <div class="modal-dialog modal-lg" role="document">
+        <div class="modal-content rounded-0">
+            <div class="modal-header" style="background-color: #3b6ea8; color: white;">
+                <h5 class="modal-title" id="uploadHasilTindakLanjutFileModalLabel">Upload File Hasil Tindak Lanjut</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close" style="color: white;">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <form id="uploadHasilTindakLanjutFileForm" enctype="multipart/form-data">
+                <div class="modal-body">
+                    <input type="hidden" id="hasil_htl_id" name="htl_id" value="">
+                    <input type="hidden" id="hasil_htl_tahun" name="htl_tahun" value="">
+                    <input type="hidden" id="hasil_htl_triwulan" name="htl_triwulan" value="">
+                    <input type="hidden" id="hasil_htl_jenis_indikator" name="htl_jenis_indikator" value="">
+                    <input type="hidden" id="hasil_htl_nama" name="htl_nama" value="">
+                    
+                    <div class="alert alert-info rounded-0">
+                        <i class="fas fa-info-circle"></i> Upload file untuk: <strong id="hasil_htl_info_text"></strong>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="font-weight-bold">Nama Verifikator</label>
+                        <input type="text" class="form-control rounded-0" id="display_hasil_htl_nama" readonly>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="font-weight-bold">Pilih File <span class="text-danger">*</span></label>
+                        <div class="custom-file">
+                            <input type="file" class="custom-file-input" id="hasil_htl_file" name="file" 
+                                accept=".pdf,.doc,.docx,.xls,.xlsx,.jpg,.jpeg,.png" required>
+                            <label class="custom-file-label rounded-0" for="hasil_htl_file">Pilih file...</label>
+                        </div>
+                        <small class="form-text text-muted">
+                            Format yang diperbolehkan: PDF, Word, Excel, atau gambar (JPG, PNG). Maksimal 10MB.
+                        </small>
+                    </div>
+
+                    <div id="hasil_htl_current_file_info" style="display: none;">
+                        <div class="alert alert-success rounded-0">
+                            <i class="fas fa-file"></i> File saat ini: <strong id="hasil_htl_current_file_name"></strong>
+                            <br>
+                            <small>File baru akan menggantikan file yang ada.</small>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary rounded-0" data-dismiss="modal">Batal</button>
+                    <button type="submit" class="btn btn-primary rounded-0">
+                        <i class="fas fa-upload"></i> Upload
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- Preview Hasil Tindak Lanjut File Modal -->
+<div class="modal fade" id="previewHasilTindakLanjutFileModal" tabindex="-1" role="dialog" aria-labelledby="previewHasilTindakLanjutFileModalLabel"
+    aria-hidden="true">
+    <div class="modal-dialog modal-xl" role="document">
+        <div class="modal-content rounded-0">
+            <div class="modal-header" style="background-color: #3b6ea8; color: white;">
+                <h5 class="modal-title" id="previewHasilTindakLanjutFileModalLabel">
+                    <i class="fas fa-eye"></i> Preview File: <span id="preview_hasil_htl_file_title"></span>
+                </h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close" style="color: white;">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body p-0">
+                <div id="preview_hasil_htl_loading" class="text-center py-5">
+                    <i class="fas fa-spinner fa-spin fa-3x text-primary"></i>
+                    <p class="mt-3">Loading file...</p>
+                </div>
+                <div id="preview_hasil_htl_error" style="display: none;" class="alert alert-danger m-3 rounded-0">
+                    <i class="fas fa-exclamation-triangle"></i> <span id="preview_hasil_htl_error_message"></span>
+                </div>
+                <div id="preview_hasil_htl_content" style="display: none;">
+                    <iframe id="preview_hasil_htl_iframe" style="width: 100%; height: 600px; border: none;"></iframe>
+                </div>
+                <div id="preview_hasil_htl_download_notice" style="display: none;" class="alert alert-info m-3 rounded-0">
+                    <i class="fas fa-info-circle"></i> 
+                    File ini tidak dapat ditampilkan di browser. Silakan download untuk melihat isi file.
+                    <br>
+                    <button type="button" class="btn btn-primary btn-sm rounded-0 mt-2" id="preview_hasil_htl_download_btn">
+                        <i class="fas fa-download"></i> Download File
+                    </button>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary rounded-0" data-dismiss="modal">Tutup</button>
+                <button type="button" class="btn btn-primary rounded-0" id="preview_hasil_htl_download_btn_footer">
+                    <i class="fas fa-download"></i> Download
+                </button>
+            </div>
+        </div>
+    </div>
 </div>
 
 <!-- Upload Verifikator File Modal -->
