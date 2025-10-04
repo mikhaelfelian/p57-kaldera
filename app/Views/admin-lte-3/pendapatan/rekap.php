@@ -157,7 +157,7 @@
                                 <td class="font-weight-bold"><?= $row['label'] ?></td>
                                 <td class="text-right" style="color: #dc3545;"><?= format_angka($target, 2) ?></td>
                                 <td class="text-right" style="color: #007bff;"><?= format_angka($realisasi, 2) ?></td>
-                                <td class="text-right" style="color: #007bff;"><?= format_angka($persen, 0) ?>%</td>
+                                <td class="text-right" style="color: #007bff;"><?= format_angka($persen, 2) ?>%</td>
                             </tr>
                             <?php endforeach; ?>
                             
@@ -170,7 +170,7 @@
                                 <td class="font-weight-bold">TOTAL</td>
                                 <td class="text-right font-weight-bold" style="color: #fff;"><?= format_angka($totalTarget, 2) ?></td>
                                 <td class="text-right font-weight-bold" style="color: #fff;"><?= format_angka($totalRealisasi, 2) ?></td>
-                                <td class="text-right font-weight-bold" style="color: #fff;"><?= format_angka($totalPersen, 0) ?>%</td>
+                                <td class="text-right font-weight-bold" style="color: #fff;"><?= format_angka($totalPersen, 2) ?>%</td>
                             </tr>
                         </tbody>
                     </table>
