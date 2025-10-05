@@ -228,25 +228,25 @@
                     
                     <div class="alert alert-info rounded-0">
                         <i class="fas fa-info-circle"></i> Verifikasi Sekretariat untuk periode <strong><?= $tahun ?> - <?= bulan_ke_str($bulan) ?></strong>
-                    </div>
+                </div>
 
                     <div class="row">
                         <div class="col-md-6">
                             <div class="form-group">
-                                <label class="font-weight-bold">Catatan Kendala</label>
+                            <label class="font-weight-bold">Catatan Kendala</label>
                                 <textarea name="catatan_kendala" class="form-control rounded-0" rows="4" 
                                     placeholder="Masukkan catatan kendala yang ditemukan"><?= $existing['catatan_kendala'] ?? '' ?></textarea>
                             </div>
                         </div>
                         <div class="col-md-6">
                             <div class="form-group">
-                                <label class="font-weight-bold">Rencana Tindak Lanjut</label>
+                            <label class="font-weight-bold">Rencana Tindak Lanjut</label>
                                 <textarea name="rencana_tindak_lanjut" class="form-control rounded-0" rows="4" 
                                     placeholder="Masukkan rencana tindak lanjut"><?= $existing['rencana_tindak_lanjut'] ?? '' ?></textarea>
-                            </div>
                         </div>
                     </div>
                 </div>
+            </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary rounded-0" data-dismiss="modal">Batal</button>
                     <button type="submit" class="btn btn-warning rounded-0">
@@ -277,7 +277,7 @@
                     
                     <div class="alert alert-info rounded-0">
                         <i class="fas fa-info-circle"></i> Feed back Unit Kerja untuk periode <strong><?= $tahun ?> - <?= bulan_ke_str($bulan) ?></strong>
-                    </div>
+                </div>
 
                     <div class="table-responsive">
                         <table class="table table-bordered">
@@ -293,21 +293,21 @@
                                 <!-- Dynamic rows will be added here -->
                             </tbody>
                         </table>
-                    </div>
+            </div>
 
                     <div class="text-right mb-3">
                         <button type="button" class="btn btn-success btn-sm rounded-0" id="addFeedbackRow">
                             <i class="fas fa-plus"></i> Tambah Baris
-                        </button>
-                    </div>
+                    </button>
                 </div>
+            </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary rounded-0" data-dismiss="modal">Batal</button>
                     <button type="submit" class="btn btn-primary rounded-0">
                         <i class="fas fa-save"></i> Simpan Feedback
                     </button>
                 </div>
-            </form>
+        </form>
         </div>
     </div>
 </div>

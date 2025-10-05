@@ -18,7 +18,14 @@
                     <div class="form-row align-items-end">
                         <div class="form-group col-md-2">
                             <label for="year">Tahun</label>
-                            <input type="number" id="year" name="year" class="form-control rounded-0" value="<?= esc($year) ?>" readonly>
+                            <select id="year" name="year" class="form-control rounded-0" required>
+                                <?php 
+                                $currentYear = date('Y');
+                                for ($i = $currentYear - 5; $i <= $currentYear + 5; $i++): 
+                                ?>
+                                    <option value="<?= $i ?>" <?= ($year == $i) ? 'selected' : '' ?>><?= $i ?></option>
+                                <?php endfor; ?>
+                            </select>
                         </div>
                         <div class="form-group col-md-2">
                             <label for="month">Bulan</label>
@@ -68,14 +75,6 @@
                                         <?php endif; ?>
                                     </td>
                                     <td class="text-center">
-                                        <button type="button" class="btn btn-sm rounded-0 btn-upload-verif" 
-                                            data-id="<?= $row['id'] ?>" 
-                                            data-tahun="<?= $row['year'] ?>" 
-                                            data-bulan="<?= $row['month'] ?>" 
-                                            data-uraian="<?= esc($row['uraian']) ?>" 
-                                            title="Upload File">
-                                            <i class="fas fa-upload"></i>
-                                        </button>
                                         <a class="btn btn-sm btn-primary rounded-0" href="<?= base_url('gulkin/preview/' . $row['id']) ?>" target="_blank" title="Preview">
                                             <i class="fas fa-eye"></i>
                                         </a>

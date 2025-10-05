@@ -309,7 +309,7 @@ $indikatorList = $indikatorList ?? [];
                 </button>
             </div>
             <form id="uploadHasilTindakLanjutFileForm" enctype="multipart/form-data">
-                <div class="modal-body">
+            <div class="modal-body">
                     <input type="hidden" id="hasil_htl_id" name="htl_id" value="">
                     <input type="hidden" id="hasil_htl_tahun" name="htl_tahun" value="">
                     <input type="hidden" id="hasil_htl_triwulan" name="htl_triwulan" value="">
@@ -320,12 +320,12 @@ $indikatorList = $indikatorList ?? [];
                         <i class="fas fa-info-circle"></i> Upload file untuk: <strong id="hasil_htl_info_text"></strong>
                     </div>
 
-                    <div class="form-group">
+                        <div class="form-group">
                         <label class="font-weight-bold">Nama Verifikator</label>
                         <input type="text" class="form-control rounded-0" id="display_hasil_htl_nama" readonly>
-                    </div>
+                        </div>
 
-                    <div class="form-group">
+                        <div class="form-group">
                         <label class="font-weight-bold">Pilih File <span class="text-danger">*</span></label>
                         <div class="custom-file">
                             <input type="file" class="custom-file-input" id="hasil_htl_file" name="file" 
@@ -342,8 +342,8 @@ $indikatorList = $indikatorList ?? [];
                             <i class="fas fa-file"></i> File saat ini: <strong id="hasil_htl_current_file_name"></strong>
                             <br>
                             <small>File baru akan menggantikan file yang ada.</small>
-                        </div>
-                    </div>
+                </div>
+                </div>
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary rounded-0" data-dismiss="modal">Batal</button>
@@ -1153,25 +1153,11 @@ $indikatorList = $indikatorList ?? [];
         $(document).on('click', '.btn-check-hasil-status', function () {
             var rowId = $(this).data('row-id');
             var row = $('tr[data-row-id="' + rowId + '"]');
-            var htlId = row.data('verif-id');
 
-            if (!htlId) {
-                if (window.toastr) {
-                    toastr.warning('Belum ada file yang diupload untuk verifikator ini');
-                }
-                return;
-            }
 
             // Get file info from button
             var uploadBtn = row.find('.btn-upload-hasil');
             var fileName = uploadBtn.attr('title');
-
-            if (!fileName || fileName === 'Upload Dokumen') {
-                if (window.toastr) {
-                    toastr.warning('Belum ada file yang diupload');
-                }
-                return;
-            }
 
             // Open preview modal - inline function
             $('#preview_hasil_htl_loading').show();
