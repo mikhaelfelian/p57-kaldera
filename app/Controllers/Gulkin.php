@@ -143,6 +143,114 @@ class Gulkin extends BaseController
         }
         return $this->request->isAJAX() ? $this->response->setJSON(['ok' => true]) : redirect()->to(base_url('gulkin'))->with('success', 'Data dihapus');
     }
+
+    /**
+     * Check if file exists for a gulkin record
+     */
+    public function checkFile($id)
+    {
+        if (!$this->request->isAJAX()) {
+            return $this->response->setJSON(['ok' => false, 'message' => 'Invalid request']);
+        }
+
+        $row = $this->model->find((int)$id);
+        if (!$row) {
+            return $this->response->setJSON(['ok' => false, 'message' => 'Data tidak ditemukan']);
+        }
+
+        if (!empty($row['fupload'])) {
+            $fileName = basename($row['fupload']);
+            return $this->response->setJSON([
+                'ok' => true,
+                'file_name' => $fileName,
+                'file_path' => $row['fupload']
+            ]);
+        }
+
+        return $this->response->setJSON([
+            'ok' => true,
+            'file_name' => null
+        ]);
+    }
+
+    /**
+     * Upload file for gulkin record
+     */
+    public function uploadFile()
+    {
+        if (!$this->request->isAJAX()) {
+            return $this->response->setJSON(['ok' => false, 'message' => 'Invalid request']);
+        }
+
+        try {
+            $gulkinId = (int)$this->request->getPost('gulkin_id');
+            if (!$gulkinId) {
+                return $this->response->setJSON(['ok' => false, 'message' => 'ID Gulkin tidak valid']);
+            }
+
+            // Check if gulkin record exists
+            $gulkin = $this->model->find($gulkinId);
+            if (!$gulkin) {
+                return $this->response->setJSON(['ok' => false, 'message' => 'Data Gulkin tidak ditemukan']);
+            }
+
+            $file = $this->request->getFile('file');
+            if (!$file || !$file->isValid()) {
+                return $this->response->setJSON(['ok' => false, 'message' => 'File tidak valid']);
+            }
+
+            $ext = strtolower($file->getExtension());
+            $allowed = ['pdf', 'doc', 'docx', 'xls', 'xlsx', 'jpg', 'jpeg', 'png'];
+            if (!in_array($ext, $allowed)) {
+                return $this->response->setJSON(['ok' => false, 'message' => 'Format file tidak diperbolehkan']);
+            }
+
+            // Check file size (10MB max)
+            if ($file->getSize() > 10 * 1024 * 1024) {
+                return $this->response->setJSON(['ok' => false, 'message' => 'Ukuran file terlalu besar (maksimal 10MB)']);
+            }
+
+            // Create target directory
+            $targetDir = FCPATH . 'file' . DIRECTORY_SEPARATOR . 'gulkin' . DIRECTORY_SEPARATOR . $gulkinId;
+            if (!is_dir($targetDir)) {
+                mkdir($targetDir, 0777, true);
+            }
+
+            // Delete old file if exists
+            if (!empty($gulkin['fupload'])) {
+                $oldFile = FCPATH . ltrim($gulkin['fupload'], '/');
+                if (file_exists($oldFile)) {
+                    unlink($oldFile);
+                }
+            }
+
+            // Generate new filename
+            $newName = 'gulkin_' . $gulkinId . '_' . time() . '.' . $ext;
+            $file->move($targetDir, $newName, true);
+            
+            // Update database
+            $relativePath = '/file/gulkin/' . $gulkinId . '/' . $newName;
+            $this->model->update($gulkinId, ['fupload' => $relativePath]);
+
+            return $this->response->setJSON([
+                'ok' => true,
+                'message' => 'File berhasil diupload',
+                'file_name' => $newName,
+                'file_path' => $relativePath,
+                'csrf_token' => csrf_token(),
+                'csrf_hash' => csrf_hash()
+            ]);
+
+        } catch (\Exception $e) {
+            log_message('error', 'Gulkin upload file error: ' . $e->getMessage());
+            return $this->response->setJSON([
+                'ok' => false,
+                'message' => 'Terjadi kesalahan: ' . $e->getMessage(),
+                'csrf_token' => csrf_token(),
+                'csrf_hash' => csrf_hash()
+            ]);
+        }
+    }
 }
 
 

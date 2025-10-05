@@ -618,6 +618,55 @@ $indikatorList = $indikatorList ?? [];
         var csrfTokenName = '<?= service('security')->getTokenName() ?>';
         var currentDataId = null;
 
+        // Function to open hasil tindak lanjut file preview
+        function openHasilTindakLanjutFilePreview(htlId, fileName) {
+            // Reset modal state
+            $('#preview_hasil_htl_loading').show();
+            $('#preview_hasil_htl_error').hide();
+            $('#preview_hasil_htl_content').hide();
+            $('#preview_hasil_htl_download_notice').hide();
+            $('#preview_hasil_htl_iframe').attr('src', '');
+            $('#preview_hasil_htl_file_title').text(fileName);
+
+            // Open modal
+            $('#previewHasilTindakLanjutFileModal').modal('show');
+
+            // Get file extension
+            var extension = fileName.split('.').pop().toLowerCase();
+            var previewUrl = '<?= base_url('indikator/input/preview-hasil-htl-file') ?>/' + htlId;
+            var downloadUrl = '<?= base_url('indikator/input/download-hasil-htl-file') ?>/' + htlId;
+
+            // Set download button URLs
+            $('#preview_hasil_htl_download_btn').off('click').on('click', function() {
+                window.open(downloadUrl, '_blank');
+            });
+            $('#preview_hasil_htl_download_btn_footer').off('click').on('click', function() {
+                window.open(downloadUrl, '_blank');
+            });
+
+            // Check if file can be previewed
+            var canPreview = ['pdf', 'jpg', 'jpeg', 'png', 'gif'].indexOf(extension) !== -1;
+
+            if (canPreview) {
+                // Load file in iframe
+                $('#preview_hasil_htl_iframe').on('load', function() {
+                    $('#preview_hasil_htl_loading').hide();
+                    $('#preview_hasil_htl_content').show();
+                }).on('error', function() {
+                    $('#preview_hasil_htl_loading').hide();
+                    $('#preview_hasil_htl_error_message').text('Gagal memuat file preview');
+                    $('#preview_hasil_htl_error').show();
+                });
+
+                // Set iframe source
+                $('#preview_hasil_htl_iframe').attr('src', previewUrl);
+            } else {
+                // Show download notice for non-previewable files
+                $('#preview_hasil_htl_loading').hide();
+                $('#preview_hasil_htl_download_notice').show();
+            }
+        }
+
         // Upload Catatan button click
         $(document).on('click', '.upload-catatan-btn', function () {
             var jenis = $(this).data('jenis');
@@ -816,7 +865,7 @@ $indikatorList = $indikatorList ?? [];
                     <td class="text-center">
                         <div class="d-flex justify-content-center">
                             <button type="button" class="btn btn-success btn-sm rounded-0 mr-1 btn-check-hasil-status" title="Check" data-row-id="${rowId}">
-                                <i class="fas fa-lock"></i>
+                                <i class="fas fa-file-upload"></i>
                             </button>
                             <button type="button" class="btn btn-sm rounded-0 btn-upload-hasil ${hasilFile ? 'btn-success' : ''}" title="${hasilFile ? hasilFile : 'Upload Dokumen'}" 
                                 data-row-id="${rowId}" data-verif-name="${verifikatorName}"
@@ -1124,8 +1173,27 @@ $indikatorList = $indikatorList ?? [];
                 return;
             }
 
-            // Open preview modal
-            openHasilTindakLanjutFilePreview(htlId, fileName);
+            // Open preview modal - inline function
+            $('#preview_hasil_htl_loading').show();
+            $('#preview_hasil_htl_error').hide();
+            $('#preview_hasil_htl_content').hide();
+            $('#preview_hasil_htl_download_notice').hide();
+            $('#preview_hasil_htl_iframe').attr('src', '');
+            $('#preview_hasil_htl_file_title').text(fileName);
+            $('#previewHasilTindakLanjutFileModal').modal('show');
+            
+            var extension = fileName.split('.').pop().toLowerCase();
+            var previewUrl = '<?= base_url('indikator/input/preview-hasil-htl-file') ?>/' + htlId;
+            var downloadUrl = '<?= base_url('indikator/input/download-hasil-htl-file') ?>/' + htlId;
+            
+            if (['pdf', 'jpg', 'jpeg', 'png', 'gif'].indexOf(extension) !== -1) {
+                $('#preview_hasil_htl_iframe').attr('src', previewUrl);
+                $('#preview_hasil_htl_loading').hide();
+                $('#preview_hasil_htl_content').show();
+            } else {
+                $('#preview_hasil_htl_loading').hide();
+                $('#preview_hasil_htl_download_notice').show();
+            }
         });
 
         // Preview file button click (eye button in verifikator table)
@@ -1135,23 +1203,10 @@ $indikatorList = $indikatorList ?? [];
             var row = $('tr[data-row-id="' + rowId + '"]');
             var verifId = row.data('verif-id');
 
-            if (!verifId) {
-                if (window.toastr) {
-                    toastr.warning('Belum ada file yang diupload untuk verifikator ini');
-                }
-                return;
-            }
 
             // Get file info from button
             var uploadBtn = row.find('.btn-upload-verif[data-type="' + type + '"]');
             var fileName = uploadBtn.attr('title');
-
-            if (!fileName || fileName === 'Upload Dokumen') {
-                if (window.toastr) {
-                    toastr.warning('Belum ada file yang diupload');
-                }
-                return;
-            }
 
             // Open preview modal
             openFilePreview(verifId, type, fileName);

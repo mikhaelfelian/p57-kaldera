@@ -167,6 +167,8 @@ $routes->group('gulkin', ['namespace' => 'App\\Controllers', 'filter' => 'auth']
     $routes->get('preview/(:num)', 'Gulkin::preview/$1', ['as' => 'gulkin.preview']);
     $routes->get('download/(:num)', 'Gulkin::download/$1', ['as' => 'gulkin.download']);
     $routes->post('delete/(:num)', 'Gulkin::delete/$1', ['as' => 'gulkin.delete']);
+    $routes->get('check-file/(:num)', 'Gulkin::checkFile/$1', ['as' => 'gulkin.check_file']);
+    $routes->post('upload-file', 'Gulkin::uploadFile', ['as' => 'gulkin.upload_file']);
 });
 
 // ==================== LINKS (Web GIS ESDM) ====================
