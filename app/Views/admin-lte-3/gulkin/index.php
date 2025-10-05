@@ -102,6 +102,13 @@ $(function(){
 
     $form.on('submit', function(e){
         e.preventDefault();
+        
+        // Validate form
+        if (!$form[0].checkValidity()) {
+            $form[0].reportValidity();
+            return false;
+        }
+        
         const formData = new FormData(this);
         $progress.show();
         $bar.css('width','0%');
@@ -111,6 +118,7 @@ $(function(){
             data: formData,
             processData: false,
             contentType: false,
+            dataType: 'json',
             xhr: function(){
                 const xhr = $.ajaxSettings.xhr();
                 if (xhr.upload) {
@@ -124,10 +132,25 @@ $(function(){
                 return xhr;
             },
             success: function(res){
-                if (res && res.ok) { toastr.success(res.message || 'Berhasil'); window.location.reload(); }
-                else { toastr.error(res && res.message ? res.message : 'Gagal menyimpan'); }
+                try {
+                    if (typeof res === 'string') {
+                        res = JSON.parse(res);
+                    }
+                    if (res && res.ok) { 
+                        if (window.toastr) { toastr.success(res.message || 'Berhasil'); }
+                        window.location.reload(); 
+                    } else { 
+                        if (window.toastr) { toastr.error(res && res.message ? res.message : 'Gagal menyimpan'); }
+                    }
+                } catch (e) {
+                    console.error('Error parsing response:', e);
+                    if (window.toastr) { toastr.error('Gagal menyimpan'); }
+                }
             },
-            error: function(){ toastr.error('Terjadi kesalahan'); },
+            error: function(xhr, status, error){
+                console.error('AJAX Error:', status, error);
+                if (window.toastr) { toastr.error('Terjadi kesalahan'); }
+            },
             complete: function(){ setTimeout(function(){ $progress.hide(); }, 600); }
         });
     });
@@ -138,10 +161,31 @@ $(function(){
             $.ajax({
                 url: '<?= base_url('gulkin/delete') ?>/' + id,
                 method: 'POST',
-                data: {<?= json_encode(csrf_token()) ?>: '<?= csrf_hash() ?>'},
+                data: {
+                    '<?= csrf_token() ?>': '<?= csrf_hash() ?>'
+                },
                 headers: {'X-Requested-With': 'XMLHttpRequest'},
-                success: function(res){ if (res && res.ok) { toastr.success('Data dihapus'); window.location.reload(); } else { toastr.error('Gagal menghapus'); } },
-                error: function(){ toastr.error('Gagal menghapus'); }
+                dataType: 'json',
+                success: function(res){ 
+                    try {
+                        if (typeof res === 'string') {
+                            res = JSON.parse(res);
+                        }
+                        if (res && res.ok) { 
+                            if (window.toastr) { toastr.success('Data dihapus'); }
+                            window.location.reload(); 
+                        } else { 
+                            if (window.toastr) { toastr.error('Gagal menghapus'); }
+                        }
+                    } catch (e) {
+                        console.error('Error parsing delete response:', e);
+                        if (window.toastr) { toastr.error('Gagal menghapus'); }
+                    }
+                },
+                error: function(xhr, status, error){
+                    console.error('Delete AJAX Error:', status, error);
+                    if (window.toastr) { toastr.error('Gagal menghapus'); }
+                }
             });
         };
         if (window.Swal) { Swal.fire({ title: 'Hapus data?', text: 'Tindakan ini tidak dapat dibatalkan.', icon: 'warning', showCancelButton: true, confirmButtonText: 'Ya, hapus', cancelButtonText: 'Batal' }).then(r => { if (r.isConfirmed) proceed(); }); }

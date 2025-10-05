@@ -30,20 +30,52 @@ class Gulkin extends BaseController
 
     public function store()
     {
-        $year   = (int)($this->request->getPost('year') ?: date('Y'));
-        $month  = (string)($this->request->getPost('month') ?: date('m'));
-        $uraian = trim((string)$this->request->getPost('uraian'));
+        try {
+            $year   = (int)($this->request->getPost('year') ?: date('Y'));
+            $month  = (string)($this->request->getPost('month') ?: date('m'));
+            $uraian = trim((string)$this->request->getPost('uraian'));
 
-        if ($uraian === '' || !preg_match('/^(0[1-9]|1[0-2])$/', $month)) {
-            $msg = 'Uraian dan bulan wajib diisi';
-            return $this->request->isAJAX() ? $this->response->setJSON(['ok' => false, 'message' => $msg]) : redirect()->back()->with('error', $msg);
-        }
+            // Convert month to 2-digit format (01-12) for database validation
+            $month = str_pad($month, 2, '0', STR_PAD_LEFT);
 
-        $id = $this->model->insert([
-            'year'   => $year,
-            'month'  => $month,
-            'uraian' => $uraian,
-        ], true);
+            if ($uraian === '' || !preg_match('/^(0[1-9]|1[0-2])$/', $month)) {
+                $msg = 'Uraian dan bulan wajib diisi dan bulan hanya boleh 1 sampai 12';
+                return $this->request->isAJAX() ? $this->response->setJSON(['ok' => false, 'message' => $msg]) : redirect()->back()->with('error', $msg);
+            }
+
+            $data = [
+                'year'   => $year,
+                'month'  => $month,
+                'uraian' => $uraian,
+            ];
+
+            // Debug: Log the data being inserted
+            log_message('debug', 'Gulkin insert data: ' . json_encode($data));
+            
+            // Test database connection
+            if (!$this->model->db->tableExists('tbl_gulkin')) {
+                $msg = 'Database table tbl_gulkin tidak ditemukan';
+                return $this->request->isAJAX() ? $this->response->setJSON(['ok' => false, 'message' => $msg]) : redirect()->back()->with('error', $msg);
+            }
+
+            // Try direct database insert to bypass model validation
+            $db = \Config\Database::connect();
+            $builder = $db->table('tbl_gulkin');
+            $result = $builder->insert($data);
+            
+            if (!$result) {
+                $msg = 'Gagal menyimpan data ke database (direct insert failed)';
+                return $this->request->isAJAX() ? $this->response->setJSON(['ok' => false, 'message' => $msg]) : redirect()->back()->with('error', $msg);
+            }
+            
+            $id = $db->insertID();
+
+            if (!$id) {
+                $errors = $this->model->errors();
+                log_message('error', 'Gulkin insert failed. Errors: ' . json_encode($errors));
+                $msg = 'Gagal menyimpan data ke database. Errors: ' . implode(', ', $errors);
+                return $this->request->isAJAX() ? $this->response->setJSON(['ok' => false, 'message' => $msg]) : redirect()->back()->with('error', $msg);
+            }
 
         $file = $this->request->getFile('fupload');
         if ($file && $file->isValid()) {
@@ -55,7 +87,7 @@ class Gulkin extends BaseController
                 return $this->request->isAJAX() ? $this->response->setJSON(['ok' => false, 'message' => $msg]) : redirect()->back()->with('error', $msg);
             }
 
-            $targetDir = FCPATH . '' . DIRECTORY_SEPARATOR . 'file' . DIRECTORY_SEPARATOR . 'gulkin' . DIRECTORY_SEPARATOR . $id;
+            $targetDir = FCPATH . 'file' . DIRECTORY_SEPARATOR . 'gulkin' . DIRECTORY_SEPARATOR . $id;
             if (!is_dir($targetDir)) mkdir($targetDir, 0777, true);
             $newName = 'gulkin_' . $id . '_' . time() . '.' . $ext;
             $file->move($targetDir, $newName, true);
@@ -63,11 +95,17 @@ class Gulkin extends BaseController
             $this->model->update($id, ['fupload' => $relative]);
         }
 
-        if ($this->request->isAJAX()) {
-            $row = $this->model->find($id);
-            return $this->response->setJSON(['ok' => true, 'message' => 'Data tersimpan', 'data' => $row]);
+            if ($this->request->isAJAX()) {
+                $row = $this->model->find($id);
+                return $this->response->setJSON(['ok' => true, 'message' => 'Data tersimpan', 'data' => $row]);
+            }
+            return redirect()->to(base_url('gulkin'))->with('success', 'Data tersimpan');
+            
+        } catch (\Exception $e) {
+            log_message('error', 'Gulkin store error: ' . $e->getMessage());
+            $msg = 'Terjadi kesalahan: ' . $e->getMessage();
+            return $this->request->isAJAX() ? $this->response->setJSON(['ok' => false, 'message' => $msg]) : redirect()->back()->with('error', $msg);
         }
-        return redirect()->to(base_url('gulkin'))->with('success', 'Data tersimpan');
     }
 
     public function preview($id)
