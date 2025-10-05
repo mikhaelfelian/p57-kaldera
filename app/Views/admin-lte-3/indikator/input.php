@@ -769,14 +769,16 @@ $indikatorList = $indikatorList ?? [];
                         <input type="text" class="form-control rounded-0 verifikator-name-input" name="verifikator[]" placeholder="Nama Verifikator" value="${verifikatorName}" data-row-id="${rowId}">
                     </td>
                     <td class="text-center">
-                        <button type="button" class="btn btn-success btn-sm rounded-0 mr-1 btn-check-status" title="Check" data-row-id="${rowId}" data-type="hasil">
-                            <i class="fas fa-eye"></i>
-                        </button>
                         <button type="button" class="btn btn-sm rounded-0 btn-upload-verif ${hasilFile ? 'btn-success' : ''}" title="${hasilFile ? hasilFile : 'Upload Dokumen'}" 
                             data-row-id="${rowId}" data-type="hasil" data-verif-name="${verifikatorName}"
-                            style="background-color: ${hasilFile ? '#28a745' : '#6f42c1'}; border-color: ${hasilFile ? '#28a745' : '#6f42c1'};">
-                            <i class="fas ${hasilFile ? 'fa-check-circle' : 'fa-file-alt'}"></i>
+                            style="background-color: ${hasilFile ? '#28a745' : '#28a745'}; border-color: ${hasilFile ? '#28a745' : '#6f42c1'};">
+                            <i class="fas ${hasilFile ? 'fa-file-alt' : 'fa-file-upload'}" style="color: #fff;"></i>
                         </button>
+                        ${hasilFile ? `
+                        <button type="button" class="btn btn-sm rounded-0 mr-1 btn-check-status" title="Check" data-row-id="${rowId}" data-type="hasil" style="background-color: #6f42c1; color: #fff;">
+                            <i class="fas fa-eye"></i>
+                        </button>
+                        ` : ''}
                     </td>
                     <td class="text-center">
                         <button type="button" class="btn btn-success btn-sm rounded-0 mr-1 btn-check-status" title="Check" data-row-id="${rowId}" data-type="rencana">
@@ -916,6 +918,12 @@ $indikatorList = $indikatorList ?? [];
             $(this).next('.custom-file-label').html(fileName);
         });
 
+        // Update hasil file input label
+        $('#hasil_htl_file').on('change', function() {
+            var fileName = $(this).val().split('\\').pop();
+            $(this).next('.custom-file-label').html(fileName);
+        });
+
         // Upload verifikator file form submit
         $('#uploadVerifikatorFileForm').on('submit', function (e) {
             e.preventDefault();
@@ -1003,6 +1011,121 @@ $indikatorList = $indikatorList ?? [];
                     }
                 }
             });
+        });
+
+        // Upload hasil tindak lanjut file form submit
+        $('#uploadHasilTindakLanjutFileForm').on('submit', function (e) {
+            e.preventDefault();
+
+            // Debug: Check form values before submission
+            console.log('Hasil HTL Form submission - Hidden field values:', {
+                htl_id: $('#hasil_htl_id').val(),
+                htl_tahun: $('#hasil_htl_tahun').val(),
+                htl_triwulan: $('#hasil_htl_triwulan').val(),
+                htl_jenis_indikator: $('#hasil_htl_jenis_indikator').val(),
+                htl_nama: $('#hasil_htl_nama').val()
+            });
+
+            var formData = new FormData(this);
+            formData.append(csrfTokenName, csrfHash);
+
+            var submitBtn = $(this).find('button[type="submit"]');
+            var originalBtnText = submitBtn.html();
+            submitBtn.prop('disabled', true).html('<i class="fas fa-spinner fa-spin"></i> Uploading...');
+
+            $.ajax({
+                url: '<?= base_url('indikator/input/upload-hasil-htl-file') ?>',
+                type: 'POST',
+                data: formData,
+                processData: false,
+                contentType: false,
+                dataType: 'json',
+                success: function (res) {
+                    if (res && res.csrf_hash) { csrfHash = res.csrf_hash; }
+                    
+                    submitBtn.prop('disabled', false).html(originalBtnText);
+
+                    if (res && res.ok) {
+                        if (window.toastr) { 
+                            toastr.success(res.message || 'File berhasil diupload'); 
+                        }
+                        $('#uploadHasilTindakLanjutFileModal').modal('hide');
+                        
+                        // Update button appearance
+                        var htlId = $('#hasil_htl_id').val();
+                        var fileName = res.file_name;
+                        
+                        // Find and update the button
+                        var btn = $('.btn-upload-hasil').filter(function() {
+                            var row = $(this).closest('tr');
+                            return row.data('verif-id') == htlId || 
+                                   row.find('.hasil-verifikator-name-input').val() === $('#hasil_htl_nama').val();
+                        }).first();
+
+                        if (btn.length > 0) {
+                            btn.attr('title', fileName);
+                            btn.css({
+                                'background-color': '#28a745',
+                                'border-color': '#28a745'
+                            });
+                            btn.removeClass('btn-info').addClass('btn-success');
+                            btn.find('i').removeClass('fa-file-alt').addClass('fa-check-circle');
+                            
+                            // Update row htl ID if new
+                            if (res.htl_id && !htlId) {
+                                btn.closest('tr').attr('data-verif-id', res.htl_id);
+                            }
+                        }
+                    } else {
+                        if (window.toastr) { 
+                            toastr.error(res.message || 'Gagal mengupload file'); 
+                        }
+                    }
+                },
+                error: function (xhr) {
+                    submitBtn.prop('disabled', false).html(originalBtnText);
+                    
+                    try {
+                        var data = JSON.parse(xhr.responseText);
+                        if (data && data.csrf_hash) { csrfHash = data.csrf_hash; }
+                        if (window.toastr) { 
+                            toastr.error(data.message || 'Gagal mengupload file'); 
+                        }
+                    } catch (e) {
+                        if (window.toastr) { 
+                            toastr.error('Gagal mengupload file'); 
+                        }
+                    }
+                }
+            });
+        });
+
+        // Preview hasil tindak lanjut file button click
+        $(document).on('click', '.btn-check-hasil-status', function () {
+            var rowId = $(this).data('row-id');
+            var row = $('tr[data-row-id="' + rowId + '"]');
+            var htlId = row.data('verif-id');
+
+            if (!htlId) {
+                if (window.toastr) {
+                    toastr.warning('Belum ada file yang diupload untuk verifikator ini');
+                }
+                return;
+            }
+
+            // Get file info from button
+            var uploadBtn = row.find('.btn-upload-hasil');
+            var fileName = uploadBtn.attr('title');
+
+            if (!fileName || fileName === 'Upload Dokumen') {
+                if (window.toastr) {
+                    toastr.warning('Belum ada file yang diupload');
+                }
+                return;
+            }
+
+            // Open preview modal
+            openHasilTindakLanjutFilePreview(htlId, fileName);
         });
 
         // Preview file button click (eye button in verifikator table)

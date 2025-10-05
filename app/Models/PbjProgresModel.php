@@ -15,6 +15,16 @@ class PbjProgresModel extends Model
         'catatan_kendala',
         'rencana_tindak_lanjut',
         'feedback_unit_kerja',
+        'file_path',
+        'file_name',
+        'file_size',
+        'keterangan',
+        'status_verifikasi',
+        'catatan_tambahan',
+        'verifikasi_by',
+        'verifikasi_at',
+        'feedback_by',
+        'feedback_at',
         'uploaded_by',
         'uploaded_at'
     ];

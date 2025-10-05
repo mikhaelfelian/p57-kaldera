@@ -232,6 +232,14 @@ $routes->group('pbj', ['namespace' => 'App\\Controllers', 'filter' => 'auth'], f
     $routes->get('input/progres', 'PbjProgres::progres', ['as' => 'pbj.input.progres']);
     $routes->post('input/progres/save', 'PbjProgres::save', ['as' => 'pbj.input.progres.save']);
     $routes->post('input/progres/update-status', 'PbjProgres::updateStatus', ['as' => 'pbj.input.progres.update_status']);
+    $routes->post('input/progres/upload-file', 'PbjProgres::uploadFile', ['as' => 'pbj.input.progres.upload_file']);
+    $routes->get('input/progres/check-file', 'PbjProgres::checkFile', ['as' => 'pbj.input.progres.check_file']);
+    $routes->get('input/progres/preview-file/(:num)/(:num)', 'PbjProgres::previewFile/$1/$2', ['as' => 'pbj.input.progres.preview_file']);
+    $routes->get('input/progres/download-file/(:num)/(:num)', 'PbjProgres::downloadFile/$1/$2', ['as' => 'pbj.input.progres.download_file']);
+    $routes->get('input/progres/get-verifikasi', 'PbjProgres::getVerifikasi', ['as' => 'pbj.input.progres.get_verifikasi']);
+    $routes->post('input/progres/save-verifikasi', 'PbjProgres::saveVerifikasi', ['as' => 'pbj.input.progres.save_verifikasi']);
+    $routes->get('input/progres/get-feedback', 'PbjProgres::getFeedback', ['as' => 'pbj.input.progres.get_feedback']);
+    $routes->post('input/progres/save-feedback', 'PbjProgres::saveFeedback', ['as' => 'pbj.input.progres.save_feedback']);
     
     // Rekap routes
     $routes->get('rekap/indeks', 'Pbj::rekap_indeks', ['as' => 'pbj.rekap.indeks']);
