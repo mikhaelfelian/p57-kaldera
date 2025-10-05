@@ -14,6 +14,9 @@
     <div class="card-header d-flex align-items-center justify-content-between rounded-0">
         <h3 class="card-title mb-0">MONITORING PROGRES PENCATATAN PBJ</h3>
         <div class="d-flex align-items-center">
+            <button type="button" class="btn btn-success rounded-0 mr-2" onclick="exportToExcel()">
+                <i class="fas fa-file-excel"></i> Export Excel
+            </button>
             <span class="text-success font-weight-bold mr-3"></span>
         </div>
     </div>
@@ -426,10 +429,15 @@
     
     // Export function
     function exportToExcel() {
-        // Create a simple table export
-        var table = document.querySelector('.table');
-        var wb = XLSX.utils.table_to_book(table);
-        XLSX.writeFile(wb, 'pbj_progres_<?= $tahun ?>_<?= bulan_ke_str($bulan) ?>.xlsx');
+        // Use server-side PHPSpreadsheet export
+        var tahun = <?= $tahun ?>;
+        var bulan = <?= $bulan ?>;
+        
+        // Create download link
+        var url = '<?= base_url('pbj/input/progres/export-excel') ?>?tahun=' + tahun + '&bulan=' + bulan;
+        
+        // Open in new window to trigger download
+        window.open(url, '_blank');
     }
     
     // Make export function globally available

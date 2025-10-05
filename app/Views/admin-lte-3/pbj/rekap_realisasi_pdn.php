@@ -197,13 +197,27 @@
     
     // Export functions
     function exportToExcel() {
-        var table = document.querySelector('.table');
-        var wb = XLSX.utils.table_to_book(table);
-        XLSX.writeFile(wb, 'pbj_realisasi_pdn_rekap_<?= $tahun ?>_<?= bulan_ke_str($bulan) ?>.xlsx');
+        // Use server-side PHPSpreadsheet export
+        var tahun = <?= $tahun ?>;
+        var bulan = <?= $bulan ?>;
+        
+        // Create download link
+        var url = '<?= base_url('pbj/rekap/realisasi_pdn/export-excel') ?>?tahun=' + tahun + '&bulan=' + bulan;
+        
+        // Open in new window to trigger download
+        window.open(url, '_blank');
     }
     
     function exportToPdf() {
-        window.print();
+        // Use server-side TCPDF export
+        var tahun = <?= $tahun ?>;
+        var bulan = <?= $bulan ?>;
+        
+        // Create download link
+        var url = '<?= base_url('pbj/rekap/realisasi_pdn/export-pdf') ?>?tahun=' + tahun + '&bulan=' + bulan;
+        
+        // Open in new window to trigger download
+        window.open(url, '_blank');
     }
     
     // Make export functions globally available

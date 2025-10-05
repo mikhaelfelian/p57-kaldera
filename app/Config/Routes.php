@@ -240,11 +240,16 @@ $routes->group('pbj', ['namespace' => 'App\\Controllers', 'filter' => 'auth'], f
     $routes->post('input/progres/save-verifikasi', 'PbjProgres::saveVerifikasi', ['as' => 'pbj.input.progres.save_verifikasi']);
     $routes->get('input/progres/get-feedback', 'PbjProgres::getFeedback', ['as' => 'pbj.input.progres.get_feedback']);
     $routes->post('input/progres/save-feedback', 'PbjProgres::saveFeedback', ['as' => 'pbj.input.progres.save_feedback']);
+    $routes->get('input/progres/export-excel', 'PbjProgres::exportExcel', ['as' => 'pbj.input.progres.export_excel']);
     
     // Rekap routes
     $routes->get('rekap/indeks', 'Pbj::rekap_indeks', ['as' => 'pbj.rekap.indeks']);
     $routes->get('rekap/realisasi_pdn', 'PbjPdn::rekap_realisasi_pdn', ['as' => 'pbj.rekap.realisasi_pdn']);
+    $routes->get('rekap/realisasi_pdn/export-excel', 'PbjPdn::rekapRealisasiPdnExportExcel', ['as' => 'pbj.rekap.realisasi_pdn.export_excel']);
+    $routes->get('rekap/realisasi_pdn/export-pdf', 'PbjPdn::rekapRealisasiPdnExportPdf', ['as' => 'pbj.rekap.realisasi_pdn.export_pdf']);
     $routes->get('rekap/progres', 'PbjProgres::rekap_progres', ['as' => 'pbj.rekap.progres']);
+    $routes->get('rekap/export-excel', 'PbjProgres::rekapExportExcel', ['as' => 'pbj.rekap.export_excel']);
+    $routes->get('rekap/export-pdf', 'PbjProgres::rekapExportPdf', ['as' => 'pbj.rekap.export_pdf']);
 });
 
 // ==================== Bantuan ====================

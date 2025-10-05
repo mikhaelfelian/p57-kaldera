@@ -655,4 +655,381 @@ class PbjProgres extends BaseController
             ]);
         }
     }
+
+    /**
+     * Export Excel
+     */
+    public function exportExcel()
+    {
+        $tahun = (int)($this->request->getGet('tahun') ?: date('Y'));
+        $bulan = (int)($this->request->getGet('bulan') ?: date('n'));
+        
+        // Get existing data
+        $existing = $this->getExistingData($tahun, $bulan);
+        
+        // Create new Spreadsheet object
+        $spreadsheet = new \PhpOffice\PhpSpreadsheet\Spreadsheet();
+        $sheet = $spreadsheet->getActiveSheet();
+        
+        // Set document properties
+        $spreadsheet->getProperties()
+            ->setCreator('Sistem Kaldera ESDM')
+            ->setLastModifiedBy('Sistem Kaldera ESDM')
+            ->setTitle('Monitoring Progres Pencatatan PBJ')
+            ->setSubject('Export Data PBJ Progres')
+            ->setDescription('Data monitoring progres pencatatan PBJ untuk periode ' . $tahun . ' - ' . bulan_ke_str($bulan));
+        
+        // Set headers
+        $headers = [
+            'A1' => 'MONITORING PROGRES PENCATATAN PBJ',
+            'A2' => 'Periode: ' . $tahun . ' - ' . bulan_ke_str($bulan),
+            'A3' => 'Tanggal Export: ' . date('d/m/Y H:i:s'),
+            'A5' => 'No',
+            'B5' => 'Bulan',
+            'C5' => 'Status',
+            'D5' => 'Catatan Kendala',
+            'E5' => 'Rencana Tindak Lanjut',
+            'F5' => 'Feedback Unit Kerja',
+            'G5' => 'File Upload',
+            'H5' => 'Keterangan',
+            'I5' => 'Uploaded By',
+            'J5' => 'Uploaded At'
+        ];
+        
+        // Set header values
+        foreach ($headers as $cell => $value) {
+            $sheet->setCellValue($cell, $value);
+        }
+        
+        // Style headers
+        $sheet->getStyle('A1')->getFont()->setBold(true)->setSize(16);
+        $sheet->getStyle('A2:A3')->getFont()->setSize(10);
+        $sheet->getStyle('A5:J5')->getFont()->setBold(true);
+        $sheet->getStyle('A5:J5')->getFill()
+            ->setFillType(\PhpOffice\PhpSpreadsheet\Style\Fill::FILL_SOLID)
+            ->getStartColor()->setRGB('3B6EA8');
+        $sheet->getStyle('A5:J5')->getFont()->setColor(new \PhpOffice\PhpSpreadsheet\Style\Color('FFFFFF'));
+        
+        // Set data
+        $row = 6;
+        if ($existing) {
+            $sheet->setCellValue('A' . $row, 1);
+            $sheet->setCellValue('B' . $row, bulan_ke_str($bulan));
+            $sheet->setCellValue('C' . $row, $existing['status'] ?? '');
+            $sheet->setCellValue('D' . $row, $existing['catatan_kendala'] ?? '');
+            $sheet->setCellValue('E' . $row, $existing['rencana_tindak_lanjut'] ?? '');
+            
+            // Process feedback data
+            $feedbackData = [];
+            if ($existing['feedback_unit_kerja']) {
+                $feedback = json_decode($existing['feedback_unit_kerja'], true);
+                if ($feedback) {
+                    foreach ($feedback as $item) {
+                        $feedbackData[] = ($item['unit_kerja'] ?? '') . ': ' . ($item['alasan_saran'] ?? '');
+                    }
+                }
+            }
+            $sheet->setCellValue('F' . $row, implode('; ', $feedbackData));
+            $sheet->setCellValue('G' . $row, $existing['file_name'] ?? '');
+            $sheet->setCellValue('H' . $row, $existing['keterangan'] ?? '');
+            $sheet->setCellValue('I' . $row, $existing['uploaded_by'] ?? '');
+            $sheet->setCellValue('J' . $row, $existing['uploaded_at'] ?? '');
+        } else {
+            $sheet->setCellValue('A' . $row, 1);
+            $sheet->setCellValue('B' . $row, bulan_ke_str($bulan));
+            $sheet->setCellValue('C' . $row, 'Belum Ada Data');
+        }
+        
+        // Auto-size columns
+        foreach (range('A', 'J') as $col) {
+            $sheet->getColumnDimension($col)->setAutoSize(true);
+        }
+        
+        // Set filename
+        $filename = 'PBJ_Progres_' . $tahun . '_' . str_pad($bulan, 2, '0', STR_PAD_LEFT) . '_' . date('YmdHis') . '.xlsx';
+        
+        // Set headers for download
+        header('Content-Type: application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
+        header('Content-Disposition: attachment;filename="' . $filename . '"');
+        header('Cache-Control: max-age=0');
+        
+        // Create writer and save
+        $writer = new \PhpOffice\PhpSpreadsheet\Writer\Xlsx($spreadsheet);
+        $writer->save('php://output');
+        exit;
+    }
+
+    /**
+     * Export Excel for Rekap
+     */
+    public function rekapExportExcel()
+    {
+        $tahun = (int)($this->request->getGet('tahun') ?: date('Y'));
+        $bulan = (int)($this->request->getGet('bulan') ?: date('n'));
+        
+        // Get existing data
+        $existing = $this->getExistingData($tahun, $bulan);
+        $chartData = $this->getChartData($tahun, $bulan);
+        
+        // Create new Spreadsheet object
+        $spreadsheet = new \PhpOffice\PhpSpreadsheet\Spreadsheet();
+        $sheet = $spreadsheet->getActiveSheet();
+        
+        // Set document properties
+        $spreadsheet->getProperties()
+            ->setCreator('Sistem Kaldera ESDM')
+            ->setLastModifiedBy('Sistem Kaldera ESDM')
+            ->setTitle('Rekap Progres Pencatatan PBJ')
+            ->setSubject('Export Data Rekap PBJ Progres')
+            ->setDescription('Data rekap progres pencatatan PBJ untuk periode ' . $tahun . ' - ' . bulan_ke_str($bulan));
+        
+        // Set headers
+        $headers = [
+            'A1' => 'REKAP PROGRES PENCATATAN PBJ',
+            'A2' => 'Periode: ' . $tahun . ' - ' . bulan_ke_str($bulan),
+            'A3' => 'Tanggal Export: ' . date('d/m/Y H:i:s'),
+            'A5' => 'No',
+            'B5' => 'Bulan',
+            'C5' => 'Status',
+            'D5' => 'Catatan Kendala',
+            'E5' => 'Rencana Tindak Lanjut',
+            'F5' => 'Feedback Unit Kerja',
+            'G5' => 'File Upload',
+            'H5' => 'Keterangan',
+            'I5' => 'Uploaded By',
+            'J5' => 'Uploaded At'
+        ];
+        
+        // Set header values
+        foreach ($headers as $cell => $value) {
+            $sheet->setCellValue($cell, $value);
+        }
+        
+        // Style headers
+        $sheet->getStyle('A1')->getFont()->setBold(true)->setSize(16);
+        $sheet->getStyle('A2:A3')->getFont()->setSize(10);
+        $sheet->getStyle('A5:J5')->getFont()->setBold(true);
+        $sheet->getStyle('A5:J5')->getFill()
+            ->setFillType(\PhpOffice\PhpSpreadsheet\Style\Fill::FILL_SOLID)
+            ->getStartColor()->setRGB('3B6EA8');
+        $sheet->getStyle('A5:J5')->getFont()->setColor(new \PhpOffice\PhpSpreadsheet\Style\Color('FFFFFF'));
+        
+        // Set data
+        $row = 6;
+        if ($existing) {
+            $sheet->setCellValue('A' . $row, 1);
+            $sheet->setCellValue('B' . $row, bulan_ke_str($bulan));
+            $sheet->setCellValue('C' . $row, $existing['status'] ?? '');
+            $sheet->setCellValue('D' . $row, $existing['catatan_kendala'] ?? '');
+            $sheet->setCellValue('E' . $row, $existing['rencana_tindak_lanjut'] ?? '');
+            
+            // Process feedback data
+            $feedbackData = [];
+            if ($existing['feedback_unit_kerja']) {
+                $feedback = json_decode($existing['feedback_unit_kerja'], true);
+                if ($feedback) {
+                    foreach ($feedback as $item) {
+                        $feedbackData[] = ($item['unit_kerja'] ?? '') . ': ' . ($item['alasan_saran'] ?? '');
+                    }
+                }
+            }
+            $sheet->setCellValue('F' . $row, implode('; ', $feedbackData));
+            $sheet->setCellValue('G' . $row, $existing['file_name'] ?? '');
+            $sheet->setCellValue('H' . $row, $existing['keterangan'] ?? '');
+            $sheet->setCellValue('I' . $row, $existing['uploaded_by'] ?? '');
+            $sheet->setCellValue('J' . $row, $existing['uploaded_at'] ?? '');
+        } else {
+            $sheet->setCellValue('A' . $row, 1);
+            $sheet->setCellValue('B' . $row, bulan_ke_str($bulan));
+            $sheet->setCellValue('C' . $row, 'Belum Ada Data');
+        }
+        
+        // Add chart data summary if available
+        if ($chartData && !empty($chartData)) {
+            $row += 2;
+            $sheet->setCellValue('A' . $row, 'SUMMARY DATA');
+            $sheet->getStyle('A' . $row)->getFont()->setBold(true)->setSize(14);
+            $row++;
+            
+            foreach ($chartData as $key => $value) {
+                $sheet->setCellValue('A' . $row, ucfirst(str_replace('_', ' ', $key)));
+                $sheet->setCellValue('B' . $row, $value);
+                $row++;
+            }
+        }
+        
+        // Auto-size columns
+        foreach (range('A', 'J') as $col) {
+            $sheet->getColumnDimension($col)->setAutoSize(true);
+        }
+        
+        // Set filename
+        $filename = 'PBJ_Rekap_Progres_' . $tahun . '_' . str_pad($bulan, 2, '0', STR_PAD_LEFT) . '_' . date('YmdHis') . '.xlsx';
+        
+        // Set headers for download
+        header('Content-Type: application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
+        header('Content-Disposition: attachment;filename="' . $filename . '"');
+        header('Cache-Control: max-age=0');
+        
+        // Create writer and save
+        $writer = new \PhpOffice\PhpSpreadsheet\Writer\Xlsx($spreadsheet);
+        $writer->save('php://output');
+        exit;
+    }
+
+    /**
+     * Export PDF for Rekap
+     */
+    public function rekapExportPdf()
+    {
+        $tahun = (int)($this->request->getGet('tahun') ?: date('Y'));
+        $bulan = (int)($this->request->getGet('bulan') ?: date('n'));
+        
+        // Get existing data
+        $existing = $this->getExistingData($tahun, $bulan);
+        $chartData = $this->getChartData($tahun, $bulan);
+        
+        // Create new PDF document
+        $pdf = new \TCPDF(PDF_PAGE_ORIENTATION, PDF_UNIT, PDF_PAGE_FORMAT, true, 'UTF-8', false);
+        
+        // Set document information
+        $pdf->SetCreator('Sistem Kaldera ESDM');
+        $pdf->SetAuthor('Sistem Kaldera ESDM');
+        $pdf->SetTitle('Rekap Progres Pencatatan PBJ');
+        $pdf->SetSubject('Export Data Rekap PBJ Progres');
+        $pdf->SetKeywords('PBJ, Progres, ESDM, Kaldera');
+        
+        // Set default header data
+        $pdf->SetHeaderData('', 0, 'REKAP PROGRES PENCATATAN PBJ', 'Periode: ' . $tahun . ' - ' . bulan_ke_str($bulan) . ' | Tanggal: ' . date('d/m/Y H:i:s'));
+        
+        // Set header and footer fonts
+        $pdf->setHeaderFont(Array(PDF_FONT_NAME_MAIN, '', PDF_FONT_SIZE_MAIN));
+        $pdf->setFooterFont(Array(PDF_FONT_NAME_DATA, '', PDF_FONT_SIZE_DATA));
+        
+        // Set default monospaced font
+        $pdf->SetDefaultMonospacedFont(PDF_FONT_MONOSPACED);
+        
+        // Set margins
+        $pdf->SetMargins(PDF_MARGIN_LEFT, PDF_MARGIN_TOP, PDF_MARGIN_RIGHT);
+        $pdf->SetHeaderMargin(PDF_MARGIN_HEADER);
+        $pdf->SetFooterMargin(PDF_MARGIN_FOOTER);
+        
+        // Set auto page breaks
+        $pdf->SetAutoPageBreak(TRUE, PDF_MARGIN_BOTTOM);
+        
+        // Set image scale factor
+        $pdf->setImageScale(PDF_IMAGE_SCALE_RATIO);
+        
+        // Add a page
+        $pdf->AddPage();
+        
+        // Set font
+        $pdf->SetFont('helvetica', '', 10);
+        
+        // Title
+        $pdf->SetFont('helvetica', 'B', 16);
+        $pdf->Cell(0, 10, 'REKAP PROGRES PENCATATAN PBJ', 0, 1, 'C');
+        $pdf->SetFont('helvetica', '', 10);
+        $pdf->Cell(0, 5, 'Periode: ' . $tahun . ' - ' . bulan_ke_str($bulan), 0, 1, 'C');
+        $pdf->Cell(0, 5, 'Tanggal Export: ' . date('d/m/Y H:i:s'), 0, 1, 'C');
+        $pdf->Ln(10);
+        
+        // Data table
+        $pdf->SetFont('helvetica', 'B', 12);
+        $pdf->Cell(0, 8, 'DATA PROGRES PBJ', 0, 1, 'L');
+        $pdf->SetFont('helvetica', '', 10);
+        
+        if ($existing) {
+            // Table headers
+            $pdf->SetFillColor(59, 110, 168); // Blue background
+            $pdf->SetTextColor(255, 255, 255); // White text
+            $pdf->SetFont('helvetica', 'B', 9);
+            
+            $pdf->Cell(30, 8, 'Bulan', 1, 0, 'C', true);
+            $pdf->Cell(25, 8, 'Status', 1, 0, 'C', true);
+            $pdf->Cell(40, 8, 'File Upload', 1, 0, 'C', true);
+            $pdf->Cell(40, 8, 'Uploaded By', 1, 0, 'C', true);
+            $pdf->Cell(30, 8, 'Uploaded At', 1, 1, 'C', true);
+            
+            // Table data
+            $pdf->SetTextColor(0, 0, 0); // Black text
+            $pdf->SetFont('helvetica', '', 9);
+            
+            $pdf->Cell(30, 8, bulan_ke_str($bulan), 1, 0, 'C');
+            $pdf->Cell(25, 8, $existing['status'] ?? '', 1, 0, 'C');
+            $pdf->Cell(40, 8, $existing['file_name'] ?? '', 1, 0, 'C');
+            $pdf->Cell(40, 8, $existing['uploaded_by'] ?? '', 1, 0, 'C');
+            $pdf->Cell(30, 8, $existing['uploaded_at'] ?? '', 1, 1, 'C');
+            
+            $pdf->Ln(10);
+            
+            // Catatan Kendala
+            if (!empty($existing['catatan_kendala'])) {
+                $pdf->SetFont('helvetica', 'B', 10);
+                $pdf->Cell(0, 6, 'Catatan Kendala:', 0, 1, 'L');
+                $pdf->SetFont('helvetica', '', 9);
+                $pdf->MultiCell(0, 5, $existing['catatan_kendala'], 0, 'L');
+                $pdf->Ln(5);
+            }
+            
+            // Rencana Tindak Lanjut
+            if (!empty($existing['rencana_tindak_lanjut'])) {
+                $pdf->SetFont('helvetica', 'B', 10);
+                $pdf->Cell(0, 6, 'Rencana Tindak Lanjut:', 0, 1, 'L');
+                $pdf->SetFont('helvetica', '', 9);
+                $pdf->MultiCell(0, 5, $existing['rencana_tindak_lanjut'], 0, 'L');
+                $pdf->Ln(5);
+            }
+            
+            // Feedback Unit Kerja
+            if (!empty($existing['feedback_unit_kerja'])) {
+                $pdf->SetFont('helvetica', 'B', 10);
+                $pdf->Cell(0, 6, 'Feedback Unit Kerja:', 0, 1, 'L');
+                $pdf->SetFont('helvetica', '', 9);
+                
+                $feedback = json_decode($existing['feedback_unit_kerja'], true);
+                if ($feedback) {
+                    foreach ($feedback as $index => $item) {
+                        $pdf->SetFont('helvetica', 'B', 9);
+                        $pdf->Cell(0, 5, 'Unit Kerja ' . $index . ':', 0, 1, 'L');
+                        $pdf->SetFont('helvetica', '', 9);
+                        $pdf->Cell(0, 5, 'Unit: ' . ($item['unit_kerja'] ?? ''), 0, 1, 'L');
+                        $pdf->Cell(0, 5, 'Alasan/Saran: ' . ($item['alasan_saran'] ?? ''), 0, 1, 'L');
+                        $pdf->Ln(3);
+                    }
+                }
+            }
+            
+            // Keterangan
+            if (!empty($existing['keterangan'])) {
+                $pdf->SetFont('helvetica', 'B', 10);
+                $pdf->Cell(0, 6, 'Keterangan:', 0, 1, 'L');
+                $pdf->SetFont('helvetica', '', 9);
+                $pdf->MultiCell(0, 5, $existing['keterangan'], 0, 'L');
+            }
+        } else {
+            $pdf->SetFont('helvetica', '', 10);
+            $pdf->Cell(0, 8, 'Belum Ada Data untuk periode ini', 0, 1, 'C');
+        }
+        
+        // Add chart data summary if available
+        if ($chartData && !empty($chartData)) {
+            $pdf->AddPage();
+            $pdf->SetFont('helvetica', 'B', 12);
+            $pdf->Cell(0, 8, 'SUMMARY DATA', 0, 1, 'L');
+            $pdf->SetFont('helvetica', '', 10);
+            
+            foreach ($chartData as $key => $value) {
+                $pdf->Cell(60, 6, ucfirst(str_replace('_', ' ', $key)) . ':', 0, 0, 'L');
+                $pdf->Cell(0, 6, $value, 0, 1, 'L');
+            }
+        }
+        
+        // Set filename
+        $filename = 'PBJ_Rekap_Progres_' . $tahun . '_' . str_pad($bulan, 2, '0', STR_PAD_LEFT) . '_' . date('YmdHis') . '.pdf';
+        
+        // Output PDF
+        $pdf->Output($filename, 'D');
+        exit;
+    }
 }
