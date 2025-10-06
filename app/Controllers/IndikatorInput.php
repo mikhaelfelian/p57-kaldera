@@ -710,4 +710,161 @@ class IndikatorInput extends BaseController
         
         return $result;
     }
+
+    // ==================== MISSING METHODS FOR COMPLETE MENU ====================
+    
+    public function uploadHasilHtlFile()
+    {
+        if (!$this->request->isAJAX()) {
+            return $this->response->setJSON(['ok' => false, 'message' => 'Invalid request']);
+        }
+
+        try {
+            $htlId = $this->request->getPost('htl_id');
+            $tahun = $this->request->getPost('htl_tahun');
+            $triwulan = $this->request->getPost('htl_triwulan');
+            $jenisIndikator = $this->request->getPost('htl_jenis_indikator');
+            $nama = $this->request->getPost('htl_nama');
+            $file = $this->request->getFile('file');
+
+            if (!$file || !$file->isValid()) {
+                return $this->response->setJSON(['ok' => false, 'message' => 'File tidak valid']);
+            }
+
+            // Create upload directory
+            $uploadDir = FCPATH . 'file/indikator/hasil-htl/';
+            if (!is_dir($uploadDir)) {
+                mkdir($uploadDir, 0755, true);
+            }
+
+            // Generate unique filename
+            $originalName = $file->getClientName();
+            $extension = $file->getClientExtension();
+            $fileName = time() . '_' . preg_replace('/[^a-zA-Z0-9._-]/', '_', $originalName);
+            $filePath = 'file/indikator/hasil-htl/' . $fileName;
+
+            // Move file
+            if (!$file->move($uploadDir, $fileName)) {
+                return $this->response->setJSON(['ok' => false, 'message' => 'Gagal mengupload file']);
+            }
+
+            // Save to database
+            $data = [
+                'tahun' => $tahun,
+                'triwulan' => $triwulan,
+                'jenis_indikator' => $jenisIndikator,
+                'nama_verifikator' => $nama,
+                // Align with existing verifikator schema so UI can read it
+                'hasil_verifikasi_file' => $filePath,
+                'hasil_verifikasi_file_name' => $originalName,
+                'created_at' => date('Y-m-d H:i:s')
+            ];
+
+            if ($htlId) {
+                $data['id'] = $htlId;
+            }
+
+            $this->indikatorVerifModel->save($data);
+            $newHtlId = $this->indikatorVerifModel->getInsertID();
+
+            return $this->response->setJSON([
+                'ok' => true,
+                'message' => 'File berhasil diupload',
+                'file_name' => $originalName,
+                'htl_id' => $newHtlId ?: $htlId,
+                'csrf_hash' => csrf_hash()
+            ]);
+
+        } catch (\Exception $e) {
+            log_message('error', 'Upload hasil HTL file error: ' . $e->getMessage());
+            return $this->response->setJSON(['ok' => false, 'message' => 'Gagal mengupload file: ' . $e->getMessage()]);
+        }
+    }
+
+    public function previewHasilHtlFile($htlId)
+    {
+        if (!$htlId) {
+            throw new \CodeIgniter\Exceptions\PageNotFoundException('Parameter tidak valid');
+        }
+
+        $htl = $this->indikatorVerifModel->find($htlId);
+        
+        if (!$htl) {
+            throw new \CodeIgniter\Exceptions\PageNotFoundException('Data tidak ditemukan');
+        }
+
+        // Support both old and new columns
+        $filePath = $htl['hasil_verifikasi_file'] ?? $htl['hasil_tindak_lanjut_file'] ?? null;
+        $fileName = $htl['hasil_verifikasi_file_name'] ?? $htl['hasil_tindak_lanjut_file_name'] ?? null;
+
+        if (!$filePath || !$fileName) {
+            throw new \CodeIgniter\Exceptions\PageNotFoundException('File tidak ditemukan');
+        }
+
+        $fullPath = FCPATH . $filePath;
+        
+        if (!file_exists($fullPath)) {
+            throw new \CodeIgniter\Exceptions\PageNotFoundException('File tidak ditemukan di server');
+        }
+
+        // Get file extension and MIME type
+        $extension = strtolower(pathinfo($fileName, PATHINFO_EXTENSION));
+        $mimeType = $this->getMimeType($extension);
+
+        // Set appropriate headers for preview
+        $this->response->setHeader('Content-Type', $mimeType);
+        $this->response->setHeader('Content-Disposition', 'inline; filename="' . $fileName . '"');
+        $this->response->setHeader('Content-Length', filesize($fullPath));
+        $this->response->setHeader('Cache-Control', 'no-cache, no-store, must-revalidate');
+        $this->response->setHeader('Pragma', 'no-cache');
+        $this->response->setHeader('Expires', '0');
+
+        return $this->response->setBody(file_get_contents($fullPath));
+    }
+
+    public function downloadHasilHtlFile($htlId)
+    {
+        if (!$htlId) {
+            throw new \CodeIgniter\Exceptions\PageNotFoundException('Parameter tidak valid');
+        }
+
+        $htl = $this->indikatorVerifModel->find($htlId);
+        
+        if (!$htl) {
+            throw new \CodeIgniter\Exceptions\PageNotFoundException('Data tidak ditemukan');
+        }
+
+        // Support both old and new columns
+        $filePath = $htl['hasil_verifikasi_file'] ?? $htl['hasil_tindak_lanjut_file'] ?? null;
+        $fileName = $htl['hasil_verifikasi_file_name'] ?? $htl['hasil_tindak_lanjut_file_name'] ?? null;
+
+        if (!$filePath || !$fileName) {
+            throw new \CodeIgniter\Exceptions\PageNotFoundException('File tidak ditemukan');
+        }
+
+        $fullPath = FCPATH . $filePath;
+        
+        if (!file_exists($fullPath)) {
+            throw new \CodeIgniter\Exceptions\PageNotFoundException('File tidak ditemukan di server');
+        }
+
+        return $this->response->download($fullPath, null)->setFileName($fileName);
+    }
+
+    private function getMimeType($extension)
+    {
+        $mimeTypes = [
+            'pdf' => 'application/pdf',
+            'jpg' => 'image/jpeg',
+            'jpeg' => 'image/jpeg',
+            'png' => 'image/png',
+            'gif' => 'image/gif',
+            'doc' => 'application/msword',
+            'docx' => 'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+            'xls' => 'application/vnd.ms-excel',
+            'xlsx' => 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+        ];
+
+        return $mimeTypes[$extension] ?? 'application/octet-stream';
+    }
 }

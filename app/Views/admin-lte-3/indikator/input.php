@@ -359,26 +359,78 @@ $indikatorList = $indikatorList ?? [];
 <!-- Preview Hasil Tindak Lanjut File Modal -->
 <div class="modal fade" id="previewHasilTindakLanjutFileModal" tabindex="-1" role="dialog" aria-labelledby="previewHasilTindakLanjutFileModalLabel"
     aria-hidden="true">
-    <div class="modal-dialog modal-xl" role="document">
-        <div class="modal-content rounded-0">
-            <div class="modal-header" style="background-color: #3b6ea8; color: white;">
-                <h5 class="modal-title" id="previewHasilTindakLanjutFileModalLabel">
+    <div class="modal-dialog modal-xl" role="document" style="max-width: 95vw; width: 95vw;">
+        <div class="modal-content rounded-0" style="height: 90vh;">
+            <div class="modal-header" style="background-color: #3b6ea8; color: white; padding: 10px 15px;">
+                <h5 class="modal-title" id="previewHasilTindakLanjutFileModalLabel" style="margin: 0;">
                     <i class="fas fa-eye"></i> Preview File: <span id="preview_hasil_htl_file_title"></span>
                 </h5>
-                <button type="button" class="close" data-dismiss="modal" aria-label="Close" style="color: white;">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close" style="color: white; opacity: 1;">
                     <span aria-hidden="true">&times;</span>
                 </button>
             </div>
-            <div class="modal-body p-0">
-                <div id="preview_hasil_htl_loading" class="text-center py-5">
+            <div class="modal-body p-0" style="height: calc(90vh - 120px); overflow: hidden;">
+                <div id="preview_hasil_htl_loading" class="text-center py-5" style="height: 100%; display: flex; flex-direction: column; justify-content: center;">
                     <i class="fas fa-spinner fa-spin fa-3x text-primary"></i>
                     <p class="mt-3">Loading file...</p>
                 </div>
                 <div id="preview_hasil_htl_error" style="display: none;" class="alert alert-danger m-3 rounded-0">
                     <i class="fas fa-exclamation-triangle"></i> <span id="preview_hasil_htl_error_message"></span>
                 </div>
-                <div id="preview_hasil_htl_content" style="display: none;">
-                    <iframe id="preview_hasil_htl_iframe" style="width: 100%; height: 600px; border: none;"></iframe>
+                <div id="preview_hasil_htl_content" style="display: none; height: 100%; position: relative;">
+                    <!-- Document Viewer Toolbar -->
+                    <div class="document-toolbar" style="background-color: #2c3e50; color: white; padding: 8px 15px; display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid #34495e;">
+                        <div class="toolbar-left" style="display: flex; align-items: center;">
+                            <button class="btn btn-sm" style="background: none; border: none; color: white; margin-right: 10px;">
+                                <i class="fas fa-bars"></i>
+                            </button>
+                            <span id="preview_hasil_htl_document_name" style="font-weight: bold;">sample.pdf</span>
+                        </div>
+                        <div class="toolbar-center" style="display: flex; align-items: center;">
+                            <span id="preview_hasil_htl_page_info" style="margin: 0 15px;">1 / 1</span>
+                            <button class="btn btn-sm" style="background: none; border: none; color: white; margin: 0 5px;">
+                                <i class="fas fa-minus"></i>
+                            </button>
+                            <span id="preview_hasil_htl_zoom_level" style="margin: 0 10px;">100%</span>
+                            <button class="btn btn-sm" style="background: none; border: none; color: white; margin: 0 5px;">
+                                <i class="fas fa-plus"></i>
+                            </button>
+                            <button class="btn btn-sm" style="background: none; border: none; color: white; margin: 0 5px;">
+                                <i class="fas fa-expand-arrows-alt"></i>
+                            </button>
+                        </div>
+                        <div class="toolbar-right" style="display: flex; align-items: center;">
+                            <button class="btn btn-sm" style="background: none; border: none; color: white; margin: 0 5px;" id="preview_hasil_htl_download_toolbar">
+                                <i class="fas fa-download"></i>
+                            </button>
+                            <button class="btn btn-sm" style="background: none; border: none; color: white; margin: 0 5px;">
+                                <i class="fas fa-print"></i>
+                            </button>
+                            <button class="btn btn-sm" style="background: none; border: none; color: white; margin: 0 5px;">
+                                <i class="fas fa-ellipsis-v"></i>
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <!-- Document Content Area -->
+                    <div style="display: flex; height: calc(100% - 50px);">
+                        <!-- Thumbnail Sidebar -->
+                        <div class="thumbnail-sidebar" style="width: 200px; background-color: #34495e; padding: 10px; overflow-y: auto;">
+                            <div class="thumbnail-item" style="background-color: #2c3e50; border: 2px solid #3498db; border-radius: 4px; padding: 5px; margin-bottom: 10px; text-align: center;">
+                                <div style="background-color: white; height: 100px; display: flex; align-items: center; justify-content: center; border-radius: 2px;">
+                                    <i class="fas fa-file-pdf" style="font-size: 24px; color: #e74c3c;"></i>
+                                </div>
+                                <div style="color: white; font-size: 12px; margin-top: 5px;">1</div>
+                            </div>
+                        </div>
+                        
+                        <!-- Main Document Viewer -->
+                        <div class="document-viewer" style="flex: 1; background-color: #f8f9fa; position: relative; overflow: auto;">
+                            <div style="padding: 20px; background-color: white; margin: 20px; border-radius: 4px; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
+                                <iframe id="preview_hasil_htl_iframe" style="width: 100%; height: 600px; border: none; border-radius: 4px;"></iframe>
+                            </div>
+                        </div>
+                    </div>
                 </div>
                 <div id="preview_hasil_htl_download_notice" style="display: none;" class="alert alert-info m-3 rounded-0">
                     <i class="fas fa-info-circle"></i> 
@@ -389,7 +441,7 @@ $indikatorList = $indikatorList ?? [];
                     </button>
                 </div>
             </div>
-            <div class="modal-footer">
+            <div class="modal-footer" style="padding: 10px 15px; background-color: #f8f9fa; border-top: 1px solid #dee2e6;">
                 <button type="button" class="btn btn-secondary rounded-0" data-dismiss="modal">Tutup</button>
                 <button type="button" class="btn btn-primary rounded-0" id="preview_hasil_htl_download_btn_footer">
                     <i class="fas fa-download"></i> Download
@@ -627,6 +679,7 @@ $indikatorList = $indikatorList ?? [];
             $('#preview_hasil_htl_download_notice').hide();
             $('#preview_hasil_htl_iframe').attr('src', '');
             $('#preview_hasil_htl_file_title').text(fileName);
+            $('#preview_hasil_htl_document_name').text(fileName);
 
             // Open modal
             $('#previewHasilTindakLanjutFileModal').modal('show');
@@ -641,6 +694,9 @@ $indikatorList = $indikatorList ?? [];
                 window.open(downloadUrl, '_blank');
             });
             $('#preview_hasil_htl_download_btn_footer').off('click').on('click', function() {
+                window.open(downloadUrl, '_blank');
+            });
+            $('#preview_hasil_htl_download_toolbar').off('click').on('click', function() {
                 window.open(downloadUrl, '_blank');
             });
 
@@ -830,13 +886,13 @@ $indikatorList = $indikatorList ?? [];
                         ` : ''}
                     </td>
                     <td class="text-center">
-                        <button type="button" class="btn btn-success btn-sm rounded-0 mr-1 btn-check-status" title="Check" data-row-id="${rowId}" data-type="rencana">
-                            <i class="fas fa-eye"></i>
-                        </button>
                         <button type="button" class="btn btn-sm rounded-0 btn-upload-verif ${rencanaFile ? 'btn-success' : ''}" title="${rencanaFile ? rencanaFile : 'Upload Dokumen'}"
                             data-row-id="${rowId}" data-type="rencana" data-verif-name="${verifikatorName}"
-                            style="background-color: ${rencanaFile ? '#28a745' : '#6f42c1'}; border-color: ${rencanaFile ? '#28a745' : '#6f42c1'};">
-                            <i class="fas ${rencanaFile ? 'fa-check-circle' : 'fa-file-alt'}"></i>
+                            style="background-color: ${rencanaFile ? '#28a745' : '#28a745'}; border-color: ${rencanaFile ? '#28a745' : '#6f42c1'};">
+                            <i class="fas ${rencanaFile ? 'fa-check-circle' : 'fa-file-upload'}" style="color: #fff;"></i>
+                        </button>
+                        <button type="button" class="btn btn-sm rounded-0 mr-1 btn-check-status" title="Check" data-row-id="${rowId}" data-type="rencana" style="background-color: #6f42c1; color: #fff;">
+                            <i class="fas fa-eye"></i>
                         </button>
                     </td>
                     <td class="text-center">
@@ -1149,37 +1205,69 @@ $indikatorList = $indikatorList ?? [];
             });
         });
 
-        // Preview hasil tindak lanjut file button click
+        // Upload hasil tindak lanjut file button click
         $(document).on('click', '.btn-check-hasil-status', function () {
             var rowId = $(this).data('row-id');
             var row = $('tr[data-row-id="' + rowId + '"]');
+            var htlId = row.data('verif-id');
+            var verifName = row.find('.hasil-verifikator-name-input').val();
+            var jenisIndikator = $('#hasil_jenis_indikator').val();
 
-
-            // Get file info from button
-            var uploadBtn = row.find('.btn-upload-hasil');
-            var fileName = uploadBtn.attr('title');
-
-            // Open preview modal - inline function
-            $('#preview_hasil_htl_loading').show();
-            $('#preview_hasil_htl_error').hide();
-            $('#preview_hasil_htl_content').hide();
-            $('#preview_hasil_htl_download_notice').hide();
-            $('#preview_hasil_htl_iframe').attr('src', '');
-            $('#preview_hasil_htl_file_title').text(fileName);
-            $('#previewHasilTindakLanjutFileModal').modal('show');
-            
-            var extension = fileName.split('.').pop().toLowerCase();
-            var previewUrl = '<?= base_url('indikator/input/preview-hasil-htl-file') ?>/' + htlId;
-            var downloadUrl = '<?= base_url('indikator/input/download-hasil-htl-file') ?>/' + htlId;
-            
-            if (['pdf', 'jpg', 'jpeg', 'png', 'gif'].indexOf(extension) !== -1) {
-                $('#preview_hasil_htl_iframe').attr('src', previewUrl);
-                $('#preview_hasil_htl_loading').hide();
-                $('#preview_hasil_htl_content').show();
-            } else {
-                $('#preview_hasil_htl_loading').hide();
-                $('#preview_hasil_htl_download_notice').show();
+            if (!verifName || verifName.trim() === '') {
+                if (window.toastr) {
+                    toastr.warning('Nama verifikator harus diisi terlebih dahulu');
+                }
+                return;
             }
+
+            if (!jenisIndikator || jenisIndikator.trim() === '') {
+                if (window.toastr) {
+                    toastr.error('Jenis indikator tidak ditemukan. Silakan tutup dan buka kembali modal.');
+                }
+                return;
+            }
+
+            // Set modal data for upload
+            $('#hasil_htl_id').val(htlId || '');
+            $('#hasil_htl_tahun').val(<?= $tahun ?>);
+            $('#hasil_htl_triwulan').val(<?= $triwulan ?>);
+            $('#hasil_htl_jenis_indikator').val(jenisIndikator);
+            $('#hasil_htl_nama').val(verifName);
+            $('#display_hasil_htl_nama').val(verifName);
+
+            $('#hasil_htl_info_text').text('Hasil Tindak Lanjut - ' + verifName);
+
+            // Reset file input
+            $('#hasil_htl_file').val('');
+            $('.custom-file-label').text('Pilih file...');
+            $('#hasil_htl_current_file_info').hide();
+
+            // Show current file if exists
+            var uploadBtn = row.find('.btn-upload-hasil');
+            var currentFile = uploadBtn.attr('title');
+            if (currentFile && currentFile !== 'Upload Dokumen') {
+                $('#hasil_htl_current_file_name').text(currentFile);
+                $('#hasil_htl_current_file_info').show();
+            }
+
+            $('#uploadHasilTindakLanjutFileModal').modal('show');
+        });
+
+        // Preview hasil tindak lanjut file button click (for uploaded files)
+        $(document).on('click', '.btn-upload-hasil', function () {
+            var rowId = $(this).data('row-id');
+            var row = $('tr[data-row-id="' + rowId + '"]');
+            var htlId = row.data('verif-id');
+            var fileName = $(this).attr('title');
+
+            if (!htlId || !fileName || fileName === 'Upload Dokumen') {
+                // If no file uploaded, open upload modal instead
+                $(this).closest('tr').find('.btn-check-hasil-status').click();
+                return;
+            }
+
+            // Open preview modal with document viewer
+            openHasilTindakLanjutFilePreview(htlId, fileName);
         });
 
         // Preview file button click (eye button in verifikator table)

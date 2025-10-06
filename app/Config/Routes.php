@@ -212,10 +212,13 @@ $routes->group('indikator', ['namespace' => 'App\\Controllers', 'filter' => 'aut
     $routes->post('input/upload-catatan', 'IndikatorInput::uploadCatatan', ['as' => 'indikator.input.upload_catatan']);
     $routes->post('input/upload-rencana', 'IndikatorInput::uploadRencana', ['as' => 'indikator.input.upload_rencana']);
     $routes->post('input/upload-verifikator-file', 'IndikatorInput::uploadVerifikatorFile', ['as' => 'indikator.input.upload_verifikator_file']);
+    $routes->post('input/upload-hasil-htl-file', 'IndikatorInput::uploadHasilHtlFile', ['as' => 'indikator.input.upload_hasil_htl_file']);
     $routes->post('input/update-verifikasi', 'IndikatorInput::updateVerifikasi', ['as' => 'indikator.input.update_verifikasi']);
     $routes->get('input/get-verifikator', 'IndikatorInput::getVerifikatorData', ['as' => 'indikator.input.get_verifikator']);
     $routes->get('input/preview-verifikator-file/(:num)/(:alpha)', 'IndikatorInput::previewVerifikatorFile/$1/$2', ['as' => 'indikator.input.preview_verifikator_file']);
     $routes->get('input/download-verifikator-file/(:num)/(:alpha)', 'IndikatorInput::downloadVerifikatorFile/$1/$2', ['as' => 'indikator.input.download_verifikator_file']);
+    $routes->get('input/preview-hasil-htl-file/(:num)', 'IndikatorInput::previewHasilHtlFile/$1', ['as' => 'indikator.input.preview_hasil_htl_file']);
+    $routes->get('input/download-hasil-htl-file/(:num)', 'IndikatorInput::downloadHasilHtlFile/$1', ['as' => 'indikator.input.download_hasil_htl_file']);
     $routes->get('input/preview/(:num)', 'IndikatorInput::preview/$1', ['as' => 'indikator.input.preview']);
     $routes->get('input/download-catatan/(:num)', 'IndikatorInput::downloadCatatan/$1', ['as' => 'indikator.input.download_catatan']);
     $routes->get('input/download-rencana/(:num)', 'IndikatorInput::downloadRencana/$1', ['as' => 'indikator.input.download_rencana']);
