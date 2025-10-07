@@ -513,9 +513,21 @@ $master = $masterData ?? [];
             }).format(parseFloat(num));
         }
 
+        // Parse localized number text (e.g., "56,98" -> 56.98)
+        function parseLocaleNumber(text) {
+            if (text === null || text === undefined) return 0;
+            if (typeof text === 'number') return isNaN(text) ? 0 : text;
+            var s = String(text).trim();
+            if (!s) return 0;
+            // remove thousand separators then convert decimal comma to dot
+            s = s.replace(/\./g, '').replace(',', '.');
+            var n = parseFloat(s);
+            return isNaN(n) ? 0 : n;
+        }
+
         // Edit numeric cells
         function openNumericEdit(span) {
-            var value = parseFloat(span.text()) || 0;
+            var value = parseLocaleNumber(span.text());
         var input = $('<input type="number" step="0.01" class="form-control form-control-sm rounded-0" />');
         input.val(value);
             span.hide();
@@ -523,7 +535,7 @@ $master = $masterData ?? [];
             input.focus();
 
             function commit() {
-                var newVal = parseFloat(input.val()) || 0;
+                var newVal = parseLocaleNumber(input.val());
                 span.text(formatAngka(newVal));
                 input.remove();
                 span.show();
@@ -575,11 +587,11 @@ $master = $masterData ?? [];
                 var targetKeuText = $('td[data-bulan="' + bulan + '"][data-field="target_keuangan"]').text();
                 var realKeuText = $('span[data-bulan="' + bulan + '"][data-field="realisasi_keuangan"]').text();
 
-                // Parse formatted numbers (remove dots and convert to float)
-                var targetFisik = parseFloat(targetFisikText.replace(/\./g, '')) || 0;
-                var realFisik = parseFloat(realFisikText.replace(/\./g, '')) || 0;
-                var targetKeu = parseFloat(targetKeuText.replace(/\./g, '')) || 0;
-                var realKeu = parseFloat(realKeuText.replace(/\./g, '')) || 0;
+                // Parse formatted numbers with comma decimal
+                var targetFisik = parseLocaleNumber(targetFisikText);
+                var realFisik = parseLocaleNumber(realFisikText);
+                var targetKeu = parseLocaleNumber(targetKeuText);
+                var realKeu = parseLocaleNumber(realKeuText);
 
                 // Calculate deviations
                 var devFisik = realFisik - targetFisik;
@@ -750,7 +762,14 @@ $master = $masterData ?? [];
                 var $span = $(this);
                 var bulan = $span.data('bulan');
                 var field = $span.data('field');
-                var value = $span.text();
+                var raw = $span.text();
+                var value = raw;
+                // Normalize numeric fields to dot-decimal for backend
+                if (field && field.indexOf('realisasi') === 0) {
+                    value = parseLocaleNumber(raw);
+                } else if (field === 'analisa') {
+                    value = raw;
+                }
 
                 if (!cellData[bulan]) {
                     cellData[bulan] = {};
