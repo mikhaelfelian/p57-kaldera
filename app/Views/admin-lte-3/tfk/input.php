@@ -68,69 +68,69 @@ $master = $masterData ?? [];
                         <!-- Target Fisik (%) -->
                         <tr>
                             <td class="red-box font-weight-bold">Target Fisik (%)</td>
-                            <td class="text-center static-cell" data-bulan="jan" data-field="target_fisik">0,00</td>
-                            <td class="text-center static-cell" data-bulan="feb" data-field="target_fisik">0,00</td>
-                            <td class="text-center static-cell" data-bulan="mar" data-field="target_fisik">0,00</td>
-                            <td class="text-center static-cell" data-bulan="apr" data-field="target_fisik">0,00</td>
-                            <td class="text-center static-cell" data-bulan="mei" data-field="target_fisik">0,00</td>
-                            <td class="text-center static-cell" data-bulan="jun" data-field="target_fisik">0,00</td>
-                            <td class="text-center static-cell" data-bulan="jul" data-field="target_fisik">0,00</td>
-                            <td class="text-center static-cell" data-bulan="agu" data-field="target_fisik">0,00</td>
-                            <td class="text-center static-cell" data-bulan="sep" data-field="target_fisik">0,00</td>
-                            <td class="text-center static-cell" data-bulan="okt" data-field="target_fisik">0,00</td>
-                            <td class="text-center static-cell" data-bulan="nov" data-field="target_fisik">0,00</td>
-                            <td class="text-center static-cell" data-bulan="des" data-field="target_fisik">0,00</td>
+                            <td class="text-center static-cell" data-bulan="jan" data-field="target_fisik">0.00</td>
+                            <td class="text-center static-cell" data-bulan="feb" data-field="target_fisik">0.00</td>
+                            <td class="text-center static-cell" data-bulan="mar" data-field="target_fisik">0.00</td>
+                            <td class="text-center static-cell" data-bulan="apr" data-field="target_fisik">0.00</td>
+                            <td class="text-center static-cell" data-bulan="mei" data-field="target_fisik">0.00</td>
+                            <td class="text-center static-cell" data-bulan="jun" data-field="target_fisik">0.00</td>
+                            <td class="text-center static-cell" data-bulan="jul" data-field="target_fisik">0.00</td>
+                            <td class="text-center static-cell" data-bulan="agu" data-field="target_fisik">0.00</td>
+                            <td class="text-center static-cell" data-bulan="sep" data-field="target_fisik">0.00</td>
+                            <td class="text-center static-cell" data-bulan="okt" data-field="target_fisik">0.00</td>
+                            <td class="text-center static-cell" data-bulan="nov" data-field="target_fisik">0.00</td>
+                            <td class="text-center static-cell" data-bulan="des" data-field="target_fisik">0.00</td>
                     </tr>
 
                         <!-- Realisasi Fisik (%) -->
                         <tr>
                             <td class="font-weight-bold">Realisasi Fisik (%)</td>
                             <td class="text-center">
-                                <span class="editable-cell" data-bulan="jan" data-field="realisasi_fisik">0,00</span>
+                                <span class="editable-cell" data-bulan="jan" data-field="realisasi_fisik">0.00</span>
                                 <i class="fas fa-pencil-alt text-muted ml-1 edit-icon"></i>
                             </td>
                             <td class="text-center">
-                                <span class="editable-cell" data-bulan="feb" data-field="realisasi_fisik">0,00</span>
+                                <span class="editable-cell" data-bulan="feb" data-field="realisasi_fisik">0.00</span>
                                 <i class="fas fa-pencil-alt text-muted ml-1 edit-icon"></i>
                             </td>
                             <td class="text-center">
-                                <span class="editable-cell" data-bulan="mar" data-field="realisasi_fisik">0,00</span>
+                                <span class="editable-cell" data-bulan="mar" data-field="realisasi_fisik">0.00</span>
                                 <i class="fas fa-pencil-alt text-muted ml-1 edit-icon"></i>
                             </td>
                             <td class="text-center">
-                                <span class="editable-cell" data-bulan="apr" data-field="realisasi_fisik">0,00</span>
+                                <span class="editable-cell" data-bulan="apr" data-field="realisasi_fisik">0.00</span>
                                 <i class="fas fa-pencil-alt text-muted ml-1 edit-icon"></i>
                             </td>
                             <td class="text-center">
-                                <span class="editable-cell" data-bulan="mei" data-field="realisasi_fisik">0,00</span>
+                                <span class="editable-cell" data-bulan="mei" data-field="realisasi_fisik">0.00</span>
                                 <i class="fas fa-pencil-alt text-muted ml-1 edit-icon"></i>
                             </td>
                             <td class="text-center">
-                                <span class="editable-cell" data-bulan="jun" data-field="realisasi_fisik">0,00</span>
+                                <span class="editable-cell" data-bulan="jun" data-field="realisasi_fisik">0.00</span>
                                 <i class="fas fa-pencil-alt text-muted ml-1 edit-icon"></i>
                             </td>
                             <td class="text-center">
-                                <span class="editable-cell" data-bulan="jul" data-field="realisasi_fisik">0,00</span>
+                                <span class="editable-cell" data-bulan="jul" data-field="realisasi_fisik">0.00</span>
                                 <i class="fas fa-pencil-alt text-muted ml-1 edit-icon"></i>
                             </td>
                             <td class="text-center">
-                                <span class="editable-cell" data-bulan="agu" data-field="realisasi_fisik">0,00</span>
+                                <span class="editable-cell" data-bulan="agu" data-field="realisasi_fisik">0.00</span>
                                 <i class="fas fa-pencil-alt text-muted ml-1 edit-icon"></i>
                             </td>
                             <td class="text-center">
-                                <span class="editable-cell" data-bulan="sep" data-field="realisasi_fisik">0,00</span>
+                                <span class="editable-cell" data-bulan="sep" data-field="realisasi_fisik">0.00</span>
                                 <i class="fas fa-pencil-alt text-muted ml-1 edit-icon"></i>
                             </td>
                             <td class="text-center">
-                                <span class="editable-cell" data-bulan="okt" data-field="realisasi_fisik">0,00</span>
+                                <span class="editable-cell" data-bulan="okt" data-field="realisasi_fisik">0.00</span>
                                 <i class="fas fa-pencil-alt text-muted ml-1 edit-icon"></i>
                             </td>
                             <td class="text-center">
-                                <span class="editable-cell" data-bulan="nov" data-field="realisasi_fisik">0,00</span>
+                                <span class="editable-cell" data-bulan="nov" data-field="realisasi_fisik">0.00</span>
                                 <i class="fas fa-pencil-alt text-muted ml-1 edit-icon"></i>
                             </td>
                             <td class="text-center">
-                                <span class="editable-cell" data-bulan="des" data-field="realisasi_fisik">0,00</span>
+                                <span class="editable-cell" data-bulan="des" data-field="realisasi_fisik">0.00</span>
                                 <i class="fas fa-pencil-alt text-muted ml-1 edit-icon"></i>
                             </td>
                     </tr>
@@ -140,62 +140,62 @@ $master = $masterData ?? [];
                             <td class="font-weight-bold">Realisasi Fisik Prov (%)</td>
                             <td class="text-center">
                                 <span class="editable-cell" data-bulan="jan"
-                                    data-field="realisasi_fisik_prov">0,00</span>
+                                    data-field="realisasi_fisik_prov">0.00</span>
                                 <i class="fas fa-pencil-alt text-muted ml-1 edit-icon"></i>
                             </td>
                             <td class="text-center">
                                 <span class="editable-cell" data-bulan="feb"
-                                    data-field="realisasi_fisik_prov">0,00</span>
+                                    data-field="realisasi_fisik_prov">0.00</span>
                                 <i class="fas fa-pencil-alt text-muted ml-1 edit-icon"></i>
                             </td>
                             <td class="text-center">
                                 <span class="editable-cell" data-bulan="mar"
-                                    data-field="realisasi_fisik_prov">0,00</span>
+                                    data-field="realisasi_fisik_prov">0.00</span>
                                 <i class="fas fa-pencil-alt text-muted ml-1 edit-icon"></i>
                             </td>
                             <td class="text-center">
                                 <span class="editable-cell" data-bulan="apr"
-                                    data-field="realisasi_fisik_prov">0,00</span>
+                                    data-field="realisasi_fisik_prov">0.00</span>
                                 <i class="fas fa-pencil-alt text-muted ml-1 edit-icon"></i>
                             </td>
                             <td class="text-center">
                                 <span class="editable-cell" data-bulan="mei"
-                                    data-field="realisasi_fisik_prov">0,00</span>
+                                    data-field="realisasi_fisik_prov">0.00</span>
                                 <i class="fas fa-pencil-alt text-muted ml-1 edit-icon"></i>
                             </td>
                             <td class="text-center">
                                 <span class="editable-cell" data-bulan="jun"
-                                    data-field="realisasi_fisik_prov">0,00</span>
+                                    data-field="realisasi_fisik_prov">0.00</span>
                                 <i class="fas fa-pencil-alt text-muted ml-1 edit-icon"></i>
                             </td>
                             <td class="text-center">
                                 <span class="editable-cell" data-bulan="jul"
-                                    data-field="realisasi_fisik_prov">0,00</span>
+                                    data-field="realisasi_fisik_prov">0.00</span>
                                 <i class="fas fa-pencil-alt text-muted ml-1 edit-icon"></i>
                             </td>
                             <td class="text-center">
                                 <span class="editable-cell" data-bulan="agu"
-                                    data-field="realisasi_fisik_prov">0,00</span>
+                                    data-field="realisasi_fisik_prov">0.00</span>
                                 <i class="fas fa-pencil-alt text-muted ml-1 edit-icon"></i>
                             </td>
                             <td class="text-center">
                                 <span class="editable-cell" data-bulan="sep"
-                                    data-field="realisasi_fisik_prov">0,00</span>
+                                    data-field="realisasi_fisik_prov">0.00</span>
                                 <i class="fas fa-pencil-alt text-muted ml-1 edit-icon"></i>
                             </td>
                             <td class="text-center">
                                 <span class="editable-cell" data-bulan="okt"
-                                    data-field="realisasi_fisik_prov">0,00</span>
+                                    data-field="realisasi_fisik_prov">0.00</span>
                                 <i class="fas fa-pencil-alt text-muted ml-1 edit-icon"></i>
                             </td>
                             <td class="text-center">
                                 <span class="editable-cell" data-bulan="nov"
-                                    data-field="realisasi_fisik_prov">0,00</span>
+                                    data-field="realisasi_fisik_prov">0.00</span>
                                 <i class="fas fa-pencil-alt text-muted ml-1 edit-icon"></i>
                             </td>
                             <td class="text-center">
                                 <span class="editable-cell" data-bulan="des"
-                                    data-field="realisasi_fisik_prov">0,00</span>
+                                    data-field="realisasi_fisik_prov">0.00</span>
                                 <i class="fas fa-pencil-alt text-muted ml-1 edit-icon"></i>
                             </td>
                     </tr>
@@ -203,86 +203,86 @@ $master = $masterData ?? [];
                         <!-- Deviasi Fisik (%) -->
                         <tr>
                             <td class="font-weight-bold">Deviasi Fisik (%)</td>
-                            <td class="text-center calculated-cell" data-bulan="jan" data-type="deviasi_fisik">0,00</td>
-                            <td class="text-center calculated-cell" data-bulan="feb" data-type="deviasi_fisik">0,00</td>
-                            <td class="text-center calculated-cell" data-bulan="mar" data-type="deviasi_fisik">0,00</td>
-                            <td class="text-center calculated-cell" data-bulan="apr" data-type="deviasi_fisik">0,00</td>
-                            <td class="text-center calculated-cell" data-bulan="mei" data-type="deviasi_fisik">0,00</td>
-                            <td class="text-center calculated-cell" data-bulan="jun" data-type="deviasi_fisik">0,00</td>
-                            <td class="text-center calculated-cell" data-bulan="jul" data-type="deviasi_fisik">0,00</td>
-                            <td class="text-center calculated-cell" data-bulan="agu" data-type="deviasi_fisik">0,00</td>
-                            <td class="text-center calculated-cell" data-bulan="sep" data-type="deviasi_fisik">0,00</td>
-                            <td class="text-center calculated-cell" data-bulan="okt" data-type="deviasi_fisik">0,00</td>
-                            <td class="text-center calculated-cell" data-bulan="nov" data-type="deviasi_fisik">0,00</td>
-                            <td class="text-center calculated-cell" data-bulan="des" data-type="deviasi_fisik">0,00</td>
+                            <td class="text-center calculated-cell" data-bulan="jan" data-type="deviasi_fisik">0.00</td>
+                            <td class="text-center calculated-cell" data-bulan="feb" data-type="deviasi_fisik">0.00</td>
+                            <td class="text-center calculated-cell" data-bulan="mar" data-type="deviasi_fisik">0.00</td>
+                            <td class="text-center calculated-cell" data-bulan="apr" data-type="deviasi_fisik">0.00</td>
+                            <td class="text-center calculated-cell" data-bulan="mei" data-type="deviasi_fisik">0.00</td>
+                            <td class="text-center calculated-cell" data-bulan="jun" data-type="deviasi_fisik">0.00</td>
+                            <td class="text-center calculated-cell" data-bulan="jul" data-type="deviasi_fisik">0.00</td>
+                            <td class="text-center calculated-cell" data-bulan="agu" data-type="deviasi_fisik">0.00</td>
+                            <td class="text-center calculated-cell" data-bulan="sep" data-type="deviasi_fisik">0.00</td>
+                            <td class="text-center calculated-cell" data-bulan="okt" data-type="deviasi_fisik">0.00</td>
+                            <td class="text-center calculated-cell" data-bulan="nov" data-type="deviasi_fisik">0.00</td>
+                            <td class="text-center calculated-cell" data-bulan="des" data-type="deviasi_fisik">0.00</td>
                     </tr>
 
                         <!-- Target Keuangan (%) -->
                         <tr class="sep-top">
                             <td class="red-box font-weight-bold">Target Keuangan (%)</td>
-                            <td class="text-center static-cell" data-bulan="jan" data-field="target_keuangan">0,00</td>
-                            <td class="text-center static-cell" data-bulan="feb" data-field="target_keuangan">0,00</td>
-                            <td class="text-center static-cell" data-bulan="mar" data-field="target_keuangan">0,00</td>
-                            <td class="text-center static-cell" data-bulan="apr" data-field="target_keuangan">0,00</td>
-                            <td class="text-center static-cell" data-bulan="mei" data-field="target_keuangan">0,00</td>
-                            <td class="text-center static-cell" data-bulan="jun" data-field="target_keuangan">0,00</td>
-                            <td class="text-center static-cell" data-bulan="jul" data-field="target_keuangan">0,00</td>
-                            <td class="text-center static-cell" data-bulan="agu" data-field="target_keuangan">0,00</td>
-                            <td class="text-center static-cell" data-bulan="sep" data-field="target_keuangan">0,00</td>
-                            <td class="text-center static-cell" data-bulan="okt" data-field="target_keuangan">0,00</td>
-                            <td class="text-center static-cell" data-bulan="nov" data-field="target_keuangan">0,00</td>
-                            <td class="text-center static-cell" data-bulan="des" data-field="target_keuangan">0,00</td>
+                            <td class="text-center static-cell" data-bulan="jan" data-field="target_keuangan">0.00</td>
+                            <td class="text-center static-cell" data-bulan="feb" data-field="target_keuangan">0.00</td>
+                            <td class="text-center static-cell" data-bulan="mar" data-field="target_keuangan">0.00</td>
+                            <td class="text-center static-cell" data-bulan="apr" data-field="target_keuangan">0.00</td>
+                            <td class="text-center static-cell" data-bulan="mei" data-field="target_keuangan">0.00</td>
+                            <td class="text-center static-cell" data-bulan="jun" data-field="target_keuangan">0.00</td>
+                            <td class="text-center static-cell" data-bulan="jul" data-field="target_keuangan">0.00</td>
+                            <td class="text-center static-cell" data-bulan="agu" data-field="target_keuangan">0.00</td>
+                            <td class="text-center static-cell" data-bulan="sep" data-field="target_keuangan">0.00</td>
+                            <td class="text-center static-cell" data-bulan="okt" data-field="target_keuangan">0.00</td>
+                            <td class="text-center static-cell" data-bulan="nov" data-field="target_keuangan">0.00</td>
+                            <td class="text-center static-cell" data-bulan="des" data-field="target_keuangan">0.00</td>
                     </tr>
 
                         <!-- Realisasi Keuangan (%) -->
                         <tr>
                             <td class="font-weight-bold">Realisasi Keuangan (%)</td>
                             <td class="text-center">
-                                <span class="editable-cell" data-bulan="jan" data-field="realisasi_keuangan">0,00</span>
+                                <span class="editable-cell" data-bulan="jan" data-field="realisasi_keuangan">0.00</span>
                                 <i class="fas fa-pencil-alt text-muted ml-1 edit-icon"></i>
                             </td>
                             <td class="text-center">
-                                <span class="editable-cell" data-bulan="feb" data-field="realisasi_keuangan">0,00</span>
+                                <span class="editable-cell" data-bulan="feb" data-field="realisasi_keuangan">0.00</span>
                                 <i class="fas fa-pencil-alt text-muted ml-1 edit-icon"></i>
                             </td>
                             <td class="text-center">
-                                <span class="editable-cell" data-bulan="mar" data-field="realisasi_keuangan">0,00</span>
+                                <span class="editable-cell" data-bulan="mar" data-field="realisasi_keuangan">0.00</span>
                                 <i class="fas fa-pencil-alt text-muted ml-1 edit-icon"></i>
                             </td>
                             <td class="text-center">
-                                <span class="editable-cell" data-bulan="apr" data-field="realisasi_keuangan">0,00</span>
+                                <span class="editable-cell" data-bulan="apr" data-field="realisasi_keuangan">0.00</span>
                                 <i class="fas fa-pencil-alt text-muted ml-1 edit-icon"></i>
                             </td>
                             <td class="text-center">
-                                <span class="editable-cell" data-bulan="mei" data-field="realisasi_keuangan">0,00</span>
+                                <span class="editable-cell" data-bulan="mei" data-field="realisasi_keuangan">0.00</span>
                                 <i class="fas fa-pencil-alt text-muted ml-1 edit-icon"></i>
                             </td>
                             <td class="text-center">
-                                <span class="editable-cell" data-bulan="jun" data-field="realisasi_keuangan">0,00</span>
+                                <span class="editable-cell" data-bulan="jun" data-field="realisasi_keuangan">0.00</span>
                                 <i class="fas fa-pencil-alt text-muted ml-1 edit-icon"></i>
                             </td>
                             <td class="text-center">
-                                <span class="editable-cell" data-bulan="jul" data-field="realisasi_keuangan">0,00</span>
+                                <span class="editable-cell" data-bulan="jul" data-field="realisasi_keuangan">0.00</span>
                                 <i class="fas fa-pencil-alt text-muted ml-1 edit-icon"></i>
                             </td>
                             <td class="text-center">
-                                <span class="editable-cell" data-bulan="agu" data-field="realisasi_keuangan">0,00</span>
+                                <span class="editable-cell" data-bulan="agu" data-field="realisasi_keuangan">0.00</span>
                                 <i class="fas fa-pencil-alt text-muted ml-1 edit-icon"></i>
                             </td>
                             <td class="text-center">
-                                <span class="editable-cell" data-bulan="sep" data-field="realisasi_keuangan">0,00</span>
+                                <span class="editable-cell" data-bulan="sep" data-field="realisasi_keuangan">0.00</span>
                                 <i class="fas fa-pencil-alt text-muted ml-1 edit-icon"></i>
                             </td>
                             <td class="text-center">
-                                <span class="editable-cell" data-bulan="okt" data-field="realisasi_keuangan">0,00</span>
+                                <span class="editable-cell" data-bulan="okt" data-field="realisasi_keuangan">0.00</span>
                                 <i class="fas fa-pencil-alt text-muted ml-1 edit-icon"></i>
                             </td>
                             <td class="text-center">
-                                <span class="editable-cell" data-bulan="nov" data-field="realisasi_keuangan">0,00</span>
+                                <span class="editable-cell" data-bulan="nov" data-field="realisasi_keuangan">0.00</span>
                                 <i class="fas fa-pencil-alt text-muted ml-1 edit-icon"></i>
                             </td>
                             <td class="text-center">
-                                <span class="editable-cell" data-bulan="des" data-field="realisasi_keuangan">0,00</span>
+                                <span class="editable-cell" data-bulan="des" data-field="realisasi_keuangan">0.00</span>
                                 <i class="fas fa-pencil-alt text-muted ml-1 edit-icon"></i>
                             </td>
                     </tr>
@@ -292,62 +292,62 @@ $master = $masterData ?? [];
                             <td class="font-weight-bold">Realisasi Keuangan Prov (%)</td>
                             <td class="text-center">
                                 <span class="editable-cell" data-bulan="jan"
-                                    data-field="realisasi_keuangan_prov">0,00</span>
+                                    data-field="realisasi_keuangan_prov">0.00</span>
                                 <i class="fas fa-pencil-alt text-muted ml-1 edit-icon"></i>
                             </td>
                             <td class="text-center">
                                 <span class="editable-cell" data-bulan="feb"
-                                    data-field="realisasi_keuangan_prov">0,00</span>
+                                    data-field="realisasi_keuangan_prov">0.00</span>
                                 <i class="fas fa-pencil-alt text-muted ml-1 edit-icon"></i>
                             </td>
                             <td class="text-center">
                                 <span class="editable-cell" data-bulan="mar"
-                                    data-field="realisasi_keuangan_prov">0,00</span>
+                                    data-field="realisasi_keuangan_prov">0.00</span>
                                 <i class="fas fa-pencil-alt text-muted ml-1 edit-icon"></i>
                             </td>
                             <td class="text-center">
                                 <span class="editable-cell" data-bulan="apr"
-                                    data-field="realisasi_keuangan_prov">0,00</span>
+                                    data-field="realisasi_keuangan_prov">0.00</span>
                                 <i class="fas fa-pencil-alt text-muted ml-1 edit-icon"></i>
                             </td>
                             <td class="text-center">
                                 <span class="editable-cell" data-bulan="mei"
-                                    data-field="realisasi_keuangan_prov">0,00</span>
+                                    data-field="realisasi_keuangan_prov">0.00</span>
                                 <i class="fas fa-pencil-alt text-muted ml-1 edit-icon"></i>
                             </td>
                             <td class="text-center">
                                 <span class="editable-cell" data-bulan="jun"
-                                    data-field="realisasi_keuangan_prov">0,00</span>
+                                    data-field="realisasi_keuangan_prov">0.00</span>
                                 <i class="fas fa-pencil-alt text-muted ml-1 edit-icon"></i>
                             </td>
                             <td class="text-center">
                                 <span class="editable-cell" data-bulan="jul"
-                                    data-field="realisasi_keuangan_prov">0,00</span>
+                                    data-field="realisasi_keuangan_prov">0.00</span>
                                 <i class="fas fa-pencil-alt text-muted ml-1 edit-icon"></i>
                             </td>
                             <td class="text-center">
                                 <span class="editable-cell" data-bulan="agu"
-                                    data-field="realisasi_keuangan_prov">0,00</span>
+                                    data-field="realisasi_keuangan_prov">0.00</span>
                                 <i class="fas fa-pencil-alt text-muted ml-1 edit-icon"></i>
                             </td>
                             <td class="text-center">
                                 <span class="editable-cell" data-bulan="sep"
-                                    data-field="realisasi_keuangan_prov">0,00</span>
+                                    data-field="realisasi_keuangan_prov">0.00</span>
                                 <i class="fas fa-pencil-alt text-muted ml-1 edit-icon"></i>
                             </td>
                             <td class="text-center">
                                 <span class="editable-cell" data-bulan="okt"
-                                    data-field="realisasi_keuangan_prov">0,00</span>
+                                    data-field="realisasi_keuangan_prov">0.00</span>
                                 <i class="fas fa-pencil-alt text-muted ml-1 edit-icon"></i>
                             </td>
                             <td class="text-center">
                                 <span class="editable-cell" data-bulan="nov"
-                                    data-field="realisasi_keuangan_prov">0,00</span>
+                                    data-field="realisasi_keuangan_prov">0.00</span>
                                 <i class="fas fa-pencil-alt text-muted ml-1 edit-icon"></i>
                             </td>
                             <td class="text-center">
                                 <span class="editable-cell" data-bulan="des"
-                                    data-field="realisasi_keuangan_prov">0,00</span>
+                                    data-field="realisasi_keuangan_prov">0.00</span>
                                 <i class="fas fa-pencil-alt text-muted ml-1 edit-icon"></i>
                             </td>
                     </tr>
@@ -355,29 +355,29 @@ $master = $masterData ?? [];
                         <!-- Deviasi Keuangan (%) -->
                         <tr>
                             <td class="font-weight-bold">Deviasi Keuangan (%)</td>
-                            <td class="text-center calculated-cell" data-bulan="jan" data-type="deviasi_keuangan">0,00
+                            <td class="text-center calculated-cell" data-bulan="jan" data-type="deviasi_keuangan">0.00
                             </td>
-                            <td class="text-center calculated-cell" data-bulan="feb" data-type="deviasi_keuangan">0,00
+                            <td class="text-center calculated-cell" data-bulan="feb" data-type="deviasi_keuangan">0.00
                             </td>
-                            <td class="text-center calculated-cell" data-bulan="mar" data-type="deviasi_keuangan">0,00
+                            <td class="text-center calculated-cell" data-bulan="mar" data-type="deviasi_keuangan">0.00
                             </td>
-                            <td class="text-center calculated-cell" data-bulan="apr" data-type="deviasi_keuangan">0,00
+                            <td class="text-center calculated-cell" data-bulan="apr" data-type="deviasi_keuangan">0.00
                             </td>
-                            <td class="text-center calculated-cell" data-bulan="mei" data-type="deviasi_keuangan">0,00
+                            <td class="text-center calculated-cell" data-bulan="mei" data-type="deviasi_keuangan">0.00
                             </td>
-                            <td class="text-center calculated-cell" data-bulan="jun" data-type="deviasi_keuangan">0,00
+                            <td class="text-center calculated-cell" data-bulan="jun" data-type="deviasi_keuangan">0.00
                             </td>
-                            <td class="text-center calculated-cell" data-bulan="jul" data-type="deviasi_keuangan">0,00
+                            <td class="text-center calculated-cell" data-bulan="jul" data-type="deviasi_keuangan">0.00
                             </td>
-                            <td class="text-center calculated-cell" data-bulan="agu" data-type="deviasi_keuangan">0,00
+                            <td class="text-center calculated-cell" data-bulan="agu" data-type="deviasi_keuangan">0.00
                             </td>
-                            <td class="text-center calculated-cell" data-bulan="sep" data-type="deviasi_keuangan">0,00
+                            <td class="text-center calculated-cell" data-bulan="sep" data-type="deviasi_keuangan">0.00
                             </td>
-                            <td class="text-center calculated-cell" data-bulan="okt" data-type="deviasi_keuangan">0,00
+                            <td class="text-center calculated-cell" data-bulan="okt" data-type="deviasi_keuangan">0.00
                             </td>
-                            <td class="text-center calculated-cell" data-bulan="nov" data-type="deviasi_keuangan">0,00
+                            <td class="text-center calculated-cell" data-bulan="nov" data-type="deviasi_keuangan">0.00
                             </td>
-                            <td class="text-center calculated-cell" data-bulan="des" data-type="deviasi_keuangan">0,00
+                            <td class="text-center calculated-cell" data-bulan="des" data-type="deviasi_keuangan">0.00
                             </td>
                     </tr>
 
@@ -504,10 +504,10 @@ $master = $masterData ?? [];
         var csrfToken = '<?= csrf_token() ?>';
         var csrfHash = '<?= csrf_hash() ?>';
 
-        // Format number similar to format_angka() helper with 2 decimal places
+        // Format number to en-US style with dot decimals and comma thousands
         function formatAngka(num) {
-            if (num === null || num === undefined || isNaN(num)) return '0,00';
-            return new Intl.NumberFormat('id-ID', {
+            if (num === null || num === undefined || isNaN(num)) return '0.00';
+            return new Intl.NumberFormat('en-US', {
                 minimumFractionDigits: 2,
                 maximumFractionDigits: 2
             }).format(parseFloat(num));
