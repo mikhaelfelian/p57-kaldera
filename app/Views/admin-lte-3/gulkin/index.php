@@ -165,6 +165,7 @@ $(function(){
     const $form = $('#gulkinForm');
     const $progress = $form.find('.progress');
     const $bar = $progress.find('.progress-bar');
+    const $year = $('#year');
 
     $form.on('submit', function(e){
         e.preventDefault();
@@ -353,6 +354,14 @@ $(function(){
                 }
             }
         });
+    });
+
+    // reload list when year changes
+    $year.on('change', function(){
+        const y = $(this).val();
+        const url = new URL(window.location.href);
+        url.searchParams.set('year', y);
+        window.location.href = url.toString();
     });
 });
 </script>

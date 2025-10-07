@@ -18,7 +18,16 @@
                     <div class="form-row align-items-end">
                         <div class="form-group col-md-2">
                             <label for="year">Tahun</label>
-                            <input type="number" id="year" name="year" class="form-control rounded-0" value="<?= esc($year) ?>" readonly>
+                            <select id="year" name="year" class="form-control rounded-0" required>
+                                <?php
+                                    $currentYear = (int)date('Y');
+                                    $startYear = $currentYear - 5;
+                                    $endYear = $currentYear + 5;
+                                    for ($y = $startYear; $y <= $endYear; $y++):
+                                ?>
+                                    <option value="<?= $y ?>" <?= (isset($year) && $year == $y) ? 'selected' : '' ?>><?= $y ?></option>
+                                <?php endfor; ?>
+                            </select>
                         </div>
                         <div class="form-group col-md-2">
                             <label for="month">Bulan</label>
@@ -99,6 +108,7 @@ $(function(){
     const $form = $('#sdgsForm');
     const $progress = $form.find('.progress');
     const $bar = $progress.find('.progress-bar');
+    const $year = $('#year');
 
     $form.on('submit', function(e){
         e.preventDefault();
@@ -146,6 +156,14 @@ $(function(){
         };
         if (window.Swal) { Swal.fire({ title: 'Hapus data?', text: 'Tindakan ini tidak dapat dibatalkan.', icon: 'warning', showCancelButton: true, confirmButtonText: 'Ya, hapus', cancelButtonText: 'Batal' }).then(r => { if (r.isConfirmed) proceed(); }); }
         else { if (confirm('Hapus data?')) proceed(); }
+    });
+
+    // reload list when year changes
+    $year.on('change', function(){
+        const y = $(this).val();
+        const url = new URL(window.location.href);
+        url.searchParams.set('year', y);
+        window.location.href = url.toString();
     });
 });
 </script>
