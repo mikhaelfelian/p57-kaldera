@@ -349,39 +349,40 @@ class TargetFisikKeu extends BaseController
                     'tahapan' => $tahapan, // IMPORTANT: Include tahapan for proper uniqueness
                 ])->first();
 				
-                $recordData = [
-					'master_id' => $masterId,
-					'tipe' => '1',
-					'tahun' => $tahun,
-					'bulan' => $bulanKey,
-                    'tahapan' => $tahapan,
-					// Map frontend fields to database fields
-					'target_fisik' => isset($monthData['fisik']) ? (float)$monthData['fisik'] : 
-					                 (isset($monthData['target_fisik']) ? (float)$monthData['target_fisik'] : 0),
-					'target_keuangan' => isset($monthData['keu']) ? (float)$monthData['keu'] : 
-					                    (isset($monthData['target_keuangan']) ? (float)$monthData['target_keuangan'] : 0),
-					'realisasi_fisik' => isset($monthData['realisasi_fisik']) ? (float)$monthData['realisasi_fisik'] : 0,
-					'realisasi_keuangan' => isset($monthData['realisasi_keuangan']) ? (float)$monthData['realisasi_keuangan'] : 0,
-					'realisasi_fisik_prov' => isset($monthData['realisasi_fisik_prov']) ? (float)$monthData['realisasi_fisik_prov'] : 0,
-					'realisasi_keuangan_prov' => isset($monthData['realisasi_keuangan_prov']) ? (float)$monthData['realisasi_keuangan_prov'] : 0,
-					'analisa' => isset($monthData['analisa']) ? (string)$monthData['analisa'] : '',
-				];
+                // Build data dynamically only for provided keys
+                $fieldMapFull = [
+                    'fisik' => 'target_fisik',
+                    'target_fisik' => 'target_fisik',
+                    'keu' => 'target_keuangan',
+                    'target_keuangan' => 'target_keuangan',
+                    'realisasi_fisik' => 'realisasi_fisik',
+                    'realisasi_keuangan' => 'realisasi_keuangan',
+                    'realisasi_fisik_prov' => 'realisasi_fisik_prov',
+                    'realisasi_keuangan_prov' => 'realisasi_keuangan_prov',
+                    'analisa' => 'analisa',
+                ];
+
+                $recordData = [];
+                foreach ($fieldMapFull as $inKey => $dbCol) {
+                    if (array_key_exists($inKey, $monthData)) {
+                        if ($dbCol === 'analisa') {
+                            $recordData[$dbCol] = (string)$monthData[$inKey];
+                        } else {
+                            $recordData[$dbCol] = (float)$monthData[$inKey];
+                        }
+                    }
+                }
 				
 				$this->fiskalModel->skipValidation(true);
 				
-				if ($existing) {
-					// Update existing record - only update the values, not the key fields
-					$updateData = [
-						'target_fisik' => $recordData['target_fisik'],
-						'target_keuangan' => $recordData['target_keuangan'],
-						'realisasi_fisik' => $recordData['realisasi_fisik'],
-						'realisasi_keuangan' => $recordData['realisasi_keuangan'],
-						'realisasi_fisik_prov' => $recordData['realisasi_fisik_prov'],
-						'realisasi_keuangan_prov' => $recordData['realisasi_keuangan_prov'],
-						'analisa' => $recordData['analisa'],
-					];
-					
-					$result = $this->fiskalModel->update($existing['id'], $updateData);
+                if ($existing) {
+                    // Update existing record - only update provided fields
+                    if (empty($recordData)) {
+                        // nothing to update for this month
+                        $result = true;
+                    } else {
+                        $result = $this->fiskalModel->update($existing['id'], $recordData);
+                    }
 					if ($result) {
 						$savedCount++;
 						log_message('debug', 'Updated record for bulan: ' . $bulanKey . ', tahapan: ' . $tahapan);
@@ -390,7 +391,14 @@ class TargetFisikKeu extends BaseController
 					}
 				} else {
 					// Create new record
-					$id = $this->fiskalModel->insert($recordData);
+                    $insertData = array_merge([
+                        'master_id' => $masterId,
+                        'tipe' => '1',
+                        'tahun' => $tahun,
+                        'bulan' => $bulanKey,
+                        'tahapan' => $tahapan,
+                    ], $recordData);
+                    $id = $this->fiskalModel->insert($insertData);
 					if ($id) {
 						$savedCount++;
 						log_message('debug', 'Created new record for bulan: ' . $bulanKey . ', tahapan: ' . $tahapan . ' with ID: ' . $id);
