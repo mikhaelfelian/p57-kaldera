@@ -18,7 +18,10 @@ class Gender extends BaseController
     {
         $year = (int)($this->request->getGet('year') ?: date('Y'));
 
-        $items = $this->model->orderBy('id', 'DESC')->findAll();
+        $items = $this->model
+            ->where('year', $year)
+            ->orderBy('month', 'ASC')
+            ->findAll();
 
         $data = [
             'title'       => 'Gender - Input',

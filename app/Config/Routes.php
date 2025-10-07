@@ -220,8 +220,10 @@ $routes->group('indikator', ['namespace' => 'App\\Controllers', 'filter' => 'aut
     $routes->get('input/preview-hasil-htl-file/(:num)', 'IndikatorInput::previewHasilHtlFile/$1', ['as' => 'indikator.input.preview_hasil_htl_file']);
     $routes->get('input/download-hasil-htl-file/(:num)', 'IndikatorInput::downloadHasilHtlFile/$1', ['as' => 'indikator.input.download_hasil_htl_file']);
     $routes->get('input/preview/(:num)', 'IndikatorInput::preview/$1', ['as' => 'indikator.input.preview']);
-    $routes->get('input/download-catatan/(:num)', 'IndikatorInput::downloadCatatan/$1', ['as' => 'indikator.input.download_catatan']);
+    $routes->get('input/preview-catatan', 'IndikatorInput::previewCatatan', ['as' => 'indikator.input.preview_catatan']);
+    $routes->get('input/download-catatan', 'IndikatorInput::downloadCatatan', ['as' => 'indikator.input.download_catatan']);
     $routes->get('input/download-rencana/(:num)', 'IndikatorInput::downloadRencana/$1', ['as' => 'indikator.input.download_rencana']);
+    $routes->post('input/delete-verifikator', 'IndikatorInput::deleteVerifikator', ['as' => 'indikator.input.delete_verifikator']);
     
     // Rekap routes
     $routes->get('rekap', 'IndikatorInput::rekap', ['as' => 'indikator.rekap']);

@@ -96,7 +96,13 @@ $indikatorList = $indikatorList ?? [];
                             </td>
                             <td style="vertical-align: middle;">
                                 <span class="mx-1">
-                                    <?php echo ($data['file_catatan_name'] ?? '') ?>
+                                    <?php if (!empty($data['file_catatan_name'])): ?>
+                                        <a href="#" class="link-preview-catatan" data-jenis="<?= $key ?>" data-filename="<?= esc($data['file_catatan_name']) ?>">
+                                            <?= esc($data['file_catatan_name']) ?>
+                                        </a>
+                                    <?php else: ?>
+                                        <span class="text-muted">-</span>
+                                    <?php endif; ?>
                                 </span>
                             </td>
                             <td class="text-center">
@@ -272,7 +278,8 @@ $indikatorList = $indikatorList ?? [];
                             <thead style="background-color: #3b6ea8; color: white;">
                                 <tr>
                                     <th style="width: 50%; vertical-align: middle;">Verifikator</th>
-                                    <th class="text-center" style="width: 50%; vertical-align: middle;">Hasil Tindak Lanjut</th>
+                                    <th class="text-center" style="width: 40%; vertical-align: middle;">Hasil Tindak Lanjut</th>
+                                    <th class="text-center" style="width: 10%; vertical-align: middle;">Aksi</th>
                                 </tr>
                             </thead>
                             <tbody id="hasilTindakLanjutTableBody">
@@ -723,6 +730,51 @@ $indikatorList = $indikatorList ?? [];
             }
         }
 
+        // Open catatan file preview from filename link
+        function openCatatanPreview(jenis, fileName) {
+            $('#preview_loading').show();
+            $('#preview_error').hide();
+            $('#preview_content').hide();
+            $('#preview_download_notice').hide();
+            $('#preview_iframe').attr('src', '');
+            $('#preview_file_title').text(fileName);
+
+            $('#previewFileModal').modal('show');
+
+            var extension = (fileName.split('.').pop() || '').toLowerCase();
+            var previewUrl = '<?= base_url('indikator/input/preview-catatan') ?>' +
+                '?tahun=<?= $tahun ?>' + '&triwulan=<?= $triwulan ?>' + '&jenis=' + encodeURIComponent(jenis);
+            var downloadUrl = '<?= base_url('indikator/input/download-catatan') ?>' +
+                '?tahun=<?= $tahun ?>' + '&triwulan=<?= $triwulan ?>' + '&jenis=' + encodeURIComponent(jenis);
+
+            $('#preview_download_btn').off('click').on('click', function(){ window.open(downloadUrl, '_blank'); });
+            $('#preview_download_btn_footer').off('click').on('click', function(){ window.open(downloadUrl, '_blank'); });
+
+            var canPreview = ['pdf', 'jpg', 'jpeg', 'png', 'gif'].indexOf(extension) !== -1;
+            if (canPreview) {
+                $('#preview_iframe').on('load', function(){
+                    $('#preview_loading').hide();
+                    $('#preview_content').show();
+                }).on('error', function(){
+                    $('#preview_loading').hide();
+                    $('#preview_error_message').text('Gagal memuat file preview');
+                    $('#preview_error').show();
+                });
+                $('#preview_iframe').attr('src', previewUrl);
+            } else {
+                $('#preview_loading').hide();
+                $('#preview_download_notice').show();
+            }
+        }
+
+        $(document).on('click', '.link-preview-catatan', function(e){
+            e.preventDefault();
+            var jenis = $(this).data('jenis');
+            var filename = $(this).data('filename');
+            if (!filename) return;
+            openCatatanPreview(jenis, filename);
+        });
+
         // Upload Catatan button click
         $(document).on('click', '.upload-catatan-btn', function () {
             var jenis = $(this).data('jenis');
@@ -930,6 +982,11 @@ $indikatorList = $indikatorList ?? [];
                             </button>
                         </div>
                     </td>
+                    <td class="text-center">
+                        <button type="button" class="btn btn-danger btn-sm rounded-0 remove-hasil-row-btn" title="Hapus">
+                            <i class="fas fa-trash"></i>
+                        </button>
+                    </td>
                 </tr>
             `;
             $('#hasilTindakLanjutTableBody').append(newRow);
@@ -943,6 +1000,56 @@ $indikatorList = $indikatorList ?? [];
         // Add hasil row button click
         $(document).on('click', '#addHasilRowBtn', function () {
             addHasilTindakLanjutRow();
+        });
+
+        // Remove hasil tindak lanjut row
+        $(document).on('click', '.remove-hasil-row-btn', function () {
+            var $rows = $('.hasil-tindak-lanjut-row');
+            if ($rows.length <= 1) {
+                if (window.toastr) { toastr.warning('Minimal harus ada 1 baris'); }
+                return;
+            }
+            
+            var $row = $(this).closest('tr');
+            var verifId = $row.data('verif-id');
+            var jenisIndikator = $('#hasil_jenis_indikator').val();
+            
+            // If row has database ID, delete from database first
+            if (verifId && jenisIndikator) {
+                $.ajax({
+                    url: '<?= base_url('indikator/input/delete-verifikator') ?>',
+                    type: 'POST',
+                    data: {
+                        verif_id: verifId,
+                        jenis_indikator: jenisIndikator,
+                        tahun: <?= $tahun ?>,
+                        triwulan: <?= $triwulan ?>,
+                        [csrfTokenName]: csrfHash
+                    },
+                    dataType: 'json',
+                    success: function(res) {
+                        if (res && res.csrf_hash) { csrfHash = res.csrf_hash; }
+                        if (res && res.ok) {
+                            if (window.toastr) { toastr.success('Data berhasil dihapus'); }
+                            $row.remove();
+                        } else {
+                            if (window.toastr) { toastr.error(res.message || 'Gagal menghapus data'); }
+                        }
+                    },
+                    error: function(xhr) {
+                        try {
+                            var data = JSON.parse(xhr.responseText);
+                            if (data && data.csrf_hash) { csrfHash = data.csrf_hash; }
+                            if (window.toastr) { toastr.error(data.message || 'Gagal menghapus data'); }
+                        } catch (e) {
+                            if (window.toastr) { toastr.error('Gagal menghapus data'); }
+                        }
+                    }
+                });
+            } else {
+                // Just remove from DOM if no database ID
+                $row.remove();
+            }
         });
 
         // Remove row button click

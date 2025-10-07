@@ -17,7 +17,10 @@ class Risiko extends BaseController
     public function index()
     {
         $year = (int)($this->request->getGet('year') ?: date('Y'));
-        $items = $this->model->orderBy('id', 'DESC')->findAll();
+        $items = $this->model
+            ->where('year', $year)
+            ->orderBy('month', 'ASC')
+            ->findAll();
         $data = [
             'title'      => 'Manajemen Risiko - Input',
             'Pengaturan' => $this->pengaturan,

@@ -113,7 +113,8 @@ class IndikatorInput extends BaseController
 
         $data = [
             'catatan_indikator' => $catatanIndikator,
-            'file_catatan_path' => 'public/file/indikator/input/' . $fileName,
+            // Store path relative to public root
+            'file_catatan_path' => 'file/indikator/input/' . $fileName,
             'file_catatan_name' => $file->getClientName(),
             'file_catatan_size' => $file->getSize(),
             'uploaded_by' => session('user_id') ?? 1,
@@ -275,18 +276,80 @@ class IndikatorInput extends BaseController
         }
     }
 
-    public function downloadCatatan($id)
+    public function previewCatatan()
     {
-        $data = $this->indikatorInputModel->find($id);
+        $tahun = (int)$this->request->getGet('tahun');
+        $triwulan = (int)$this->request->getGet('triwulan');
+        $jenis = $this->request->getGet('jenis');
+        
+        if (!$tahun || !$triwulan || !$jenis) {
+            throw new \CodeIgniter\Exceptions\PageNotFoundException('Parameter tidak lengkap');
+        }
+
+        $data = $this->indikatorInputModel->where([
+            'tahun' => $tahun,
+            'triwulan' => $triwulan,
+            'jenis_indikator' => $jenis
+        ])->first();
         
         if (!$data || !$data['file_catatan_path']) {
             throw new \CodeIgniter\Exceptions\PageNotFoundException('File tidak ditemukan');
         }
 
-        $filePath = FCPATH . $data['file_catatan_path'];
+        $storedPath = $data['file_catatan_path'];
+        // Backward compat: some rows stored with 'public/file/...'
+        if (str_starts_with($storedPath, 'public/')) {
+            $storedPath = substr($storedPath, 7);
+        }
+        $filePath = FCPATH . ltrim($storedPath, '/\\');
         
         if (!file_exists($filePath)) {
+            throw new \CodeIgniter\Exceptions\PageNotFoundException('File tidak ditemukan di server');
+        }
+
+        // Get file extension and MIME type
+        $extension = strtolower(pathinfo($data['file_catatan_name'], PATHINFO_EXTENSION));
+        $mimeType = $this->getMimeType($extension);
+
+        // Set appropriate headers for preview
+        $this->response->setHeader('Content-Type', $mimeType);
+        $this->response->setHeader('Content-Disposition', 'inline; filename="' . $data['file_catatan_name'] . '"');
+        $this->response->setHeader('Content-Length', filesize($filePath));
+        $this->response->setHeader('Cache-Control', 'no-cache, no-store, must-revalidate');
+        $this->response->setHeader('Pragma', 'no-cache');
+        $this->response->setHeader('Expires', '0');
+
+        return $this->response->setBody(file_get_contents($filePath));
+    }
+
+    public function downloadCatatan()
+    {
+        $tahun = (int)$this->request->getGet('tahun');
+        $triwulan = (int)$this->request->getGet('triwulan');
+        $jenis = $this->request->getGet('jenis');
+        
+        if (!$tahun || !$triwulan || !$jenis) {
+            throw new \CodeIgniter\Exceptions\PageNotFoundException('Parameter tidak lengkap');
+        }
+
+        $data = $this->indikatorInputModel->where([
+            'tahun' => $tahun,
+            'triwulan' => $triwulan,
+            'jenis_indikator' => $jenis
+        ])->first();
+        
+        if (!$data || !$data['file_catatan_path']) {
             throw new \CodeIgniter\Exceptions\PageNotFoundException('File tidak ditemukan');
+        }
+
+        $storedPath = $data['file_catatan_path'];
+        if (str_starts_with($storedPath, 'public/')) {
+            $storedPath = substr($storedPath, 7);
+        }
+        $filePath = FCPATH . ltrim($storedPath, '/\\');
+        
+        if (!file_exists($filePath)) {
+            throw new \CodeIgniter\Exceptions\PageNotFoundException('File tidak ditemukan di server');
         }
 
         return $this->response->download($filePath, $data['file_catatan_name']);
@@ -849,6 +912,72 @@ class IndikatorInput extends BaseController
         }
 
         return $this->response->download($fullPath, null)->setFileName($fileName);
+    }
+
+    public function deleteVerifikator()
+    {
+        if (!$this->request->isAJAX()) {
+            return $this->response->setJSON(['ok' => false, 'message' => 'Invalid request']);
+        }
+
+        $verifId = (int)$this->request->getPost('verif_id');
+        $jenisIndikator = $this->request->getPost('jenis_indikator');
+        $tahun = (int)$this->request->getPost('tahun');
+        $triwulan = (int)$this->request->getPost('triwulan');
+
+        if (!$verifId || !$jenisIndikator || !$tahun || !$triwulan) {
+            return $this->response->setJSON(['ok' => false, 'message' => 'Parameter tidak lengkap']);
+        }
+
+        try {
+            // Find the verifikator record
+            $verif = $this->indikatorVerifModel->where([
+                'id' => $verifId,
+                'tahun' => $tahun,
+                'triwulan' => $triwulan,
+                'jenis_indikator' => $jenisIndikator
+            ])->first();
+
+            if (!$verif) {
+                return $this->response->setJSON(['ok' => false, 'message' => 'Data tidak ditemukan']);
+            }
+
+            // Delete associated files if they exist
+            $filesToDelete = [];
+            
+            if (!empty($verif['hasil_verifikasi_file'])) {
+                $filesToDelete[] = FCPATH . $verif['hasil_verifikasi_file'];
+            }
+            if (!empty($verif['rencana_tindak_lanjut_file'])) {
+                $filesToDelete[] = FCPATH . $verif['rencana_tindak_lanjut_file'];
+            }
+            if (!empty($verif['hasil_tindak_lanjut_file'])) {
+                $filesToDelete[] = FCPATH . $verif['hasil_tindak_lanjut_file'];
+            }
+
+            // Delete the record from database
+            $deleted = $this->indikatorVerifModel->delete($verifId);
+
+            if ($deleted) {
+                // Delete physical files
+                foreach ($filesToDelete as $filePath) {
+                    if (file_exists($filePath)) {
+                        @unlink($filePath);
+                    }
+                }
+
+                return $this->response->setJSON([
+                    'ok' => true, 
+                    'message' => 'Data berhasil dihapus',
+                    'csrf_hash' => csrf_hash()
+                ]);
+            } else {
+                return $this->response->setJSON(['ok' => false, 'message' => 'Gagal menghapus data']);
+            }
+
+        } catch (\Exception $e) {
+            return $this->response->setJSON(['ok' => false, 'message' => 'Terjadi kesalahan: ' . $e->getMessage()]);
+        }
     }
 
     private function getMimeType($extension)
