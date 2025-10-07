@@ -81,7 +81,7 @@ $year = $year ?? date('Y');
 					</tbody>
 				</table>
 				<div class="text-right mt-3">
-					<button type="button" class="btn btn-success rounded-0" id="btnDummySave">Simpan Semua Data</button>
+					<button type="button" class="btn btn-success rounded-0" id="btnDummySave">Simpan</button>
 				</div>
 			</div>
 	</div>
@@ -333,27 +333,20 @@ $year = $year ?? date('Y');
 			var tahun = $('select[name="year"]').val();
 			var tahapan = $('select[name="tahapan"]').val();
 			
-            // Collect all data (both staged and current values)
+            // Collect ONLY staged changes to avoid overwriting existing data with zeros
             var allData = {};
             var hasChanges = false;
             
-			$('#tfkTable .editable').each(function () {
-				var $span = $(this);
+            $('#tfkTable .editable').each(function () {
+                var $span = $(this);
                 var bulan = $span.data('bulan');
                 var field = $span.data('field');
+                var staged = $span.data('staged');
                 
-                // Use staged value if available, otherwise current value
-                var value = $span.data('staged') !== undefined ? 
-                           parseFloat($span.data('staged')) || 0 : 
-                           parseFloat($span.data('value')) || 0;
-                
-                if (!allData[bulan]) {
-                    allData[bulan] = {};
-                }
-                allData[bulan][field] = value;
-                
-                // Check if there are any staged changes
-                if ($span.data('staged') !== undefined) {
+                if (staged !== undefined) {
+                    var value = parseFloat(staged) || 0;
+                    if (!allData[bulan]) { allData[bulan] = {}; }
+                    allData[bulan][field] = value;
                     hasChanges = true;
                 }
             });
