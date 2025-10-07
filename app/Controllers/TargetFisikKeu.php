@@ -370,8 +370,18 @@ class TargetFisikKeu extends BaseController
 				$this->fiskalModel->skipValidation(true);
 				
 				if ($existing) {
-					// Update existing record
-					$result = $this->fiskalModel->update($existing['id'], $recordData);
+					// Update existing record - only update the values, not the key fields
+					$updateData = [
+						'target_fisik' => $recordData['target_fisik'],
+						'target_keuangan' => $recordData['target_keuangan'],
+						'realisasi_fisik' => $recordData['realisasi_fisik'],
+						'realisasi_keuangan' => $recordData['realisasi_keuangan'],
+						'realisasi_fisik_prov' => $recordData['realisasi_fisik_prov'],
+						'realisasi_keuangan_prov' => $recordData['realisasi_keuangan_prov'],
+						'analisa' => $recordData['analisa'],
+					];
+					
+					$result = $this->fiskalModel->update($existing['id'], $updateData);
 					if ($result) {
 						$savedCount++;
 						log_message('debug', 'Updated record for bulan: ' . $bulanKey . ', tahapan: ' . $tahapan);
