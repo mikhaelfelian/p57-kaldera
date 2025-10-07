@@ -519,8 +519,24 @@ $master = $masterData ?? [];
             if (typeof text === 'number') return isNaN(text) ? 0 : text;
             var s = String(text).trim();
             if (!s) return 0;
-            // remove thousand separators then convert decimal comma to dot
-            s = s.replace(/\./g, '').replace(',', '.');
+            var hasComma = s.indexOf(',') !== -1;
+            var hasDot = s.indexOf('.') !== -1;
+            if (hasComma && hasDot) {
+                // Determine decimal separator by the last occurrence
+                if (s.lastIndexOf(',') > s.lastIndexOf('.')) {
+                    // comma is decimal, dot is thousands: 1.234,56
+                    s = s.replace(/\./g, '').replace(',', '.');
+                } else {
+                    // dot is decimal, comma is thousands: 1,234.56
+                    s = s.replace(/,/g, '');
+                }
+            } else if (hasComma) {
+                // Only comma present -> decimal is comma
+                s = s.replace(/\./g, '').replace(',', '.');
+            } else {
+                // Only dot or none -> decimal is dot
+                s = s.replace(/,/g, '');
+            }
             var n = parseFloat(s);
             return isNaN(n) ? 0 : n;
         }
@@ -764,11 +780,9 @@ $master = $masterData ?? [];
                 var field = $span.data('field');
                 var raw = $span.text();
                 var value = raw;
-                // Normalize numeric fields to dot-decimal for backend
-                if (field && field.indexOf('realisasi') === 0) {
+                // Normalize numeric editable cells (realisasi fisik/keuangan/prov) to dot-decimal
+                if ($span.hasClass('editable-cell')) {
                     value = parseLocaleNumber(raw);
-                } else if (field === 'analisa') {
-                    value = raw;
                 }
 
                 if (!cellData[bulan]) {
