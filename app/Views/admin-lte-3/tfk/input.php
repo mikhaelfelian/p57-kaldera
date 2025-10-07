@@ -553,6 +553,9 @@ $master = $masterData ?? [];
             function commit() {
                 var newVal = parseLocaleNumber(input.val());
                 span.text(formatAngka(newVal));
+                // mark as staged so we only save modified cells
+                span.data('staged', newVal);
+                span.addClass('has-changes');
                 input.remove();
                 span.show();
                 recalculateDeviations();
@@ -579,6 +582,9 @@ $master = $masterData ?? [];
             function commit() {
                 var newVal = input.val();
                 span.text(newVal);
+                // mark as staged
+                span.data('staged', newVal);
+                span.addClass('has-changes');
                 input.remove();
                 span.show();
             }
@@ -778,12 +784,10 @@ $master = $masterData ?? [];
                 var $span = $(this);
                 var bulan = $span.data('bulan');
                 var field = $span.data('field');
-                var raw = $span.text();
-                var value = raw;
-                // Normalize numeric editable cells (realisasi fisik/keuangan/prov) to dot-decimal
-                if ($span.hasClass('editable-cell')) {
-                    value = parseLocaleNumber(raw);
-                }
+                var staged = $span.data('staged');
+                // Only send modified cells to avoid overwriting existing data
+                if (staged === undefined) { return; }
+                var value = $span.hasClass('editable-cell') ? parseLocaleNumber(staged) : staged;
 
                 if (!cellData[bulan]) {
                     cellData[bulan] = {};
@@ -802,6 +806,20 @@ $master = $masterData ?? [];
                     if (window.toastr) {
                         toastr.success(res.message || 'Data berhasil disimpan');
                     }
+                    // apply staged values as current and clear staging
+                    $('.editable-cell, .editable-text-cell').each(function(){
+                        var $span = $(this);
+                        var staged = $span.data('staged');
+                        if (staged !== undefined) {
+                            if ($span.hasClass('editable-cell')) {
+                                $span.text(formatAngka(parseLocaleNumber(staged)));
+                            } else {
+                                $span.text(staged);
+                            }
+                            $span.removeData('staged');
+                            $span.removeClass('has-changes');
+                        }
+                    });
                 } else {
                     if (window.toastr) {
                         toastr.error(res.message || 'Gagal menyimpan data');
