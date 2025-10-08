@@ -20,33 +20,36 @@
     <!-- Add reCAPTCHA v3 -->
     <script src="https://www.google.com/recaptcha/api.js?render=<?= config('Recaptcha')->siteKey ?>"></script>
     <style>
-    /* Style for loading indicator */
-    .loading {
-        position: relative;
-        pointer-events: none;
-    }
-    .loading:after {
-        content: '';
-        position: absolute;
-        left: 0;
-        top: 0;
-        width: 100%;
-        height: 100%;
-        background: rgba(255,255,255,0.8) url('<?= base_url('public/assets/img/loading.gif') ?>') center no-repeat;
-        z-index: 2;
-    }
-    /* Style for reCAPTCHA badge */
-    .grecaptcha-badge {
-        bottom: 60px !important;
-    }
+        /* Style for loading indicator */
+        .loading {
+            position: relative;
+            pointer-events: none;
+        }
+
+        .loading:after {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(255, 255, 255, 0.8) url('<?= base_url('public/assets/img/loading.gif') ?>') center no-repeat;
+            z-index: 2;
+        }
+
+        /* Style for reCAPTCHA badge */
+        .grecaptcha-badge {
+            bottom: 60px !important;
+        }
     </style>
 </head>
+
 <body class="hold-transition login-page">
     <div class="login-box">
         <!-- /.login-logo -->
         <div class="card card-outline card-success">
             <div class="card-header text-center">
-                <img src="<?= !empty($Pengaturan->logo_header) ? base_url($Pengaturan->logo_header) : base_url('public/assets/theme/admin-lte-3/dist/img/AdminLTELogo.png') ?>" alt="Logo" class="img-fluid"
+                <img src="<?= base_url('public/file/app/logo_login.png') ?>" alt="Logo" class="img-fluid"
                     style="width: 209px; height: 94px; background-color: #fff;">
             </div>
             <div class="card-body">
@@ -56,7 +59,7 @@
                 <div class="input-group mb-3">
                     <?= form_input([
                         'type'          => 'text',
-                        'name'          => 'user', 
+                        'name'          => 'user',
                         'class'         => 'form-control rounded-0',
                         'placeholder'   => 'Pengguna ...',
                         'required'      => true
@@ -70,7 +73,7 @@
                 <div class="input-group mb-3">
                     <?= form_input([
                         'type'          => 'password',
-                        'name'          => 'pass', 
+                        'name'          => 'pass',
                         'class'         => 'form-control rounded-0',
                         'placeholder'   => 'Kata Sandi ...',
                         'required'      => true
@@ -106,6 +109,15 @@
                 <input type="hidden" name="recaptcha_response" id="recaptchaResponse">
 
                 <?= form_close() ?>
+                <div class="social-auth-links text-center mb-3">
+                    <p>TAUTAN LAIN</p>
+                    <a href="https://kaldera.esdmjateng.com/tutorial" target="_blank" class="btn btn-block btn-info rounded-0">
+                        <i class="fas fa-book mr-2"></i> Tutorial Penggunaan
+                    </a>
+                    <a href="https://jatengprov.go.id/" target="_blank" class="btn btn-block btn-success rounded-0">
+                        <i class="fas fa-globe mr-2"></i> Pusat Jateng
+                    </a>
+                </div>
 
                 <!-- reCAPTCHA info -->
                 <div class="text-center mt-3">
@@ -132,7 +144,7 @@
     <script src="<?= base_url('public/assets/theme/admin-lte-3/plugins/toastr/toastr.min.js') ?>"></script>
 
     <?php if (session()->has('toastr')): ?>
-        <?php 
+        <?php
         $toastr = session('toastr');
         echo toast_show($toastr['message'], $toastr['type'], 'Login');
         ?>
@@ -140,42 +152,45 @@
 
     <!-- Add reCAPTCHA script -->
     <script>
-    grecaptcha.ready(function() {
-        const form = document.getElementById('login_form');
-        const submitBtn = document.getElementById('submitBtn');
-        const btnText = submitBtn.querySelector('span');
-        const btnLoader = submitBtn.querySelector('i');
+        grecaptcha.ready(function() {
+            const form = document.getElementById('login_form');
+            const submitBtn = document.getElementById('submitBtn');
+            const btnText = submitBtn.querySelector('span');
+            const btnLoader = submitBtn.querySelector('i');
 
-        form.addEventListener('submit', function(e) {
-            e.preventDefault();
-            
-            // Show loading state
-            submitBtn.disabled = true;
-            btnText.classList.add('d-none');
-            btnLoader.classList.remove('d-none');
-            form.classList.add('loading');
+            form.addEventListener('submit', function(e) {
+                e.preventDefault();
 
-            // Execute reCAPTCHA
-            grecaptcha.execute('<?= config('Recaptcha')->siteKey ?>', {action: 'login'})
-                .then(function(token) {
-                    // Add token to form
-                    document.getElementById('recaptchaResponse').value = token;
-                    // Submit form
-                    form.submit();
-                })
-                .catch(function(error) {
-                    // Handle error
-                    console.error('reCAPTCHA error:', error);
-                    toastr.error('Error verifying reCAPTCHA. Please try again.');
-                    
-                    // Reset loading state
-                    submitBtn.disabled = false;
-                    btnText.classList.remove('d-none');
-                    btnLoader.classList.add('d-none');
-                    form.classList.remove('loading');
-                });
+                // Show loading state
+                submitBtn.disabled = true;
+                btnText.classList.add('d-none');
+                btnLoader.classList.remove('d-none');
+                form.classList.add('loading');
+
+                // Execute reCAPTCHA
+                grecaptcha.execute('<?= config('Recaptcha')->siteKey ?>', {
+                        action: 'login'
+                    })
+                    .then(function(token) {
+                        // Add token to form
+                        document.getElementById('recaptchaResponse').value = token;
+                        // Submit form
+                        form.submit();
+                    })
+                    .catch(function(error) {
+                        // Handle error
+                        console.error('reCAPTCHA error:', error);
+                        toastr.error('Error verifying reCAPTCHA. Please try again.');
+
+                        // Reset loading state
+                        submitBtn.disabled = false;
+                        btnText.classList.remove('d-none');
+                        btnLoader.classList.add('d-none');
+                        form.classList.remove('loading');
+                    });
+            });
         });
-    });
     </script>
 </body>
+
 </html>
