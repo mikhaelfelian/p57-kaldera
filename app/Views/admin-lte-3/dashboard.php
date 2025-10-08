@@ -268,18 +268,17 @@
     <div class="row">
         <div class="col-12">
             <div class="d-flex align-items-center justify-content-between py-2">
-                <h3 class="m-0 font-weight-bold">KALDERA ESDM</h3>
+                <h3 class="m-0 font-weight-bold">&nbsp;</h3>
                 <div class="text-right small text-muted">
-                    <div><strong><?= esc($user->first_name ?? '') ?></strong></div>
-                    <div>OPD Program - NIP</div>
+                    <div><strong><?= esc(trim(($user->first_name ?? '') . ' ' . ($user->last_name ?? ''))) ?></strong></div>
+                    <div>NIP : <?= esc($user->company ?? '') ?></div>
                 </div>
             </div>
         </div>
         <div class="col-md-9 kaldera-right">
-            <div class="header-strip">Beranda</div>
             <div class="welcome-panel">
                 <div class="text-block">
-                    <div class="small">SUGENG RAWUH</div>
+                    <div class="small">SUGENG RAWUH <?= esc(trim(($user->first_name ?? '') . ' ' . ($user->last_name ?? ''))) ?></div>
                     <div class="title">KALDERA ESDM <span class="font-weight-normal">2025</span></div>
                     <div class="desc">Sistem Kinerja Pengendalian Dan</div>
                     <div class="desc">Pelaporan Digital ESDM</div>

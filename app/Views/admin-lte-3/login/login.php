@@ -111,11 +111,11 @@
                 <?= form_close() ?>
                 <div class="social-auth-links text-center mb-3">
                     <p>TAUTAN LAIN</p>
-                    <a href="https://kaldera.esdmjateng.com/tutorial" target="_blank" class="btn btn-block btn-info rounded-0">
-                        <i class="fas fa-book mr-2"></i> Tutorial Penggunaan
+                    <a href="#" class="btn btn-block btn-info rounded-0">
+                        <i class="fas fa-book mr-2"></i> E-Book
                     </a>
-                    <a href="https://jatengprov.go.id/" target="_blank" class="btn btn-block btn-success rounded-0">
-                        <i class="fas fa-globe mr-2"></i> Pusat Jateng
+                    <a href="https://esdm.jatengprov.go.id/" target="_blank" class="btn btn-block btn-success rounded-0">
+                        <i class="fas fa-globe mr-2"></i> Video Tutorial
                     </a>
                 </div>
 

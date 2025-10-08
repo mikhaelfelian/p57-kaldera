@@ -8,9 +8,27 @@
             <div class="card-body box-profile">
                 <div class="text-center">
                     <div class="profile-avatar-container">
-                        <?php if (!empty($user->avatar) && file_exists(FCPATH . $user->avatar)): ?>
+                        <?php 
+                        $profileImage = '';
+                        if (!empty($user->profile)) {
+                            // Handle different path formats
+                            $imagePath = $user->profile;
+                            
+                            // Remove 'public/' prefix if present
+                            if (strpos($imagePath, 'public/') === 0) {
+                                $imagePath = substr($imagePath, 7);
+                            }
+                            
+                            // Check if file exists
+                            $fullPath = FCPATH . $imagePath;
+                            if (file_exists($fullPath)) {
+                                $profileImage = base_url($imagePath);
+                            }
+                        }
+                        ?>
+                        <?php if ($profileImage): ?>
                             <img class="profile-user-img img-fluid img-circle" 
-                                 src="<?= base_url($user->avatar) ?>" 
+                                 src="<?= $profileImage ?>" 
                                  alt="User profile picture" 
                                  style="width: 100px; height: 100px; object-fit: cover;">
                         <?php else: ?>
@@ -41,11 +59,11 @@
                 <strong><i class="fas fa-phone mr-1"></i> Telepon</strong>
                 <p class="text-muted"><?= $user->phone ?: 'Belum diisi' ?></p>
                 <hr>
-                <strong><i class="fas fa-building mr-1"></i> Perusahaan</strong>
+                <strong><i class="fas fa-university mr-1"></i> Instansi</strong>
                 <p class="text-muted"><?= $user->company ?: 'Belum diisi' ?></p>
                 <hr>
                 <strong><i class="fas fa-calendar mr-1"></i> Terdaftar</strong>
-                <p class="text-muted"><?= date('d F Y', strtotime($user->created_on)) ?></p>
+                <p class="text-muted"><?= date('d F Y', $user->created_on) ?></p>
             </div>
         </div>
     </div>
@@ -74,27 +92,38 @@
                             </div>
                         </div>
                     </div>
-                    <div class="row">
-                        <div class="col-md-6">
-                            <div class="form-group">
-                                <label for="email">Email <span class="text-danger">*</span></label>
-                                <input type="email" class="form-control rounded-0" id="email" name="email" 
-                                       value="<?= $user->email ?>" required>
-                            </div>
-                        </div>
-                        <div class="col-md-6">
-                            <div class="form-group">
-                                <label for="phone">Telepon</label>
-                                <input type="text" class="form-control rounded-0" id="phone" name="phone" 
-                                       value="<?= $user->phone ?>">
-                            </div>
-                        </div>
-                    </div>
-                    <div class="form-group">
-                        <label for="company">Perusahaan</label>
-                        <input type="text" class="form-control rounded-0" id="company" name="company" 
-                               value="<?= $user->company ?>">
-                    </div>
+                     <div class="row">
+                         <div class="col-md-6">
+                             <div class="form-group">
+                                 <label for="email">Email <span class="text-danger">*</span></label>
+                                 <input type="email" class="form-control rounded-0" id="email" name="email" 
+                                        value="<?= $user->email ?>" required>
+                             </div>
+                         </div>
+                         <div class="col-md-6">
+                             <div class="form-group">
+                                 <label for="phone">Telepon</label>
+                                 <input type="text" class="form-control rounded-0" id="phone" name="phone" 
+                                        value="<?= $user->phone ?>">
+                             </div>
+                         </div>
+                     </div>
+                     <div class="row">
+                         <div class="col-md-6">
+                             <div class="form-group">
+                                 <label for="company">NIP <span class="text-danger">*</span></label>
+                                 <input type="text" class="form-control rounded-0" id="company" name="company" 
+                                        value="<?= $user->company ?>" required>
+                             </div>
+                         </div>
+                         <div class="col-md-6">
+                             <div class="form-group">
+                                 <label for="username">Username</label>
+                                 <input type="text" class="form-control rounded-0" id="username" name="username" 
+                                        value="<?= $user->username ?>" readonly>
+                             </div>
+                         </div>
+                     </div>
                     <div class="form-group">
                         <label for="password">Password Baru (kosongkan jika tidak ingin mengubah)</label>
                         <input type="password" class="form-control rounded-0" id="password" name="password">
@@ -106,39 +135,12 @@
                 </div>
                 <div class="card-footer">
                     <button type="submit" class="btn btn-primary rounded-0">
-                        <i class="fas fa-save"></i> Simpan Perubahan
+                        <i class="fas fa-save"></i> Simpan
                     </button>
                 </div>
             </form>
         </div>
 
-        <!-- Change Password Card -->
-        <div class="card">
-            <div class="card-header">
-                <h3 class="card-title">Ubah Password</h3>
-            </div>
-            <form id="changePasswordForm">
-                <div class="card-body">
-                    <div class="form-group">
-                        <label for="current_password">Password Lama <span class="text-danger">*</span></label>
-                        <input type="password" class="form-control rounded-0" id="current_password" name="current_password" required>
-                    </div>
-                    <div class="form-group">
-                        <label for="new_password">Password Baru <span class="text-danger">*</span></label>
-                        <input type="password" class="form-control rounded-0" id="new_password" name="new_password" required>
-                    </div>
-                    <div class="form-group">
-                        <label for="confirm_password">Konfirmasi Password Baru <span class="text-danger">*</span></label>
-                        <input type="password" class="form-control rounded-0" id="confirm_password" name="confirm_password" required>
-                    </div>
-                </div>
-                <div class="card-footer">
-                    <button type="submit" class="btn btn-warning rounded-0">
-                        <i class="fas fa-key"></i> Ubah Password
-                    </button>
-                </div>
-            </form>
-        </div>
     </div>
 </div>
 
@@ -224,21 +226,22 @@
 (function(){
     var csrfToken = '<?= csrf_token() ?>';
     var csrfHash = '<?= csrf_hash() ?>';
-    var csrfTokenName = '<?= config('Security')->tokenName ?>';
+    var csrfTokenName = '<?= service('security')->getTokenName() ?>';
     
     // Profile form submit
     $('#profileForm').on('submit', function(e){
         e.preventDefault();
         
-        var formData = {
-            first_name: $('#first_name').val(),
-            last_name: $('#last_name').val(),
-            email: $('#email').val(),
-            phone: $('#phone').val(),
-            company: $('#company').val(),
-            password: $('#password').val(),
-            password_confirm: $('#password_confirm').val()
-        };
+         var formData = {
+             first_name: $('#first_name').val(),
+             last_name: $('#last_name').val(),
+             email: $('#email').val(),
+             phone: $('#phone').val(),
+             username: $('#username').val(),
+             company: $('#company').val(),
+             password: $('#password').val(),
+             password_confirm: $('#password_confirm').val()
+         };
         formData[csrfTokenName] = csrfHash;
         
         $.post('<?= base_url('profile/update') ?>', formData, function(res){
@@ -267,41 +270,6 @@
         });
     });
     
-    // Change password form submit
-    $('#changePasswordForm').on('submit', function(e){
-        e.preventDefault();
-        
-        var formData = {
-            current_password: $('#current_password').val(),
-            new_password: $('#new_password').val(),
-            confirm_password: $('#confirm_password').val()
-        };
-        formData[csrfTokenName] = csrfHash;
-        
-        $.post('<?= base_url('profile/changePassword') ?>', formData, function(res){
-            if(res && res.csrf_hash){ csrfHash = res.csrf_hash; }
-            if(res && res.ok){
-                if(window.toastr){ toastr.success(res.message || 'Password berhasil diubah'); }
-                $('#changePasswordForm')[0].reset();
-            } else {
-                if(window.toastr){ toastr.error(res.message || 'Gagal mengubah password'); }
-                if(res.errors) {
-                    Object.keys(res.errors).forEach(function(field) {
-                        $('#' + field).addClass('is-invalid');
-                        $('#' + field).after('<div class="invalid-feedback">' + res.errors[field] + '</div>');
-                    });
-                }
-            }
-        }, 'json').fail(function(xhr){
-            try{
-                var data = JSON.parse(xhr.responseText);
-                if(data && data.csrf_hash){ csrfHash = data.csrf_hash; }
-                if(window.toastr){ toastr.error(data.message || 'Gagal mengubah password'); }
-            }catch(e){
-                if(window.toastr){ toastr.error('Gagal mengubah password'); }
-            }
-        });
-    });
     
     // Avatar upload
     $('#avatarForm').on('submit', function(e){
@@ -311,7 +279,7 @@
         formData.append(csrfTokenName, csrfHash);
         
         $.ajax({
-            url: '<?= base_url('profile/uploadAvatar') ?>',
+            url: '<?= base_url('profile/upload-avatar') ?>',
             type: 'POST',
             data: formData,
             processData: false,
@@ -324,6 +292,9 @@
                     // Update avatar display
                     $('.profile-user-img').attr('src', res.avatar_url);
                     $('.profile-avatar-container').html('<img class="profile-user-img img-fluid img-circle" src="' + res.avatar_url + '" alt="User profile picture" style="width: 100px; height: 100px; object-fit: cover;">');
+                    
+                    // Also update the navbar avatar if it exists
+                    $('.navbar .user-image').attr('src', res.avatar_url);
                 } else {
                     if(window.toastr){ toastr.error(res.message || 'Gagal mengupload avatar'); }
                 }

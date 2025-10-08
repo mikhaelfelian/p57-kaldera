@@ -123,8 +123,9 @@
                     <?php 
                         $target = $row['target'];
                         $realisasi = $row['realisasi'];
-                        // Force capaian to 0.00
-                        $persen = 0.00;
+                        // Calculate actual percentage
+                        $persen = $target > 0 ? ($realisasi / $target) * 100 : 0;
+                        
                         
                         $totalTarget += $target;
                         $totalRealisasi += $realisasi;
@@ -140,15 +141,16 @@
                             <i class="fas fa-pencil-alt text-muted ml-1 edit-icon" data-field="<?= $row['field'] ?>_realisasi"></i>
                         </td>
                         <td class="text-right">
-                            <span class="calculated-percent" data-field="<?= $row['field'] ?>_percent"><?= format_angka(0.00, 2) ?></span>%
+                            <span class="calculated-percent" data-field="<?= $row['field'] ?>_percent"><?= format_angka($persen, 2) ?></span>%
                         </td>
                     </tr>
                     <?php endforeach; ?>
                     
                     <!-- TOTAL Row -->
                     <?php 
-                        // Force totalPersen to 0.00
-                        $totalPersen = 0.00;
+                        // Calculate actual percentage
+                        $totalPersen = $totalTarget > 0 ? ($totalRealisasi / $totalTarget) * 100 : 0;
+                        
                     ?>
                     <tr style="background-color: #3b6ea8; color: white;">
                         <td class="text-center font-weight-bold">-</td>
@@ -158,7 +160,7 @@
                             <span id="totalRealisasi"><?= format_angka($totalRealisasi,2) ?></span>
                         </td>
                         <td class="text-right font-weight-bold">
-                            <span id="totalPersen"><?= format_angka(0.00, 2) ?></span>%
+                            <span id="totalPersen"><?= format_angka($totalPersen, 2) ?></span>%
                         </td>
                     </tr>
                 </tbody>
@@ -236,7 +238,10 @@
     
     function parseCurrency(str) {
         if (!str || str === '-') return 0;
-        return parseFloat(str.replace(/[^\d]/g, '')) || 0;
+        // Handle Indonesian number format: 6.000.000,00 -> 6000000
+        str = str.replace(/\./g, ''); // Remove thousand separators
+        str = str.replace(',', '.');  // Replace decimal separator
+        return parseFloat(str) || 0;
     }
     
     function recalculateAll(){
@@ -246,8 +251,8 @@
         $('tbody tr').not(':last').each(function(){
             var $row = $(this);
             var $targetCell = $row.find('td:nth-child(3)');
-            var targetText = $targetCell.text().replace(/[^\d]/g, '');
-            var target = parseFloat(targetText) || 0;
+            var targetText = $targetCell.text();
+            var target = parseCurrency(targetText);
             totalTarget += target;
             
             // Get realisasi input

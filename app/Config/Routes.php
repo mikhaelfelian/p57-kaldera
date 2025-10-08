@@ -54,12 +54,13 @@ $routes->group('auth', ['namespace' => 'App\Controllers'], static function ($rou
     // Forgot password (form and submit)
     $routes->get('forgot-password', 'Auth::forgot_password', ['as' => 'auth.forgot']);
     $routes->post('forgot-password', 'Auth::forgot_password', ['as' => 'auth.forgot.submit']);
-    
-    // Profile routes
-    $routes->get('profile', 'Profile::index', ['as' => 'auth.profile']);
-    $routes->post('profile/update', 'Profile::update', ['as' => 'auth.profile.update']);
-    $routes->post('profile/change-password', 'Profile::changePassword', ['as' => 'auth.profile.change_password']);
-    $routes->post('profile/upload-avatar', 'Profile::uploadAvatar', ['as' => 'auth.profile.upload_avatar']);
+});
+
+// Profile routes (protected)
+$routes->group('profile', ['namespace' => 'App\Controllers', 'filter' => 'auth'], static function ($routes) {
+    $routes->get('/', 'Profile::index', ['as' => 'profile.index']);
+    $routes->post('update', 'Profile::update', ['as' => 'profile.update']);
+    $routes->post('upload-avatar', 'Profile::uploadAvatar', ['as' => 'profile.upload_avatar']);
 });
 
 // ==================== Dashboard ====================

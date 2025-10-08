@@ -4,6 +4,8 @@ namespace App\Controllers;
 
 class Profile extends BaseController
 {
+    protected $ionAuth;
+    
     public function __construct()
     {
         helper(['form', 'url']);
@@ -38,7 +40,8 @@ class Profile extends BaseController
             'last_name' => 'required|min_length[2]|max_length[50]',
             'email' => 'required|valid_email|max_length[100]',
             'phone' => 'permit_empty|min_length[10]|max_length[20]',
-            'company' => 'permit_empty|max_length[100]',
+            'username' => 'permit_empty|min_length[3]|max_length[100]',
+            'company' => 'required|min_length[3]|max_length[100]',
             'password' => 'permit_empty|min_length[6]',
             'password_confirm' => 'matches[password]'
         ], [
@@ -61,8 +64,14 @@ class Profile extends BaseController
                 'min_length' => 'Nomor telepon minimal 10 digit',
                 'max_length' => 'Nomor telepon maksimal 20 digit'
             ],
+            'username' => [
+                'min_length' => 'Username minimal 3 karakter',
+                'max_length' => 'Username maksimal 100 karakter'
+            ],
             'company' => [
-                'max_length' => 'Nama perusahaan maksimal 100 karakter'
+                'required' => 'NIP harus diisi',
+                'min_length' => 'NIP minimal 3 karakter',
+                'max_length' => 'NIP maksimal 100 karakter'
             ],
             'password' => [
                 'min_length' => 'Password minimal 6 karakter'
@@ -88,6 +97,7 @@ class Profile extends BaseController
                 'last_name' => $this->request->getPost('last_name'),
                 'email' => $this->request->getPost('email'),
                 'phone' => $this->request->getPost('phone') ?: '',
+                'username' => $this->request->getPost('username'),
                 'company' => $this->request->getPost('company') ?: ''
             ];
 
@@ -99,6 +109,20 @@ class Profile extends BaseController
                     return $this->response->setJSON([
                         'ok' => false,
                         'message' => 'Email sudah digunakan oleh user lain',
+                        'csrf_token' => csrf_token(),
+                        'csrf_hash' => csrf_hash()
+                    ]);
+                }
+            }
+
+            // Check if company (NIP) is being changed
+            if ($data['company'] !== $user->company) {
+                // Check if new company (NIP) already exists
+                $existingUser = $this->ionAuth->where('company', $data['company'])->users()->row();
+                if ($existingUser && $existingUser->id != $user->id) {
+                    return $this->response->setJSON([
+                        'ok' => false,
+                        'message' => 'NIP sudah digunakan oleh user lain',
                         'csrf_token' => csrf_token(),
                         'csrf_hash' => csrf_hash()
                     ]);
@@ -130,79 +154,6 @@ class Profile extends BaseController
         }
     }
 
-    public function changePassword()
-    {
-        if (!$this->request->isAJAX()) {
-            return $this->response->setJSON(['ok' => false, 'message' => 'Invalid request']);
-        }
-
-        $user = $this->ionAuth->user()->row();
-        if (!$user) {
-            return $this->response->setJSON(['ok' => false, 'message' => 'User not found']);
-        }
-
-        $validation = \Config\Services::validation();
-        $validation->setRules([
-            'current_password' => 'required',
-            'new_password' => 'required|min_length[6]',
-            'confirm_password' => 'required|matches[new_password]'
-        ], [
-            'current_password' => [
-                'required' => 'Password lama harus diisi'
-            ],
-            'new_password' => [
-                'required' => 'Password baru harus diisi',
-                'min_length' => 'Password baru minimal 6 karakter'
-            ],
-            'confirm_password' => [
-                'required' => 'Konfirmasi password harus diisi',
-                'matches' => 'Konfirmasi password tidak cocok'
-            ]
-        ]);
-
-        if (!$validation->withRequest($this->request)->run()) {
-            return $this->response->setJSON([
-                'ok' => false,
-                'message' => 'Validasi gagal',
-                'errors' => $validation->getErrors(),
-                'csrf_token' => csrf_token(),
-                'csrf_hash' => csrf_hash()
-            ]);
-        }
-
-        try {
-            $currentPassword = $this->request->getPost('current_password');
-            $newPassword = $this->request->getPost('new_password');
-
-            // Verify current password
-            if (!$this->ionAuth->verifyPassword($currentPassword, $user->password)) {
-                return $this->response->setJSON([
-                    'ok' => false,
-                    'message' => 'Password lama tidak benar',
-                    'csrf_token' => csrf_token(),
-                    'csrf_hash' => csrf_hash()
-                ]);
-            }
-
-            // Update password
-            $this->ionAuth->update($user->id, ['password' => $newPassword]);
-
-            return $this->response->setJSON([
-                'ok' => true,
-                'message' => 'Password berhasil diubah',
-                'csrf_token' => csrf_token(),
-                'csrf_hash' => csrf_hash()
-            ]);
-
-        } catch (\Exception $e) {
-            return $this->response->setJSON([
-                'ok' => false,
-                'message' => 'Gagal mengubah password: ' . $e->getMessage(),
-                'csrf_token' => csrf_token(),
-                'csrf_hash' => csrf_hash()
-            ]);
-        }
-    }
 
     public function uploadAvatar()
     {
@@ -241,14 +192,21 @@ class Profile extends BaseController
                 }
 
                 // Create upload directory if not exists
-                $uploadPath = FCPATH . 'public/assets/images/profile/';
+                $uploadPath = FCPATH . '/file/profile/';
                 if (!is_dir($uploadPath)) {
-                    mkdir($uploadPath, 0755, true);
+                    if (!mkdir($uploadPath, 0755, true)) {
+                        return $this->response->setJSON([
+                            'ok' => false,
+                            'message' => 'Gagal membuat direktori upload',
+                            'csrf_token' => csrf_token(),
+                            'csrf_hash' => csrf_hash()
+                        ]);
+                    }
                 }
 
                 // Delete old avatar if exists
-                if ($user->avatar && file_exists(FCPATH . $user->avatar)) {
-                    unlink(FCPATH . $user->avatar);
+                if ($user->profile && file_exists(FCPATH . $user->profile)) {
+                    unlink(FCPATH . $user->profile);
                 }
 
                 // Generate new filename
@@ -256,8 +214,11 @@ class Profile extends BaseController
                 $file->move($uploadPath, $newName);
 
                 // Update user avatar
-                $avatarPath = 'public/assets/images/profile/' . $newName;
-                $this->ionAuth->update($user->id, ['avatar' => $avatarPath]);
+                $avatarPath = 'file/profile/' . $newName;
+                $this->ionAuth->update($user->id, ['profile' => $avatarPath]);
+                
+                // Log for debugging
+                log_message('debug', 'Avatar uploaded: ' . $avatarPath);
 
                 return $this->response->setJSON([
                     'ok' => true,
