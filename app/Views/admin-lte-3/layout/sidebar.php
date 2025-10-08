@@ -3,10 +3,14 @@
 ?>
 <aside class="main-sidebar sidebar-light-primary elevation-0">
     <!-- Brand Logo -->
-    <a href="<?= base_url() ?>" class="brand-link">
-        <img src="<?= $Pengaturan->logo ? base_url($Pengaturan->logo) : base_url('public/assets/theme/admin-lte-3/dist/img/AdminLTELogo.png') ?>"
-            alt="AdminLTE Logo" class="brand-image img-circle elevation-0" style="opacity: .8">
-        <span class="brand-text font-weight-light"><?= $Pengaturan ? $Pengaturan->judul_app : env('app.name') ?></span>
+    <a href="<?= base_url() ?>" class="brand-link" style="border-bottom: 1px solid #eee; min-height: 60px; width: 100%; display: flex; align-items: center; justify-content: center; padding: 5px; box-sizing: border-box;">
+        <img 
+            src="<?= base_url('public/file/app/logo_only.png') ?>" 
+            alt="KALDERA ESDM Logo" 
+            class="brand-image" 
+            style="width: 100%; height: auto; object-fit: contain; display: block; max-width: none;"
+        >
+        <!-- <span class="brand-text font-weight-light">&nbsp;<?php // $Pengaturan ? $Pengaturan->judul_app : env('app.name') ?></span> -->
     </a>
 
 
@@ -500,3 +504,35 @@
     </div>
     <!-- /.sidebar -->
 </aside>
+
+<style>
+/* Force logo to fill sidebar width */
+.main-sidebar .brand-link {
+    width: 100% !important;
+    padding: 5px !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    box-sizing: border-box !important;
+}
+
+.main-sidebar .brand-link .brand-image {
+    width: 100% !important;
+    max-width: none !important;
+    height: auto !important;
+    object-fit: contain !important;
+    display: block !important;
+    margin: 0 !important;
+}
+
+/* Override any AdminLTE styles */
+.brand-link {
+    width: 100% !important;
+    padding: 5px !important;
+}
+
+.brand-image {
+    width: 100% !important;
+    max-width: none !important;
+}
+</style>
