@@ -275,6 +275,11 @@
                 </div>
             </div>
         </div>
+        <div class="col-md-3 d-flex align-items-center justify-content-center">
+            <div class="image">
+                <img src="<?= base_url('public/file/app/logo_header.png') ?>" class="brand-image img-rounded-0 elevation-0" style="width: 209px; height: 85px; background-color: transparent;" alt="User Image">
+            </div>
+        </div>
         <div class="col-md-9 kaldera-right">
             <div class="welcome-panel">
                 <div class="text-block">
