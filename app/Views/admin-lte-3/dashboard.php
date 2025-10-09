@@ -275,18 +275,18 @@
                 </div>
             </div>
         </div>
-        <div class="col-md-3 d-flex align-items-center justify-content-center">
-            <div class="image">
-                <img src="<?= base_url('public/file/app/logo_header.png') ?>" class="brand-image img-rounded-0 elevation-0" style="width: 209px; height: 85px; background-color: transparent;" alt="User Image">
-            </div>
-        </div>
-        <div class="col-md-9 kaldera-right">
-            <div class="welcome-panel">
-                <div class="text-block">
-                    <div class="small">SUGENG RAWUH <?= esc(trim(($user->first_name ?? '') . ' ' . ($user->last_name ?? ''))) ?></div>
-                    <div class="title">KALDERA ESDM <span class="font-weight-normal">2025</span></div>
-                    <div class="desc">Sistem Kinerja Pengendalian Dan</div>
-                    <div class="desc">Pelaporan Digital ESDM</div>
+        <div class="col-12">
+            <div class="d-flex flex-column align-items-center justify-content-center">
+                <div class="image mb-3">
+                    <img src="<?= base_url('public/file/app/logo_header.png') ?>" class="brand-image img-rounded-0 elevation-0" style="width: 209px; height: 85px; background-color: transparent;" alt="User Image">
+                </div>
+                <div class="welcome-panel kaldera-right w-100">
+                    <div class="text-block text-center">
+                        <div class="small">SUGENG RAWUH <?= esc(trim(($user->first_name ?? '') . ' ' . ($user->last_name ?? ''))) ?></div>
+                        <div class="title">KALDERA ESDM <span class="font-weight-normal">2025</span></div>
+                        <div class="desc">Sistem Kinerja Pengendalian Dan</div>
+                        <div class="desc">Pelaporan Digital ESDM</div>
+                    </div>
                 </div>
             </div>
         </div>
