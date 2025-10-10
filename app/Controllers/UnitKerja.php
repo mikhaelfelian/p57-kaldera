@@ -58,11 +58,22 @@ class UnitKerja extends BaseController
         }
 
         try {
+            // Check if maximum limit of 9 items is reached
+            $currentCount = $this->unitKerjaModel->countAll();
+            if ($currentCount >= 9) {
+                return $this->response->setJSON([
+                    'ok'        => false,
+                    'message'   => 'Maksimal 9 unit kerja yang dapat ditambahkan',
+                    'csrf_token'=> csrf_token(),
+                    'csrf_hash' => csrf_hash()
+                ]);
+            }
+
             $nama_unit_kerja    = $this->request->getPost('nama_unit_kerja');
             $alamat             = $this->request->getPost('alamat') ?: '';
 
             // Generate kode_unit_kerja automatically
-            $kode_unit_kerja = 'UK' . str_pad($this->unitKerjaModel->countAll() + 1, 3, '0', STR_PAD_LEFT);
+            $kode_unit_kerja = 'UK' . str_pad($currentCount + 1, 3, '0', STR_PAD_LEFT);
 
             $data = [
                 'kode_unit_kerja'    => $kode_unit_kerja,
