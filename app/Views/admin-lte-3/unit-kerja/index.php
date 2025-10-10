@@ -40,8 +40,7 @@
                 <thead style="background-color: #3b6ea8; color: white;">
                     <tr>
                         <th style="width: 5%;">No</th>
-                        <th style="width: 45%;">Unit Kerja</th>
-                        <th style="width: 50%;">Alamat</th>
+                        <th style="width: 95%;">Unit Kerja</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -72,23 +71,11 @@
                                     </div>
                                 </div>
                             </td>
-                            <td>
-                                <div>
-                                    <h6 class="mb-1"><strong>Alamat:</strong></h6>
-                                    <p class="mb-2"><?= $unit['alamat'] ?: 'Alamat belum diisi' ?></p>
-                                    <?php if (!empty($unit['email'])): ?>
-                                    <p class="mb-1"><small><strong>Email:</strong> <?= $unit['email'] ?></small></p>
-                                    <?php endif; ?>
-                                    <?php if (!empty($unit['keterangan'])): ?>
-                                    <p class="mb-1"><small><strong>Keterangan:</strong> <?= $unit['keterangan'] ?></small></p>
-                                    <?php endif; ?>
-                                </div>
-                            </td>
                         </tr>
                         <?php endforeach; ?>
                     <?php else: ?>
                         <tr>
-                            <td colspan="3" class="text-center">Tidak ada data unit kerja</td>
+                            <td colspan="2" class="text-center">Tidak ada data unit kerja</td>
                         </tr>
                     <?php endif; ?>
                 </tbody>
@@ -110,16 +97,10 @@
             <form id="addForm">
                 <div class="modal-body">
                     <div class="row">
-                        <div class="col-md-6">
+                        <div class="col-md-12">
                             <div class="form-group">
                                 <label class="font-weight-bold">Unit Kerja <span class="text-danger">*</span></label>
                                 <input type="text" class="form-control rounded-0" name="nama_unit_kerja" required>
-                            </div>
-                        </div>
-                        <div class="col-md-6">
-                            <div class="form-group">
-                                <label class="font-weight-bold">Alamat</label>
-                                <textarea class="form-control rounded-0" name="alamat" rows="3"></textarea>
                             </div>
                         </div>
                     </div>
@@ -149,16 +130,10 @@
                 <input type="hidden" name="id" id="edit_id">
                 <div class="modal-body">
                     <div class="row">
-                        <div class="col-md-6">
+                        <div class="col-md-12">
                             <div class="form-group">
                                 <label class="font-weight-bold">Unit Kerja <span class="text-danger">*</span></label>
                                 <input type="text" class="form-control rounded-0" name="nama_unit_kerja" id="edit_nama_unit_kerja" required>
-                            </div>
-                        </div>
-                        <div class="col-md-6">
-                            <div class="form-group">
-                                <label class="font-weight-bold">Alamat</label>
-                                <textarea class="form-control rounded-0" name="alamat" id="edit_alamat" rows="3"></textarea>
                             </div>
                         </div>
                     </div>
@@ -284,7 +259,6 @@
             if(res && res.ok){
                 $('#edit_id').val(res.data.id);
                 $('#edit_nama_unit_kerja').val(res.data.nama_unit_kerja);
-                $('#edit_alamat').val(res.data.alamat);
                 
                 $('#editModal').modal('show');
             } else {
@@ -429,17 +403,11 @@
                             '</div>' +
                         '</div>' +
                     '</td>' +
-                    '<td>' +
-                        '<div>' +
-                            '<h6 class="mb-1"><strong>Alamat:</strong></h6>' +
-                            '<p class="mb-2">' + (item.alamat || 'Alamat belum diisi') + '</p>' +
-                        '</div>' +
-                    '</td>' +
                 '</tr>';
                 tbody.append(row);
             });
         } else {
-            tbody.append('<tr><td colspan="3" class="text-center">Tidak ada data ditemukan</td></tr>');
+            tbody.append('<tr><td colspan="2" class="text-center">Tidak ada data ditemukan</td></tr>');
         }
     }
     
