@@ -39,7 +39,8 @@
             <table class="table table-bordered table-striped rounded-0" id="unitKerjaTable">
                 <thead style="background-color: #3b6ea8; color: white;">
                     <tr>
-                        <th style="width: 50%;">Unit Kerja</th>
+                        <th style="width: 5%;">No</th>
+                        <th style="width: 45%;">Unit Kerja</th>
                         <th style="width: 50%;">Alamat</th>
                     </tr>
                 </thead>
@@ -47,6 +48,9 @@
                     <?php if (!empty($unitKerjaList)): ?>
                         <?php foreach ($unitKerjaList as $index => $unit): ?>
                         <tr>
+                            <td class="text-center">
+                                <strong><?= $index + 1 ?></strong>
+                            </td>
                             <td>
                                 <div class="d-flex justify-content-between align-items-start">
                                     <div>
@@ -84,7 +88,7 @@
                         <?php endforeach; ?>
                     <?php else: ?>
                         <tr>
-                            <td colspan="2" class="text-center">Tidak ada data unit kerja</td>
+                            <td colspan="3" class="text-center">Tidak ada data unit kerja</td>
                         </tr>
                     <?php endif; ?>
                 </tbody>
@@ -407,27 +411,35 @@
                     '<span class="badge badge-danger">Tidak Aktif</span>';
                 
                 var row = '<tr>' +
-                    '<td>' + (index + 1) + '</td>' +
-                    '<td>' + item.kode_unit_kerja + '</td>' +
-                    '<td>' + item.nama_unit_kerja + '</td>' +
-                    '<td>' + (item.kepala_unit_kerja || '-') + '</td>' +
-                    '<td>' + (item.telepon || '-') + '</td>' +
-                    '<td>' + statusBadge + '</td>' +
+                    '<td class="text-center"><strong>' + (index + 1) + '</strong></td>' +
                     '<td>' +
-                        '<div class="btn-group" role="group">' +
-                            '<button type="button" class="btn btn-info btn-sm rounded-0 edit-btn" data-id="' + item.id + '" title="Edit">' +
-                                '<i class="fas fa-edit"></i>' +
-                            '</button>' +
-                            '<button type="button" class="btn btn-danger btn-sm rounded-0 delete-btn" data-id="' + item.id + '" data-name="' + item.nama_unit_kerja + '" title="Hapus">' +
-                                '<i class="fas fa-trash"></i>' +
-                            '</button>' +
+                        '<div class="d-flex justify-content-between align-items-start">' +
+                            '<div>' +
+                                '<h6 class="mb-1"><strong>' + item.nama_unit_kerja + '</strong></h6>' +
+                                '<p class="mb-1"><small class="text-muted">Kode: ' + item.kode_unit_kerja + '</small></p>' +
+                                statusBadge +
+                            '</div>' +
+                            '<div class="btn-group-vertical" role="group">' +
+                                '<button type="button" class="btn btn-info btn-sm rounded-0 edit-btn" data-id="' + item.id + '" title="Edit">' +
+                                    '<i class="fas fa-edit"></i>' +
+                                '</button>' +
+                                '<button type="button" class="btn btn-danger btn-sm rounded-0 delete-btn" data-id="' + item.id + '" data-name="' + item.nama_unit_kerja + '" title="Hapus">' +
+                                    '<i class="fas fa-trash"></i>' +
+                                '</button>' +
+                            '</div>' +
+                        '</div>' +
+                    '</td>' +
+                    '<td>' +
+                        '<div>' +
+                            '<h6 class="mb-1"><strong>Alamat:</strong></h6>' +
+                            '<p class="mb-2">' + (item.alamat || 'Alamat belum diisi') + '</p>' +
                         '</div>' +
                     '</td>' +
                 '</tr>';
                 tbody.append(row);
             });
         } else {
-            tbody.append('<tr><td colspan="7" class="text-center">Tidak ada data ditemukan</td></tr>');
+            tbody.append('<tr><td colspan="3" class="text-center">Tidak ada data ditemukan</td></tr>');
         }
     }
     
