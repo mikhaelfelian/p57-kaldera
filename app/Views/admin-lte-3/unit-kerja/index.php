@@ -50,8 +50,6 @@
                                     <div>
                                         <h6 class="mb-1"><strong><?= $unit['nama_unit_kerja'] ?></strong></h6>
                                         <p class="mb-1"><small class="text-muted">Kode: <?= $unit['kode_unit_kerja'] ?></small></p>
-                                        <p class="mb-1"><small>Kepala: <?= $unit['kepala_unit_kerja'] ?: '-' ?></small></p>
-                                        <p class="mb-1"><small>Telepon: <?= $unit['telepon'] ?: '-' ?></small></p>
                                         <span class="badge badge-<?= $unit['status'] == 'Aktif' ? 'success' : 'danger' ?> badge-sm">
                                             <?= $unit['status'] ?>
                                         </span>
