@@ -278,7 +278,7 @@
         <div class="col-12">
             <div class="d-flex flex-column align-items-center justify-content-center">
                 <div class="image mb-3">
-                    <img src="<?= base_url('public/file/app/logo_header.png') ?>" class="brand-image img-rounded-0 elevation-0" style="width: 209px; height: 85px; background-color: transparent;" alt="User Image">
+                    <img src="<?= base_url('public/file/app/logo_header.png') ?>" class="brand-image img-rounded-0 elevation-0" style="width: 300px; height: 122px; background-color: transparent;" alt="User Image">
                 </div>
                 <div class="welcome-panel kaldera-right w-100">
                     <div class="text-block text-center">
