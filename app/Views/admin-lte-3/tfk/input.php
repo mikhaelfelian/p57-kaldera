@@ -75,7 +75,7 @@ $master = $masterData ?? [];
                             <td class="text-center static-cell" data-bulan="mei" data-field="target_fisik">0.00</td>
                             <td class="text-center static-cell" data-bulan="jun" data-field="target_fisik">0.00</td>
                             <td class="text-center static-cell" data-bulan="jul" data-field="target_fisik">0.00</td>
-                            <td class="text-center static-cell" data-bulan="agu" data-field="target_fisik">0.00</td>
+                            <td class="text-center static-cell" data-bulan="ags" data-field="target_fisik">0.00</td>
                             <td class="text-center static-cell" data-bulan="sep" data-field="target_fisik">0.00</td>
                             <td class="text-center static-cell" data-bulan="okt" data-field="target_fisik">0.00</td>
                             <td class="text-center static-cell" data-bulan="nov" data-field="target_fisik">0.00</td>
@@ -114,7 +114,7 @@ $master = $masterData ?? [];
                                 <i class="fas fa-pencil-alt text-muted ml-1 edit-icon"></i>
                             </td>
                             <td class="text-center">
-                                <span class="editable-cell" data-bulan="agu" data-field="realisasi_fisik">0.00</span>
+                                <span class="editable-cell" data-bulan="ags" data-field="realisasi_fisik">0.00</span>
                                 <i class="fas fa-pencil-alt text-muted ml-1 edit-icon"></i>
                             </td>
                             <td class="text-center">
@@ -174,7 +174,7 @@ $master = $masterData ?? [];
                                 <i class="fas fa-pencil-alt text-muted ml-1 edit-icon"></i>
                             </td>
                             <td class="text-center">
-                                <span class="editable-cell" data-bulan="agu"
+                                <span class="editable-cell" data-bulan="ags"
                                     data-field="realisasi_fisik_prov">0.00</span>
                                 <i class="fas fa-pencil-alt text-muted ml-1 edit-icon"></i>
                             </td>
@@ -210,7 +210,7 @@ $master = $masterData ?? [];
                             <td class="text-center calculated-cell" data-bulan="mei" data-type="deviasi_fisik">0.00</td>
                             <td class="text-center calculated-cell" data-bulan="jun" data-type="deviasi_fisik">0.00</td>
                             <td class="text-center calculated-cell" data-bulan="jul" data-type="deviasi_fisik">0.00</td>
-                            <td class="text-center calculated-cell" data-bulan="agu" data-type="deviasi_fisik">0.00</td>
+                            <td class="text-center calculated-cell" data-bulan="ags" data-type="deviasi_fisik">0.00</td>
                             <td class="text-center calculated-cell" data-bulan="sep" data-type="deviasi_fisik">0.00</td>
                             <td class="text-center calculated-cell" data-bulan="okt" data-type="deviasi_fisik">0.00</td>
                             <td class="text-center calculated-cell" data-bulan="nov" data-type="deviasi_fisik">0.00</td>
@@ -227,7 +227,7 @@ $master = $masterData ?? [];
                             <td class="text-center static-cell" data-bulan="mei" data-field="target_keuangan">0.00</td>
                             <td class="text-center static-cell" data-bulan="jun" data-field="target_keuangan">0.00</td>
                             <td class="text-center static-cell" data-bulan="jul" data-field="target_keuangan">0.00</td>
-                            <td class="text-center static-cell" data-bulan="agu" data-field="target_keuangan">0.00</td>
+                            <td class="text-center static-cell" data-bulan="ags" data-field="target_keuangan">0.00</td>
                             <td class="text-center static-cell" data-bulan="sep" data-field="target_keuangan">0.00</td>
                             <td class="text-center static-cell" data-bulan="okt" data-field="target_keuangan">0.00</td>
                             <td class="text-center static-cell" data-bulan="nov" data-field="target_keuangan">0.00</td>
@@ -266,7 +266,7 @@ $master = $masterData ?? [];
                                 <i class="fas fa-pencil-alt text-muted ml-1 edit-icon"></i>
                             </td>
                             <td class="text-center">
-                                <span class="editable-cell" data-bulan="agu" data-field="realisasi_keuangan">0.00</span>
+                                <span class="editable-cell" data-bulan="ags" data-field="realisasi_keuangan">0.00</span>
                                 <i class="fas fa-pencil-alt text-muted ml-1 edit-icon"></i>
                             </td>
                             <td class="text-center">
@@ -326,7 +326,7 @@ $master = $masterData ?? [];
                                 <i class="fas fa-pencil-alt text-muted ml-1 edit-icon"></i>
                             </td>
                             <td class="text-center">
-                                <span class="editable-cell" data-bulan="agu"
+                                <span class="editable-cell" data-bulan="ags"
                                     data-field="realisasi_keuangan_prov">0.00</span>
                                 <i class="fas fa-pencil-alt text-muted ml-1 edit-icon"></i>
                             </td>
@@ -369,7 +369,7 @@ $master = $masterData ?? [];
                             </td>
                             <td class="text-center calculated-cell" data-bulan="jul" data-type="deviasi_keuangan">0.00
                             </td>
-                            <td class="text-center calculated-cell" data-bulan="agu" data-type="deviasi_keuangan">0.00
+                            <td class="text-center calculated-cell" data-bulan="ags" data-type="deviasi_keuangan">0.00
                             </td>
                             <td class="text-center calculated-cell" data-bulan="sep" data-type="deviasi_keuangan">0.00
                             </td>
@@ -414,7 +414,7 @@ $master = $masterData ?? [];
                                 <i class="fas fa-pencil-alt text-muted ml-1 edit-icon"></i>
                             </td>
                             <td class="text-center">
-                                <span class="editable-text-cell" data-bulan="agu" data-field="analisa"></span>
+                                <span class="editable-text-cell" data-bulan="ags" data-field="analisa"></span>
                                 <i class="fas fa-pencil-alt text-muted ml-1 edit-icon"></i>
                             </td>
                             <td class="text-center">
@@ -600,7 +600,7 @@ $master = $masterData ?? [];
 
         // Recalculate deviations
         function recalculateDeviations() {
-            var months = ['jan', 'feb', 'mar', 'apr', 'mei', 'jun', 'jul', 'agu', 'sep', 'okt', 'nov', 'des'];
+            var months = ['jan', 'feb', 'mar', 'apr', 'mei', 'jun', 'jul', 'ags', 'sep', 'okt', 'nov', 'des'];
 
             months.forEach(function (bulan) {
                 // Get target and realisasi values - parse formatted numbers correctly
