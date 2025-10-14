@@ -230,7 +230,9 @@
             if(res && res.ok){
                 if(window.toastr){ toastr.success(res.message || 'Unit kerja berhasil ditambahkan'); }
                 $('#addModal').modal('hide');
-                location.reload();
+                // Clear form and reload page
+                $('#addForm')[0].reset();
+                window.location.reload();
             } else {
                 if(window.toastr){ toastr.error(res.message || 'Gagal menambahkan unit kerja'); }
                 if(res.errors) {

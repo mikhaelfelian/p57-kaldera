@@ -339,6 +339,7 @@ $routes->group('pt-minerba', ['namespace' => 'App\Controllers', 'filter' => 'aut
     $routes->post('unit-kerja/delete/(:num)', 'UnitKerja::delete/$1', ['as' => 'pt-minerba.unit-kerja.delete']);
     $routes->get('unit-kerja/get/(:num)', 'UnitKerja::get/$1', ['as' => 'pt-minerba.unit-kerja.get']);
     $routes->post('unit-kerja/search', 'UnitKerja::search', ['as' => 'pt-minerba.unit-kerja.search']);
+    $routes->get('unit-kerja/test', 'UnitKerja::test', ['as' => 'pt-minerba.unit-kerja.test']);
     
     // PT Minerba Input page
     $routes->get('input', 'PtMinerba::index', ['as' => 'pt-minerba.input']);

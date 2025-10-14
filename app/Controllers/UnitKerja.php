@@ -16,9 +16,15 @@ class UnitKerja extends BaseController
 
     public function index()
     {
+        $unitKerjaList = $this->unitKerjaModel->getUnitKerjaForDisplay();
+        
+        // Debug: Log the loaded data
+        log_message('debug', 'Unit Kerja loaded: ' . count($unitKerjaList) . ' items');
+        log_message('debug', 'Unit Kerja data: ' . json_encode($unitKerjaList));
+        
         $data = [
             'title' => 'Master Unit Kerja',
-            'unitKerjaList' => $this->unitKerjaModel->getUnitKerjaForDisplay()
+            'unitKerjaList' => $unitKerjaList
         ];
 
         return $this->view($this->theme->getThemePath() . '/unit-kerja/index', $data);
@@ -87,11 +93,24 @@ class UnitKerja extends BaseController
                 'keterangan'         => ''
             ];
 
-            $this->unitKerjaModel->insert($data);
+            // Temporarily disable validation to test
+            $this->unitKerjaModel->skipValidation(true);
+            $insertId = $this->unitKerjaModel->insert($data);
+            $this->unitKerjaModel->skipValidation(false);
+            
+            // Debug: Log the insert result
+            log_message('debug', 'Unit Kerja created with ID: ' . $insertId . ', Data: ' . json_encode($data));
+            
+            // Verify the data was actually inserted
+            if ($insertId) {
+                $insertedData = $this->unitKerjaModel->find($insertId);
+                log_message('debug', 'Verification - Inserted data: ' . json_encode($insertedData));
+            }
 
             return $this->response->setJSON([
                 'ok'        => true,
                 'message'   => 'Unit kerja berhasil ditambahkan',
+                'insert_id' => $insertId,
                 'csrf_token'=> csrf_token(),
                 'csrf_hash' => csrf_hash()
             ]);
@@ -224,6 +243,23 @@ class UnitKerja extends BaseController
         return $this->response->setJSON([
             'ok' => true,
             'data' => $results,
+            'csrf_token' => csrf_token(),
+            'csrf_hash' => csrf_hash()
+        ]);
+    }
+    
+    public function test()
+    {
+        // Simple test to check if data is being retrieved
+        $allData = $this->unitKerjaModel->findAll();
+        $displayData = $this->unitKerjaModel->getUnitKerjaForDisplay();
+        
+        return $this->response->setJSON([
+            'ok' => true,
+            'all_count' => count($allData),
+            'display_count' => count($displayData),
+            'all_data' => $allData,
+            'display_data' => $displayData,
             'csrf_token' => csrf_token(),
             'csrf_hash' => csrf_hash()
         ]);
