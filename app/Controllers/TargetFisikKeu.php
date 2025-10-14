@@ -336,7 +336,7 @@ class TargetFisikKeu extends BaseController
 			
 			// Process each month's data
 			foreach ($data as $bulanKey => $monthData) {
-				if (!in_array($bulanKey, ['jan','feb','mar','apr','mei','jun','jul','agu','sep','okt','nov','des'])) {
+				if (!in_array($bulanKey, ['jan','feb','mar','apr','mei','jun','jul','ags','sep','okt','nov','des'])) {
 					continue; // Skip invalid bulan
 				}
 				
@@ -571,7 +571,7 @@ class TargetFisikKeu extends BaseController
 
         $map = [];
         foreach ($rows as $r) { $map[$r['bulan']] = $r; }
-        $months = ['jan','feb','mar','apr','mei','jun','jul','agu','sep','okt','nov','des'];
+        $months = ['jan','feb','mar','apr','mei','jun','jul','ags','sep','okt','nov','des'];
         $monthNames = ['Januari','Februari','Maret','April','Mei','Juni','Juli','Agustus','September','Oktober','November','Desember'];
 
         // Build spreadsheet
@@ -654,7 +654,7 @@ class TargetFisikKeu extends BaseController
 
         $map = [];
         foreach ($rows as $r) { $map[$r['bulan']] = $r; }
-        $months = ['jan','feb','mar','apr','mei','jun','jul','agu','sep','okt','nov','des'];
+        $months = ['jan','feb','mar','apr','mei','jun','jul','ags','sep','okt','nov','des'];
         $monthNames = ['Januari','Februari','Maret','April','Mei','Juni','Juli','Agustus','September','Oktober','November','Desember'];
 
         // Initialize TCPDF
