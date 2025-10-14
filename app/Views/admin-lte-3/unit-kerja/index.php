@@ -6,9 +6,9 @@
         <h3 class="card-title mb-0">Master Unit Kerja</h3>
         <div class="d-flex align-items-center">
             <?php if (count($unitKerjaList) < 9): ?>
-            <button type="button" class="btn btn-primary btn-sm rounded-0" data-toggle="modal" data-target="#addModal">
-                <i class="fas fa-plus"></i> Tambah Unit Kerja
-            </button>
+                <button type="button" class="btn btn-primary btn-sm rounded-0" data-toggle="modal" data-target="#addModal">
+                    <i class="fas fa-plus"></i> Tambah Unit Kerja
+                </button>
             <?php endif; ?>
         </div>
     </div>
@@ -215,7 +215,7 @@
 (function(){
     var csrfToken = '<?= csrf_token() ?>';
     var csrfHash = '<?= csrf_hash() ?>';
-    var csrfTokenName = '<?= config('Security')->tokenName ?>';
+    var csrfTokenName = '<?= csrf_token() ?>';
     var currentDeleteId = null;
     
     // Add form submit
