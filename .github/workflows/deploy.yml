@@ -1,4 +1,4 @@
-name: Deploy to p57-kaldera.com
+name: Deploy to kaldera.tigerasoft.com
 
 on:
   push:
@@ -6,7 +6,7 @@ on:
       - main
 
 concurrency:
-  group: deploy-p57-kaldera
+  group: deploy-kaldera
   cancel-in-progress: true
 
 jobs:
@@ -27,38 +27,51 @@ jobs:
           mkdir -p ~/.ssh
           ssh-keyscan -p ${{ secrets.SSH_PORT }} ${{ secrets.SSH_HOST }} >> ~/.ssh/known_hosts
 
-      - name: Deploy Code to DirectAdmin (p57-kaldera.com)
+      - name: Deploy Code to DirectAdmin (kaldera.tigerasoft.com)
         run: |
           ssh -p ${{ secrets.SSH_PORT }} ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }} << 'EOF'
           set -e
+
           DEPLOY_PATH="${{ secrets.DEPLOY_PATH }}"
           REPO_SSH="git@github.com:mikhaelfelian/p57-kaldera.git"
           BRANCH="main"
 
-          # --- perbaikan ownership & safe.directory ---
-          chown -R "$USER:$USER" "$DEPLOY_PATH/.git" "$DEPLOY_PATH/.github" 2>/dev/null || true
-          chmod -R u+rwX "$DEPLOY_PATH/.git" "$DEPLOY_PATH/.github" 2>/dev/null || true
-          git config --global --add safe.directory "$DEPLOY_PATH" || true
-          # --------------------------------------------
+          echo "== Deploying ke: \$DEPLOY_PATH =="
 
-          cd "$DEPLOY_PATH"
+          # Pastikan folder ada
+          mkdir -p "\$DEPLOY_PATH"
+          cd "\$DEPLOY_PATH"
 
+          # Perbaiki permission & safe.directory
+          chown -R "\$USER:\$USER" "\$DEPLOY_PATH" 2>/dev/null || true
+          chmod -R u+rwX "\$DEPLOY_PATH" 2>/dev/null || true
+          git config --global --add safe.directory "\$DEPLOY_PATH" || true
+
+          # Update repository
           if [ -d .git ]; then
-            git remote set-url origin "$REPO_SSH" || true
+            echo "Repository sudah ada, melakukan update..."
+            git remote set-url origin "\$REPO_SSH" || true
             git fetch --all --prune
-            git checkout "$BRANCH" || true
-            git reset --hard "origin/$BRANCH"
+            git checkout "\$BRANCH" || true
+            git reset --hard "origin/\$BRANCH"
             git clean -fd
           else
-            git clone -b "$BRANCH" "$REPO_SSH" .
+            echo "Repository belum ada, clone baru..."
+            git clone -b "\$BRANCH" "\$REPO_SSH" .
           fi
 
+          # Jalankan composer (jika ada)
           if command -v composer >/dev/null 2>&1; then
+            echo "Menjalankan composer install..."
             composer install --no-dev --prefer-dist --optimize-autoloader --no-interaction || true
           fi
 
+          # Jalankan migrasi & reset opcache (jika PHP tersedia)
           if command -v php >/dev/null 2>&1; then
+            echo "Menjalankan migrasi dan reset opcache..."
             php spark migrate --all --ansi || true
             php -r 'if(function_exists("opcache_reset")){ opcache_reset(); }'
           fi
+
+          echo "== Deploy selesai =="
           EOF
