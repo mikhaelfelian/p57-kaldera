@@ -64,9 +64,9 @@
                             <?php foreach ($ukpList as $index => $ukp): ?>
                             <tr>
                                 <td class="text-center"><?= $offset + $index + 1 ?></td>
-                                <td class="font-weight-bold"><?= $ukp->kode_ukp ?></td>
-                                <td><?= $ukp->nama_ukp ?></td>
-                                <td><?= $ukp->kepala_ukp ?: '-' ?></td>
+                                <td class="font-weight-bold"><?= $ukp->kode_unit_kerja ?></td>
+                                <td><?= $ukp->nama_unit_kerja ?></td>
+                                <td><?= $ukp->kepala_unit_kerja ?: '-' ?></td>
                                 <td><?= $ukp->telepon ?: '-' ?></td>
                                 <td>
                                     <span class="badge badge-<?= $ukp->status === 'Aktif' ? 'success' : 'danger' ?>">
@@ -135,8 +135,8 @@
                     <div class="row">
                         <div class="col-md-6">
                             <div class="form-group">
-                                <label class="font-weight-bold">Kode UKP <span class="text-danger">*</span></label>
-                                <input type="text" name="kode_ukp" class="form-control rounded-0" required>
+                                <label class="font-weight-bold">Kode Unit Kerja <span class="text-danger">*</span></label>
+                                <input type="text" name="kode_unit_kerja" class="form-control rounded-0" required>
                             </div>
                         </div>
                         <div class="col-md-6">
@@ -152,8 +152,8 @@
                         </div>
                     </div>
                     <div class="form-group">
-                        <label class="font-weight-bold">Nama UKP <span class="text-danger">*</span></label>
-                        <input type="text" name="nama_ukp" class="form-control rounded-0" required>
+                        <label class="font-weight-bold">Nama Unit Kerja <span class="text-danger">*</span></label>
+                        <input type="text" name="nama_unit_kerja" class="form-control rounded-0" required>
                     </div>
                     <div class="form-group">
                         <label class="font-weight-bold">Alamat</label>
@@ -182,8 +182,8 @@
                         </div>
                         <div class="col-md-6">
                             <div class="form-group">
-                                <label class="font-weight-bold">Kepala UKP</label>
-                                <input type="text" name="kepala_ukp" class="form-control rounded-0">
+                                <label class="font-weight-bold">Kepala Unit Kerja</label>
+                                <input type="text" name="kepala_unit_kerja" class="form-control rounded-0">
                             </div>
                         </div>
                     </div>
@@ -221,8 +221,8 @@
                     <div class="row">
                         <div class="col-md-6">
                             <div class="form-group">
-                                <label class="font-weight-bold">Kode UKP <span class="text-danger">*</span></label>
-                                <input type="text" name="kode_ukp" id="edit_kode_ukp" class="form-control rounded-0" required>
+                                <label class="font-weight-bold">Kode Unit Kerja <span class="text-danger">*</span></label>
+                                <input type="text" name="kode_unit_kerja" id="edit_kode_unit_kerja" class="form-control rounded-0" required>
                             </div>
                         </div>
                         <div class="col-md-6">
@@ -238,8 +238,8 @@
                         </div>
                     </div>
                     <div class="form-group">
-                        <label class="font-weight-bold">Nama UKP <span class="text-danger">*</span></label>
-                        <input type="text" name="nama_ukp" id="edit_nama_ukp" class="form-control rounded-0" required>
+                        <label class="font-weight-bold">Nama Unit Kerja <span class="text-danger">*</span></label>
+                        <input type="text" name="nama_unit_kerja" id="edit_nama_unit_kerja" class="form-control rounded-0" required>
                     </div>
                     <div class="form-group">
                         <label class="font-weight-bold">Alamat</label>
@@ -268,8 +268,8 @@
                         </div>
                         <div class="col-md-6">
                             <div class="form-group">
-                                <label class="font-weight-bold">Kepala UKP</label>
-                                <input type="text" name="kepala_ukp" id="edit_kepala_ukp" class="form-control rounded-0">
+                                <label class="font-weight-bold">Kepala Unit Kerja</label>
+                                <input type="text" name="kepala_unit_kerja" id="edit_kepala_unit_kerja" class="form-control rounded-0">
                             </div>
                         </div>
                     </div>
@@ -401,9 +401,9 @@
                     <div class="row">
                         <div class="col-md-6">
                             <table class="table table-borderless">
-                                <tr><td class="font-weight-bold">Kode UKP:</td><td>${data.kode_ukp || '-'}</td></tr>
-                                <tr><td class="font-weight-bold">Nama UKP:</td><td>${data.nama_ukp || '-'}</td></tr>
-                                <tr><td class="font-weight-bold">Kepala UKP:</td><td>${data.kepala_ukp || '-'}</td></tr>
+                                <tr><td class="font-weight-bold">Kode Unit Kerja:</td><td>${data.kode_unit_kerja || '-'}</td></tr>
+                                <tr><td class="font-weight-bold">Nama Unit Kerja:</td><td>${data.nama_unit_kerja || '-'}</td></tr>
+                                <tr><td class="font-weight-bold">Kepala Unit Kerja:</td><td>${data.kepala_unit_kerja || '-'}</td></tr>
                                 <tr><td class="font-weight-bold">NIP Kepala:</td><td>${data.nip_kepala || '-'}</td></tr>
                                 <tr><td class="font-weight-bold">Status:</td><td><span class="badge badge-${data.status === 'Aktif' ? 'success' : 'danger'}">${data.status}</span></td></tr>
                             </table>
@@ -440,13 +440,13 @@
             if(response.ok && response.data){
                 var data = response.data;
                 $('#edit_id').val(data.id);
-                $('#edit_kode_ukp').val(data.kode_ukp);
-                $('#edit_nama_ukp').val(data.nama_ukp);
+                $('#edit_kode_unit_kerja').val(data.kode_unit_kerja);
+                $('#edit_nama_unit_kerja').val(data.nama_unit_kerja);
                 $('#edit_alamat').val(data.alamat);
                 $('#edit_telepon').val(data.telepon);
                 $('#edit_email').val(data.email);
                 $('#edit_website').val(data.website);
-                $('#edit_kepala_ukp').val(data.kepala_ukp);
+                $('#edit_kepala_unit_kerja').val(data.kepala_unit_kerja);
                 $('#edit_nip_kepala').val(data.nip_kepala);
                 $('#edit_status').val(data.status);
                 $('#edit_keterangan').val(data.keterangan);

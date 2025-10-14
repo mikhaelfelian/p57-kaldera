@@ -112,11 +112,43 @@ class PtEbt extends BaseController
         $year = $this->request->getGet('year') ?? date('Y');
         $bulan = $this->request->getGet('bulan') ?? date('n');
 
-        // Get data for this periode
-        $rekapData = $this->ptModel->getByPeriode($year, $bulan, 'ebt');
+        // Get unit kerja list from master table
+        $unitKerjaList = $this->unitKerjaModel->where('status', 'Aktif')->findAll();
+        
+        // Get PT data for this periode
+        $ptData = $this->ptModel->getByPeriode($year, $bulan, 'ebt');
+        
+        // Create a map of PT data by unit kerja name
+        $ptDataMap = [];
+        foreach ($ptData as $item) {
+            $ptDataMap[$item->unit_kerja_nama] = $item;
+        }
+        
+        // Build rekap data by combining unit kerja master data with PT data
+        $rekapData = [];
+        foreach ($unitKerjaList as $unitKerja) {
+            $unitName = is_object($unitKerja) ? $unitKerja->nama_unit_kerja : $unitKerja['nama_unit_kerja'];
+            $ptItem = $ptDataMap[$unitName] ?? null;
+            
+            $rekapData[] = (object)[
+                'unit_kerja_nama' => $unitName,
+                'permohonan_masuk' => $ptItem ? (int)$ptItem->permohonan_masuk : 0,
+                'masih_proses' => $ptItem ? (int)$ptItem->masih_proses : 0,
+                'disetujui' => $ptItem ? (int)$ptItem->disetujui : 0,
+                'dikembalikan' => $ptItem ? (int)$ptItem->dikembalikan : 0,
+                'ditolak' => $ptItem ? (int)$ptItem->ditolak : 0,
+                'keterangan' => $ptItem ? $ptItem->keterangan : ''
+            ];
+        }
 
-        // Get totals
-        $totalsData = $this->ptModel->getTotals($year, $bulan, 'ebt');
+        // Calculate totals from the combined data
+        $totalsData = (object)[
+            'total_permohonan_masuk' => array_sum(array_column($rekapData, 'permohonan_masuk')),
+            'total_masih_proses' => array_sum(array_column($rekapData, 'masih_proses')),
+            'total_disetujui' => array_sum(array_column($rekapData, 'disetujui')),
+            'total_dikembalikan' => array_sum(array_column($rekapData, 'dikembalikan')),
+            'total_ditolak' => array_sum(array_column($rekapData, 'ditolak'))
+        ];
 
         // Calculate chart data
         $total = (int)($totalsData->total_permohonan_masuk ?? 0);

@@ -6,16 +6,15 @@ use CodeIgniter\Model;
 
 class UkpModel extends Model
 {
-    protected $table = 'tbl_m_ukp';
+    protected $table = 'tbl_m_unit_kerja';
     protected $primaryKey = 'id';
     protected $allowedFields = [
-        'kode_ukp',
-        'nama_ukp',
+        'kode_unit_kerja',
+        'nama_unit_kerja',
         'alamat',
         'telepon',
         'email',
-        'website',
-        'kepala_ukp',
+        'kepala_unit_kerja',
         'nip_kepala',
         'status',
         'keterangan'
@@ -26,27 +25,26 @@ class UkpModel extends Model
     protected $updatedField = 'updated_at';
 
     protected $validationRules = [
-        'kode_ukp' => 'required|max_length[50]|is_unique[tbl_m_ukp.kode_ukp,id,{id}]',
-        'nama_ukp' => 'required|max_length[255]',
+        'kode_unit_kerja' => 'required|max_length[50]|is_unique[tbl_m_unit_kerja.kode_unit_kerja,id,{id}]',
+        'nama_unit_kerja' => 'required|max_length[255]',
         'alamat' => 'permit_empty',
         'telepon' => 'permit_empty|max_length[20]',
         'email' => 'permit_empty|valid_email|max_length[100]',
-        'website' => 'permit_empty|valid_url|max_length[255]',
-        'kepala_ukp' => 'permit_empty|max_length[255]',
+        'kepala_unit_kerja' => 'permit_empty|max_length[255]',
         'nip_kepala' => 'permit_empty|max_length[50]',
         'status' => 'required|in_list[Aktif,Tidak Aktif]',
         'keterangan' => 'permit_empty'
     ];
 
     protected $validationMessages = [
-        'kode_ukp' => [
-            'required' => 'Kode UKP harus diisi',
-            'max_length' => 'Kode UKP maksimal 50 karakter',
-            'is_unique' => 'Kode UKP sudah digunakan'
+        'kode_unit_kerja' => [
+            'required' => 'Kode Unit Kerja harus diisi',
+            'max_length' => 'Kode Unit Kerja maksimal 50 karakter',
+            'is_unique' => 'Kode Unit Kerja sudah digunakan'
         ],
-        'nama_ukp' => [
-            'required' => 'Nama UKP harus diisi',
-            'max_length' => 'Nama UKP maksimal 255 karakter'
+        'nama_unit_kerja' => [
+            'required' => 'Nama Unit Kerja harus diisi',
+            'max_length' => 'Nama Unit Kerja maksimal 255 karakter'
         ],
         'telepon' => [
             'max_length' => 'Telepon maksimal 20 karakter'
@@ -55,12 +53,8 @@ class UkpModel extends Model
             'valid_email' => 'Format email tidak valid',
             'max_length' => 'Email maksimal 100 karakter'
         ],
-        'website' => [
-            'valid_url' => 'Format website tidak valid',
-            'max_length' => 'Website maksimal 255 karakter'
-        ],
-        'kepala_ukp' => [
-            'max_length' => 'Nama Kepala UKP maksimal 255 karakter'
+        'kepala_unit_kerja' => [
+            'max_length' => 'Nama Kepala Unit Kerja maksimal 255 karakter'
         ],
         'nip_kepala' => [
             'max_length' => 'NIP Kepala maksimal 50 karakter'
@@ -77,13 +71,13 @@ class UkpModel extends Model
         
         if (!empty($search)) {
             $builder->groupStart()
-                ->like('kode_ukp', $search)
-                ->orLike('nama_ukp', $search)
-                ->orLike('kepala_ukp', $search)
+                ->like('kode_unit_kerja', $search)
+                ->orLike('nama_unit_kerja', $search)
+                ->orLike('kepala_unit_kerja', $search)
                 ->groupEnd();
         }
         
-        return $builder->orderBy('nama_ukp', 'ASC')
+        return $builder->orderBy('nama_unit_kerja', 'ASC')
             ->limit($limit, $offset)
             ->get()
             ->getResult();
@@ -95,9 +89,9 @@ class UkpModel extends Model
         
         if (!empty($search)) {
             $builder->groupStart()
-                ->like('kode_ukp', $search)
-                ->orLike('nama_ukp', $search)
-                ->orLike('kepala_ukp', $search)
+                ->like('kode_unit_kerja', $search)
+                ->orLike('nama_unit_kerja', $search)
+                ->orLike('kepala_unit_kerja', $search)
                 ->groupEnd();
         }
         

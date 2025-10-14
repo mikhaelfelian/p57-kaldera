@@ -41,13 +41,12 @@ class Ukp extends BaseController
         }
 
         $rules = [
-            'kode_ukp' => 'required|max_length[50]|is_unique[tbl_m_ukp.kode_ukp]',
-            'nama_ukp' => 'required|max_length[255]',
+            'kode_unit_kerja' => 'required|max_length[50]|is_unique[tbl_m_unit_kerja.kode_unit_kerja]',
+            'nama_unit_kerja' => 'required|max_length[255]',
             'alamat' => 'permit_empty',
             'telepon' => 'permit_empty|max_length[20]',
             'email' => 'permit_empty|valid_email|max_length[100]',
-            'website' => 'permit_empty|valid_url|max_length[255]',
-            'kepala_ukp' => 'permit_empty|max_length[255]',
+            'kepala_unit_kerja' => 'permit_empty|max_length[255]',
             'nip_kepala' => 'permit_empty|max_length[50]',
             'status' => 'required|in_list[Aktif,Tidak Aktif]',
             'keterangan' => 'permit_empty'
@@ -62,13 +61,12 @@ class Ukp extends BaseController
         }
 
         $data = [
-            'kode_ukp' => $this->request->getPost('kode_ukp'),
-            'nama_ukp' => $this->request->getPost('nama_ukp'),
+            'kode_unit_kerja' => $this->request->getPost('kode_unit_kerja'),
+            'nama_unit_kerja' => $this->request->getPost('nama_unit_kerja'),
             'alamat' => $this->request->getPost('alamat'),
             'telepon' => $this->request->getPost('telepon'),
             'email' => $this->request->getPost('email'),
-            'website' => $this->request->getPost('website'),
-            'kepala_ukp' => $this->request->getPost('kepala_ukp'),
+            'kepala_unit_kerja' => $this->request->getPost('kepala_unit_kerja'),
             'nip_kepala' => $this->request->getPost('nip_kepala'),
             'status' => $this->request->getPost('status'),
             'keterangan' => $this->request->getPost('keterangan')
@@ -98,13 +96,12 @@ class Ukp extends BaseController
         }
 
         $rules = [
-            'kode_ukp' => "required|max_length[50]|is_unique[tbl_m_ukp.kode_ukp,id,{$id}]",
-            'nama_ukp' => 'required|max_length[255]',
+            'kode_unit_kerja' => "required|max_length[50]|is_unique[tbl_m_unit_kerja.kode_unit_kerja,id,{$id}]",
+            'nama_unit_kerja' => 'required|max_length[255]',
             'alamat' => 'permit_empty',
             'telepon' => 'permit_empty|max_length[20]',
             'email' => 'permit_empty|valid_email|max_length[100]',
-            'website' => 'permit_empty|valid_url|max_length[255]',
-            'kepala_ukp' => 'permit_empty|max_length[255]',
+            'kepala_unit_kerja' => 'permit_empty|max_length[255]',
             'nip_kepala' => 'permit_empty|max_length[50]',
             'status' => 'required|in_list[Aktif,Tidak Aktif]',
             'keterangan' => 'permit_empty'
@@ -119,13 +116,12 @@ class Ukp extends BaseController
         }
 
         $data = [
-            'kode_ukp' => $this->request->getPost('kode_ukp'),
-            'nama_ukp' => $this->request->getPost('nama_ukp'),
+            'kode_unit_kerja' => $this->request->getPost('kode_unit_kerja'),
+            'nama_unit_kerja' => $this->request->getPost('nama_unit_kerja'),
             'alamat' => $this->request->getPost('alamat'),
             'telepon' => $this->request->getPost('telepon'),
             'email' => $this->request->getPost('email'),
-            'website' => $this->request->getPost('website'),
-            'kepala_ukp' => $this->request->getPost('kepala_ukp'),
+            'kepala_unit_kerja' => $this->request->getPost('kepala_unit_kerja'),
             'nip_kepala' => $this->request->getPost('nip_kepala'),
             'status' => $this->request->getPost('status'),
             'keterangan' => $this->request->getPost('keterangan')

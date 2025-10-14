@@ -112,11 +112,43 @@ class PtMinerba extends BaseController
         $year = $this->request->getGet('year') ?? date('Y');
         $bulan = $this->request->getGet('bulan') ?? date('n');
 
-        // Get data for this periode
-        $rekapData = $this->ptModel->getByPeriode($year, $bulan, 'minerba');
+        // Get unit kerja list from master table
+        $unitKerjaList = $this->unitKerjaModel->where('status', 'Aktif')->findAll();
+        
+        // Get PT data for this periode
+        $ptData = $this->ptModel->getByPeriode($year, $bulan, 'minerba');
+        
+        // Create a map of PT data by unit kerja name
+        $ptDataMap = [];
+        foreach ($ptData as $item) {
+            $ptDataMap[$item->unit_kerja_nama] = $item;
+        }
+        
+        // Build rekap data by combining unit kerja master data with PT data
+        $rekapData = [];
+        foreach ($unitKerjaList as $unitKerja) {
+            $unitName = is_object($unitKerja) ? $unitKerja->nama_unit_kerja : $unitKerja['nama_unit_kerja'];
+            $ptItem = $ptDataMap[$unitName] ?? null;
+            
+            $rekapData[] = (object)[
+                'unit_kerja_nama' => $unitName,
+                'permohonan_masuk' => $ptItem ? (int)$ptItem->permohonan_masuk : 0,
+                'masih_proses' => $ptItem ? (int)$ptItem->masih_proses : 0,
+                'disetujui' => $ptItem ? (int)$ptItem->disetujui : 0,
+                'dikembalikan' => $ptItem ? (int)$ptItem->dikembalikan : 0,
+                'ditolak' => $ptItem ? (int)$ptItem->ditolak : 0,
+                'keterangan' => $ptItem ? $ptItem->keterangan : ''
+            ];
+        }
 
-        // Get totals
-        $totalsData = $this->ptModel->getTotals($year, $bulan, 'minerba');
+        // Calculate totals from the combined data
+        $totalsData = (object)[
+            'total_permohonan_masuk' => array_sum(array_column($rekapData, 'permohonan_masuk')),
+            'total_masih_proses' => array_sum(array_column($rekapData, 'masih_proses')),
+            'total_disetujui' => array_sum(array_column($rekapData, 'disetujui')),
+            'total_dikembalikan' => array_sum(array_column($rekapData, 'dikembalikan')),
+            'total_ditolak' => array_sum(array_column($rekapData, 'ditolak'))
+        ];
 
         // Calculate chart data
         $total = (int)($totalsData->total_permohonan_masuk ?? 0);
@@ -144,15 +176,68 @@ class PtMinerba extends BaseController
         return $this->view($this->theme->getThemePath() . '/pt-minerba/rekap', $data);
     }
 
+    public function testData()
+    {
+        // Get unit kerja data from tbl_m_unit_kerja
+        $unitKerjaData = $this->unitKerjaModel->where('status', 'Aktif')->findAll();
+        
+        // Get PT data from tbl_pt
+        $ptData = $this->ptModel->findAll();
+        
+        return $this->response->setJSON([
+            'ok' => true,
+            'unit_kerja_count' => count($unitKerjaData),
+            'pt_count' => count($ptData),
+            'unit_kerja_sample' => array_slice($unitKerjaData, 0, 3),
+            'pt_sample' => array_slice($ptData, 0, 3),
+            'csrf_token' => csrf_token(),
+            'csrf_hash' => csrf_hash()
+        ]);
+    }
+
     public function exportExcel()
     {
         // Get parameters from URL
         $year = $this->request->getGet('year') ?? date('Y');
         $bulan = $this->request->getGet('bulan') ?? date('n');
 
-        // Get data for this periode
-        $rekapData = $this->ptModel->getByPeriode($year, $bulan, 'minerba');
-        $totalsData = $this->ptModel->getTotals($year, $bulan, 'minerba');
+        // Get unit kerja list from master table
+        $unitKerjaList = $this->unitKerjaModel->where('status', 'Aktif')->findAll();
+        
+        // Get PT data for this periode
+        $ptData = $this->ptModel->getByPeriode($year, $bulan, 'minerba');
+        
+        // Create a map of PT data by unit kerja name
+        $ptDataMap = [];
+        foreach ($ptData as $item) {
+            $ptDataMap[$item->unit_kerja_nama] = $item;
+        }
+        
+        // Build rekap data by combining unit kerja master data with PT data
+        $rekapData = [];
+        foreach ($unitKerjaList as $unitKerja) {
+            $unitName = is_object($unitKerja) ? $unitKerja->nama_unit_kerja : $unitKerja['nama_unit_kerja'];
+            $ptItem = $ptDataMap[$unitName] ?? null;
+            
+            $rekapData[] = (object)[
+                'unit_kerja_nama' => $unitName,
+                'permohonan_masuk' => $ptItem ? (int)$ptItem->permohonan_masuk : 0,
+                'masih_proses' => $ptItem ? (int)$ptItem->masih_proses : 0,
+                'disetujui' => $ptItem ? (int)$ptItem->disetujui : 0,
+                'dikembalikan' => $ptItem ? (int)$ptItem->dikembalikan : 0,
+                'ditolak' => $ptItem ? (int)$ptItem->ditolak : 0,
+                'keterangan' => $ptItem ? $ptItem->keterangan : ''
+            ];
+        }
+
+        // Calculate totals from the combined data
+        $totalsData = (object)[
+            'total_permohonan_masuk' => array_sum(array_column($rekapData, 'permohonan_masuk')),
+            'total_masih_proses' => array_sum(array_column($rekapData, 'masih_proses')),
+            'total_disetujui' => array_sum(array_column($rekapData, 'disetujui')),
+            'total_dikembalikan' => array_sum(array_column($rekapData, 'dikembalikan')),
+            'total_ditolak' => array_sum(array_column($rekapData, 'ditolak'))
+        ];
 
         // Create new Spreadsheet object
         $spreadsheet = new \PhpOffice\PhpSpreadsheet\Spreadsheet();
@@ -246,9 +331,43 @@ class PtMinerba extends BaseController
         $year = $this->request->getGet('year') ?? date('Y');
         $bulan = $this->request->getGet('bulan') ?? date('n');
 
-        // Get data for this periode
-        $rekapData = $this->ptModel->getByPeriode($year, $bulan, 'minerba');
-        $totalsData = $this->ptModel->getTotals($year, $bulan, 'minerba');
+        // Get unit kerja list from master table
+        $unitKerjaList = $this->unitKerjaModel->where('status', 'Aktif')->findAll();
+        
+        // Get PT data for this periode
+        $ptData = $this->ptModel->getByPeriode($year, $bulan, 'minerba');
+        
+        // Create a map of PT data by unit kerja name
+        $ptDataMap = [];
+        foreach ($ptData as $item) {
+            $ptDataMap[$item->unit_kerja_nama] = $item;
+        }
+        
+        // Build rekap data by combining unit kerja master data with PT data
+        $rekapData = [];
+        foreach ($unitKerjaList as $unitKerja) {
+            $unitName = is_object($unitKerja) ? $unitKerja->nama_unit_kerja : $unitKerja['nama_unit_kerja'];
+            $ptItem = $ptDataMap[$unitName] ?? null;
+            
+            $rekapData[] = (object)[
+                'unit_kerja_nama' => $unitName,
+                'permohonan_masuk' => $ptItem ? (int)$ptItem->permohonan_masuk : 0,
+                'masih_proses' => $ptItem ? (int)$ptItem->masih_proses : 0,
+                'disetujui' => $ptItem ? (int)$ptItem->disetujui : 0,
+                'dikembalikan' => $ptItem ? (int)$ptItem->dikembalikan : 0,
+                'ditolak' => $ptItem ? (int)$ptItem->ditolak : 0,
+                'keterangan' => $ptItem ? $ptItem->keterangan : ''
+            ];
+        }
+
+        // Calculate totals from the combined data
+        $totalsData = (object)[
+            'total_permohonan_masuk' => array_sum(array_column($rekapData, 'permohonan_masuk')),
+            'total_masih_proses' => array_sum(array_column($rekapData, 'masih_proses')),
+            'total_disetujui' => array_sum(array_column($rekapData, 'disetujui')),
+            'total_dikembalikan' => array_sum(array_column($rekapData, 'dikembalikan')),
+            'total_ditolak' => array_sum(array_column($rekapData, 'ditolak'))
+        ];
 
         // Create new PDF document
         $pdf = new \TCPDF('L', 'mm', 'A4', true, 'UTF-8', false);

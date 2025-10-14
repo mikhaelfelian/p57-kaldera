@@ -95,8 +95,8 @@
                         <tbody>
                             <?php 
                             $no = 1;
-                            if (!empty($data)): 
-                                foreach ($data as $row): 
+                            if (!empty($rekapData)): 
+                                foreach ($rekapData as $row): 
                             ?>
                             <tr>
                                 <td class="text-center"><?= $no++ ?></td>
