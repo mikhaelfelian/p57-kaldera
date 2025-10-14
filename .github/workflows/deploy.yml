@@ -53,7 +53,7 @@ jobs:
             git remote set-url origin "\$REPO_SSH" || true
             git fetch --all --prune
             git checkout "\$BRANCH" || true
-            git reset --hard "origin/\$BRANCH"
+            git reset --hard "origin/\$BRANCH" 
             git clean -fd
           else
             echo "Repository belum ada, clone baru..."
