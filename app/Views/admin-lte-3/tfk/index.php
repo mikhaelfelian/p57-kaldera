@@ -56,11 +56,11 @@ $year = $year ?? date('Y');
 								<td><strong>Target Fisik (%)</strong></td>
 						<?php
 								foreach ($months as $k => $label):
-									$val = 0; // Always start with 0, no hardcoded values
+									$val = isset($existingData[$k]) ? (float)$existingData[$k]['target_fisik'] : 0;
 								?>
 									<td class="text-center">
 										<span class="editable" data-bulan="<?= $k ?>" data-field="fisik"
-											data-id="0" data-value="<?= $val ?>"><?= format_angka($val, 2) ?></span> 
+											data-id="<?= isset($existingData[$k]) ? $existingData[$k]['id'] : 0 ?>" data-value="<?= $val ?>"><?= format_angka($val, 2) ?></span> 
 										<i class="fas fa-pencil-alt text-muted ml-1 edit-icon"></i>
 									</td>
 							<?php endforeach; ?>
@@ -69,11 +69,11 @@ $year = $year ?? date('Y');
 								<td><strong>Target Keuangan (%)</strong></td>
 								<?php 
 								foreach ($months as $k => $label):
-									$val = 0; // Always start with 0, no hardcoded values
+									$val = isset($existingData[$k]) ? (float)$existingData[$k]['target_keuangan'] : 0;
 								?>
 									<td class="text-center">
 										<span class="editable" data-bulan="<?= $k ?>" data-field="keu"
-											data-id="0" data-value="<?= $val ?>"><?= format_angka($val, 2) ?></span> 
+											data-id="<?= isset($existingData[$k]) ? $existingData[$k]['id'] : 0 ?>" data-value="<?= $val ?>"><?= format_angka($val, 2) ?></span> 
 										<i class="fas fa-pencil-alt text-muted ml-1 edit-icon"></i>
 									</td>
 							<?php endforeach; ?>
