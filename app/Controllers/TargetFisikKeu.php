@@ -95,6 +95,7 @@ class TargetFisikKeu extends BaseController
 	public function index($masterId = null)
 	{
 		$year = (int)($this->request->getGet('year') ?: date('Y'));
+		$tahapan = (string)($this->request->getGet('tahapan') ?: 'penetapan');
 		$items = $this->masterModel->orderBy('id', 'DESC')->findAll();
 		
 		// Load existing data for each master
@@ -112,6 +113,20 @@ class TargetFisikKeu extends BaseController
 			];
 		}
 		
+		// Load existing data for the main TFK table (master_id = 1)
+		$existingData = [];
+		$masterId = 1; // Default master ID
+		$rows = $this->fiskalModel->where([
+			'master_id' => $masterId,
+			'tipe' => '1',
+			'tahun' => $year,
+			'tahapan' => $tahapan
+		])->findAll();
+		
+		foreach ($rows as $r) {
+			$existingData[$r['bulan']] = $r;
+		}
+		
 		$data = [
 			'title' => 'Target Fisik & Keuangan - Data',
 			'Pengaturan' => $this->pengaturan,
@@ -119,6 +134,8 @@ class TargetFisikKeu extends BaseController
 			'items' => $items,
 			'mastersWithData' => $mastersWithData,
 			'year' => $year,
+			'tahapan' => $tahapan,
+			'existingData' => $existingData,
 		];
 
 		return view($this->theme->getThemePath() . '/tfk/index', $data);
