@@ -65,7 +65,7 @@ class UnitKerja extends BaseController
 
         try {
             // Check if maximum limit of 9 items is reached
-            // $currentCount = $this->unitKerjaModel->countAll();
+            $currentCount = $this->unitKerjaModel->countAll();
             // if ($currentCount >= 10) {
             //     return $this->response->setJSON([
             //         'ok'        => false,
