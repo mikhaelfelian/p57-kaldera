@@ -54,13 +54,12 @@ $routes->group('auth', ['namespace' => 'App\Controllers'], static function ($rou
     // Forgot password (form and submit)
     $routes->get('forgot-password', 'Auth::forgot_password', ['as' => 'auth.forgot']);
     $routes->post('forgot-password', 'Auth::forgot_password', ['as' => 'auth.forgot.submit']);
-});
-
-// Profile routes (protected)
-$routes->group('profile', ['namespace' => 'App\Controllers', 'filter' => 'auth'], static function ($routes) {
-    $routes->get('/', 'Profile::index', ['as' => 'profile.index']);
-    $routes->post('update', 'Profile::update', ['as' => 'profile.update']);
-    $routes->post('upload-avatar', 'Profile::uploadAvatar', ['as' => 'profile.upload_avatar']);
+    
+    // Profile routes
+    $routes->get('profile', 'Profile::index', ['as' => 'auth.profile']);
+    $routes->post('profile/update', 'Profile::update', ['as' => 'auth.profile.update']);
+    $routes->post('profile/change-password', 'Profile::changePassword', ['as' => 'auth.profile.change_password']);
+    $routes->post('profile/upload-avatar', 'Profile::uploadAvatar', ['as' => 'auth.profile.upload_avatar']);
 });
 
 // ==================== Dashboard ====================
@@ -168,8 +167,6 @@ $routes->group('gulkin', ['namespace' => 'App\\Controllers', 'filter' => 'auth']
     $routes->get('preview/(:num)', 'Gulkin::preview/$1', ['as' => 'gulkin.preview']);
     $routes->get('download/(:num)', 'Gulkin::download/$1', ['as' => 'gulkin.download']);
     $routes->post('delete/(:num)', 'Gulkin::delete/$1', ['as' => 'gulkin.delete']);
-    $routes->get('check-file/(:num)', 'Gulkin::checkFile/$1', ['as' => 'gulkin.check_file']);
-    $routes->post('upload-file', 'Gulkin::uploadFile', ['as' => 'gulkin.upload_file']);
 });
 
 // ==================== LINKS (Web GIS ESDM) ====================
@@ -212,19 +209,9 @@ $routes->group('indikator', ['namespace' => 'App\\Controllers', 'filter' => 'aut
     $routes->post('input/save', 'IndikatorInput::save', ['as' => 'indikator.input.save']);
     $routes->post('input/upload-catatan', 'IndikatorInput::uploadCatatan', ['as' => 'indikator.input.upload_catatan']);
     $routes->post('input/upload-rencana', 'IndikatorInput::uploadRencana', ['as' => 'indikator.input.upload_rencana']);
-    $routes->post('input/upload-verifikator-file', 'IndikatorInput::uploadVerifikatorFile', ['as' => 'indikator.input.upload_verifikator_file']);
-    $routes->post('input/upload-hasil-htl-file', 'IndikatorInput::uploadHasilHtlFile', ['as' => 'indikator.input.upload_hasil_htl_file']);
-    $routes->post('input/update-verifikasi', 'IndikatorInput::updateVerifikasi', ['as' => 'indikator.input.update_verifikasi']);
-    $routes->get('input/get-verifikator', 'IndikatorInput::getVerifikatorData', ['as' => 'indikator.input.get_verifikator']);
-    $routes->get('input/preview-verifikator-file/(:num)/(:alpha)', 'IndikatorInput::previewVerifikatorFile/$1/$2', ['as' => 'indikator.input.preview_verifikator_file']);
-    $routes->get('input/download-verifikator-file/(:num)/(:alpha)', 'IndikatorInput::downloadVerifikatorFile/$1/$2', ['as' => 'indikator.input.download_verifikator_file']);
-    $routes->get('input/preview-hasil-htl-file/(:num)', 'IndikatorInput::previewHasilHtlFile/$1', ['as' => 'indikator.input.preview_hasil_htl_file']);
-    $routes->get('input/download-hasil-htl-file/(:num)', 'IndikatorInput::downloadHasilHtlFile/$1', ['as' => 'indikator.input.download_hasil_htl_file']);
     $routes->get('input/preview/(:num)', 'IndikatorInput::preview/$1', ['as' => 'indikator.input.preview']);
-    $routes->get('input/preview-catatan', 'IndikatorInput::previewCatatan', ['as' => 'indikator.input.preview_catatan']);
-    $routes->get('input/download-catatan', 'IndikatorInput::downloadCatatan', ['as' => 'indikator.input.download_catatan']);
+    $routes->get('input/download-catatan/(:num)', 'IndikatorInput::downloadCatatan/$1', ['as' => 'indikator.input.download_catatan']);
     $routes->get('input/download-rencana/(:num)', 'IndikatorInput::downloadRencana/$1', ['as' => 'indikator.input.download_rencana']);
-    $routes->post('input/delete-verifikator', 'IndikatorInput::deleteVerifikator', ['as' => 'indikator.input.delete_verifikator']);
     
     // Rekap routes
     $routes->get('rekap', 'IndikatorInput::rekap', ['as' => 'indikator.rekap']);
@@ -240,24 +227,11 @@ $routes->group('pbj', ['namespace' => 'App\\Controllers', 'filter' => 'auth'], f
     $routes->get('input/progres', 'PbjProgres::progres', ['as' => 'pbj.input.progres']);
     $routes->post('input/progres/save', 'PbjProgres::save', ['as' => 'pbj.input.progres.save']);
     $routes->post('input/progres/update-status', 'PbjProgres::updateStatus', ['as' => 'pbj.input.progres.update_status']);
-    $routes->post('input/progres/upload-file', 'PbjProgres::uploadFile', ['as' => 'pbj.input.progres.upload_file']);
-    $routes->get('input/progres/check-file', 'PbjProgres::checkFile', ['as' => 'pbj.input.progres.check_file']);
-    $routes->get('input/progres/preview-file/(:num)/(:num)', 'PbjProgres::previewFile/$1/$2', ['as' => 'pbj.input.progres.preview_file']);
-    $routes->get('input/progres/download-file/(:num)/(:num)', 'PbjProgres::downloadFile/$1/$2', ['as' => 'pbj.input.progres.download_file']);
-    $routes->get('input/progres/get-verifikasi', 'PbjProgres::getVerifikasi', ['as' => 'pbj.input.progres.get_verifikasi']);
-    $routes->post('input/progres/save-verifikasi', 'PbjProgres::saveVerifikasi', ['as' => 'pbj.input.progres.save_verifikasi']);
-    $routes->get('input/progres/get-feedback', 'PbjProgres::getFeedback', ['as' => 'pbj.input.progres.get_feedback']);
-    $routes->post('input/progres/save-feedback', 'PbjProgres::saveFeedback', ['as' => 'pbj.input.progres.save_feedback']);
-    $routes->get('input/progres/export-excel', 'PbjProgres::exportExcel', ['as' => 'pbj.input.progres.export_excel']);
     
     // Rekap routes
     $routes->get('rekap/indeks', 'Pbj::rekap_indeks', ['as' => 'pbj.rekap.indeks']);
     $routes->get('rekap/realisasi_pdn', 'PbjPdn::rekap_realisasi_pdn', ['as' => 'pbj.rekap.realisasi_pdn']);
-    $routes->get('rekap/realisasi_pdn/export-excel', 'PbjPdn::rekapRealisasiPdnExportExcel', ['as' => 'pbj.rekap.realisasi_pdn.export_excel']);
-    $routes->get('rekap/realisasi_pdn/export-pdf', 'PbjPdn::rekapRealisasiPdnExportPdf', ['as' => 'pbj.rekap.realisasi_pdn.export_pdf']);
     $routes->get('rekap/progres', 'PbjProgres::rekap_progres', ['as' => 'pbj.rekap.progres']);
-    $routes->get('rekap/export-excel', 'PbjProgres::rekapExportExcel', ['as' => 'pbj.rekap.export_excel']);
-    $routes->get('rekap/export-pdf', 'PbjProgres::rekapExportPdf', ['as' => 'pbj.rekap.export_pdf']);
 });
 
 // ==================== Bantuan ====================
@@ -288,19 +262,16 @@ $routes->group('banmas', ['namespace' => 'App\\Controllers', 'filter' => 'auth']
     $routes->post('save-doc-link', 'Banmas::saveDocLink', ['as' => 'banmas.save_doc_link']);
     $routes->get('view/(:num)', 'Banmas::viewFile/$1', ['as' => 'banmas.view']);
     $routes->post('delete/(:num)', 'Banmas::delete/$1', ['as' => 'banmas.delete']);
-    $routes->get('get-data', 'Banmas::getData', ['as' => 'banmas.get_data']);
 });
 
-// ==================== Prokons (Progres Konsultasi) ====================
-$routes->group('prokons', ['namespace' => 'App\\Controllers', 'filter' => 'auth'], function ($routes) {
-    $routes->get('/', 'Prokons::index', ['as' => 'prokons.index']);
-    $routes->post('upload-data', 'Prokons::uploadData', ['as' => 'prokons.upload_data']);
-    $routes->post('save-doc-link', 'Prokons::saveDocLink', ['as' => 'prokons.save_doc_link']);
-    $routes->get('view/(:num)', 'Prokons::viewFile/$1', ['as' => 'prokons.view']);
-    $routes->post('delete/(:num)', 'Prokons::delete/$1', ['as' => 'prokons.delete']);
-    $routes->get('get-data', 'Prokons::getData', ['as' => 'prokons.get_data']);
+// ==================== PK (Rancangan Aksi Perubahan) ====================
+$routes->group('pk', ['namespace' => 'App\\Controllers', 'filter' => 'auth'], function ($routes) {
+    $routes->get('/', 'Pg::pk', ['as' => 'pk.index']);
+    $routes->post('save', 'Pg::save', ['as' => 'pk.save']);
+    $routes->post('upload', 'Pg::upload', ['as' => 'pk.upload']);
+    $routes->get('preview/(:num)', 'Pg::preview/$1', ['as' => 'pk.preview']);
+    $routes->get('download/(:num)', 'Pg::download/$1', ['as' => 'pk.download']);
 });
-
 
 // ==================== PT Master UKP ====================
 $routes->group('pt', ['namespace' => 'App\\Controllers', 'filter' => 'auth'], function ($routes) {
@@ -332,60 +303,13 @@ $routes->group('pengaturan', ['namespace' => 'App\Controllers', 'filter' => 'aut
 
 // ==================== PT Minerba ====================
 $routes->group('pt-minerba', ['namespace' => 'App\Controllers', 'filter' => 'auth'], function ($routes) {
-    // Unit Kerja routes (master)
-    $routes->get('master', 'UnitKerja::index', ['as' => 'pt-minerba.unit-kerja.index']);
+    // Unit Kerja routes
+    $routes->get('input', 'UnitKerja::index', ['as' => 'pt-minerba.unit-kerja.index']);
     $routes->post('unit-kerja/create', 'UnitKerja::create', ['as' => 'pt-minerba.unit-kerja.create']);
     $routes->post('unit-kerja/update/(:num)', 'UnitKerja::update/$1', ['as' => 'pt-minerba.unit-kerja.update']);
     $routes->post('unit-kerja/delete/(:num)', 'UnitKerja::delete/$1', ['as' => 'pt-minerba.unit-kerja.delete']);
     $routes->get('unit-kerja/get/(:num)', 'UnitKerja::get/$1', ['as' => 'pt-minerba.unit-kerja.get']);
     $routes->post('unit-kerja/search', 'UnitKerja::search', ['as' => 'pt-minerba.unit-kerja.search']);
-    $routes->get('unit-kerja/test', 'UnitKerja::test', ['as' => 'pt-minerba.unit-kerja.test']);
-    $routes->get('pt-minerba/test-data', 'PtMinerba::testData', ['as' => 'pt-minerba.test-data']);
-    
-    // PT Minerba Input page
-    $routes->get('input', 'PtMinerba::index', ['as' => 'pt-minerba.input']);
-    $routes->post('save-data', 'PtMinerba::saveData', ['as' => 'pt-minerba.save_data']);
-    
-    // PT Minerba Rekap page
-    $routes->get('rekap', 'PtMinerba::rekap', ['as' => 'pt-minerba.rekap']);
-    $routes->get('rekap/export-excel', 'PtMinerba::exportExcel', ['as' => 'pt-minerba.export_excel']);
-    $routes->get('rekap/export-pdf', 'PtMinerba::exportPdf', ['as' => 'pt-minerba.export_pdf']);
-});
-
-// ==================== PT GAT ====================
-$routes->group('pt-gat', ['namespace' => 'App\Controllers', 'filter' => 'auth'], function ($routes) {
-    // PT GAT Input page
-    $routes->get('input', 'PtGat::index', ['as' => 'pt-gat.input']);
-    $routes->post('save-data', 'PtGat::saveData', ['as' => 'pt-gat.save_data']);
-    
-    // PT GAT Rekap page
-    $routes->get('rekap', 'PtGat::rekap', ['as' => 'pt-gat.rekap']);
-    $routes->get('rekap/export-excel', 'PtGat::exportExcel', ['as' => 'pt-gat.export_excel']);
-    $routes->get('rekap/export-pdf', 'PtGat::exportPdf', ['as' => 'pt-gat.export_pdf']);
-});
-
-// ==================== PT Gatrik ====================
-$routes->group('pt-gatrik', ['namespace' => 'App\Controllers', 'filter' => 'auth'], function ($routes) {
-    // PT Gatrik Input page
-    $routes->get('input', 'PtGatrik::index', ['as' => 'pt-gatrik.input']);
-    $routes->post('save-data', 'PtGatrik::saveData', ['as' => 'pt-gatrik.save_data']);
-    
-    // PT Gatrik Rekap page
-    $routes->get('rekap', 'PtGatrik::rekap', ['as' => 'pt-gatrik.rekap']);
-    $routes->get('rekap/export-excel', 'PtGatrik::exportExcel', ['as' => 'pt-gatrik.export_excel']);
-    $routes->get('rekap/export-pdf', 'PtGatrik::exportPdf', ['as' => 'pt-gatrik.export_pdf']);
-});
-
-// ==================== PT EBT ====================
-$routes->group('pt-ebt', ['namespace' => 'App\Controllers', 'filter' => 'auth'], function ($routes) {
-    // PT EBT Input page
-    $routes->get('input', 'PtEbt::index', ['as' => 'pt-ebt.input']);
-    $routes->post('save-data', 'PtEbt::saveData', ['as' => 'pt-ebt.save_data']);
-    
-    // PT EBT Rekap page
-    $routes->get('rekap', 'PtEbt::rekap', ['as' => 'pt-ebt.rekap']);
-    $routes->get('rekap/export-excel', 'PtEbt::exportExcel', ['as' => 'pt-ebt.export_excel']);
-    $routes->get('rekap/export-pdf', 'PtEbt::exportPdf', ['as' => 'pt-ebt.export_pdf']);
 });
 
 // ==================== Utility/Test ====================

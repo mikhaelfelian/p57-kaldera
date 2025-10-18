@@ -31,21 +31,11 @@ class Banmas extends BaseController
             ->orderBy('tipe', 'ASC')
             ->findAll();
 
-        // Debug: Log the retrieved data
-        log_message('debug', 'Banmas data retrieved: ' . json_encode($banmasData));
-        log_message('debug', 'Year: ' . $tahun . ', Month: ' . $bulan);
-
         // Group data by type
         $groupedData = [];
         foreach ($banmasData as $item) {
-            if (!isset($groupedData[$item->tipe])) {
-                $groupedData[$item->tipe] = [];
-            }
             $groupedData[$item->tipe][] = $item;
         }
-        
-        // Debug: Log the grouped data
-        log_message('debug', 'Grouped data: ' . json_encode($groupedData));
 
         // Define jenis bantuan types
         $jenisTypes = [
@@ -54,22 +44,22 @@ class Banmas extends BaseController
             'barang' => 'Barang yang diserahkan kepada masyarakat'
         ];
 
-        // Get categories based on tipe values (0=hibah, 1=bansos, 2=barang)
+        // Get categories based on image
         $categories = [
             [
                 'key' => 'hibah',
                 'nama' => 'Hibah',
-                'data' => $groupedData[0] ?? []
+                'data' => $groupedData['hibah'] ?? []
             ],
             [
                 'key' => 'bansos', 
                 'nama' => 'Bantuan Sosial',
-                'data' => $groupedData[1] ?? []
+                'data' => $groupedData['bansos'] ?? []
             ],
             [
                 'key' => 'barang',
                 'nama' => 'Barang yang diserahkan kepada masyarakat', 
-                'data' => $groupedData[2] ?? []
+                'data' => $groupedData['barang'] ?? []
             ]
         ];
 
@@ -108,17 +98,9 @@ class Banmas extends BaseController
             ]);
         }
 
-        // Map jenis bantuan to tipe values
-        $tipeMap = [
-            'hibah' => 0,
-            'bansos' => 1,
-            'barang' => 2
-        ];
-        $tipeValue = $tipeMap[$jenisBantuan] ?? 0;
-
         // Check if data already exists for this type
         $existingData = $this->banmasModel
-            ->where('tipe', $tipeValue)
+            ->where('tipe', $jenisBantuan)
             ->where('tahun', $tahun)
             ->where('bulan', $bulan)
             ->first();
@@ -132,7 +114,7 @@ class Banmas extends BaseController
 
         // Generate unique filename
         $filename = $tahun . '_' . $jenisBantuan . '_' . time() . '.' . $file->getExtension();
-        $uploadPath = 'file/banmas/' . $tahun;
+        $uploadPath = 'banmas/' . $tahun;
         
         // Create directory if not exists
         if (!is_dir(WRITEPATH . '../public/file/' . $uploadPath)) {
@@ -154,7 +136,7 @@ class Banmas extends BaseController
             'deskripsi' => 'Upload data ' . ucfirst($jenisBantuan),
             'nilai_hibah' => 0,
             'status' => 'Belum Diperiksa',
-            'tipe' => $tipeValue,
+            'tipe' => $jenisBantuan,
             'file_path' => $uploadPath . '/' . $filename,
             'file_name' => $file->getClientName(),
             'file_size' => $file->getSize(),
@@ -162,17 +144,11 @@ class Banmas extends BaseController
             'uploaded_at' => date('Y-m-d H:i:s')
         ];
 
-        $insertId = $this->banmasModel->insert($data);
-        if ($insertId) {
-            // Debug: Log the inserted data
-            log_message('debug', 'Banmas data inserted with ID: ' . $insertId);
-            log_message('debug', 'Inserted data: ' . json_encode($data));
-            
+        if ($this->banmasModel->insert($data)) {
             return $this->response->setJSON([
                 'ok' => true,
                 'message' => 'File berhasil diupload',
-                'filename' => $file->getClientName(),
-                'insert_id' => $insertId
+                'filename' => $file->getClientName()
             ]);
         }
 
@@ -187,18 +163,13 @@ class Banmas extends BaseController
      */
     public function saveDocLink()
     {
-        // Debug: Log the received data
-        log_message('debug', 'saveDocLink POST data: ' . json_encode($this->request->getPost()));
-        
         if (!$this->validate([
             'jenis_bantuan' => 'required|in_list[hibah,bansos,barang]',
             'doc_link' => 'required|valid_url'
         ])) {
-            $errors = $this->validator->getErrors();
-            log_message('debug', 'saveDocLink validation errors: ' . json_encode($errors));
             return $this->response->setJSON([
                 'ok' => false,
-                'message' => 'Validation failed: ' . implode(', ', $errors)
+                'message' => 'Validation failed: ' . implode(', ', $this->validator->getErrors())
             ]);
         }
 
@@ -206,20 +177,10 @@ class Banmas extends BaseController
         $tahun = $this->request->getPost('tahun') ?: date('Y');
         $bulan = $this->request->getPost('bulan') ?: date('n');
         $docLink = $this->request->getPost('doc_link');
-        
-        log_message('debug', 'saveDocLink params: jenis=' . $jenisBantuan . ', tahun=' . $tahun . ', bulan=' . $bulan . ', link=' . $docLink);
-
-        // Map jenis bantuan to tipe values
-        $tipeMap = [
-            'hibah' => 0,
-            'bansos' => 1,
-            'barang' => 2
-        ];
-        $tipeValue = $tipeMap[$jenisBantuan] ?? 0;
 
         // Find existing data
         $existingData = $this->banmasModel
-            ->where('tipe', $tipeValue)
+            ->where('tipe', $jenisBantuan)
             ->where('tahun', $tahun)
             ->where('bulan', $bulan)
             ->first();
@@ -233,21 +194,12 @@ class Banmas extends BaseController
                 'deskripsi' => 'Dokumen administrasi ' . ucfirst($jenisBantuan),
                 'nilai_hibah' => 0,
                 'status' => 'Belum Diperiksa',
-                'tipe' => $tipeValue,
+                'tipe' => $jenisBantuan,
                 'uploaded_by' => session()->get('user_id') ?? 0,
                 'created_at' => date('Y-m-d H:i:s')
             ];
             
-            $insertId = $this->banmasModel->insert($data);
-            if (!$insertId) {
-                return $this->response->setJSON([
-                    'ok' => false,
-                    'message' => 'Gagal membuat record baru'
-                ]);
-            }
-            $recordId = $insertId;
-        } else {
-            $recordId = $existingData->id;
+            $existingData = $this->banmasModel->insert($data);
         }
 
         // Update with document link
@@ -257,17 +209,13 @@ class Banmas extends BaseController
             'updated_at' => date('Y-m-d H:i:s')
         ];
 
-        log_message('debug', 'saveDocLink updating record ID: ' . $recordId . ' with data: ' . json_encode($updateData));
-        
-        if ($this->banmasModel->update($recordId, $updateData)) {
-            log_message('debug', 'saveDocLink update successful');
+        if ($this->banmasModel->update($existingData['id'] ?? $existingData, $updateData)) {
             return $this->response->setJSON([
                 'ok' => true,
                 'message' => 'Link dokumen berhasil disimpan'
             ]);
         }
 
-        log_message('debug', 'saveDocLink update failed');
         return $this->response->setJSON([
             'ok' => false,
             'message' => 'Gagal menyimpan link dokumen'
@@ -275,7 +223,7 @@ class Banmas extends BaseController
     }
 
     /**
-     * View uploaded file (for preview or download)
+     * View uploaded file
      */
     public function viewFile($id)
     {
@@ -289,52 +237,9 @@ class Banmas extends BaseController
             return redirect()->back()->with('error', 'File tidak ditemukan');
         }
 
-        // Get file extension to determine content type
-        $extension = strtolower(pathinfo($data->file_name, PATHINFO_EXTENSION));
-        
-        // Set appropriate content type for preview
-        $contentType = 'application/octet-stream';
-        $disposition = 'attachment'; // Default to download
-        
-        switch ($extension) {
-            case 'pdf':
-                $contentType = 'application/pdf';
-                $disposition = 'inline'; // Allow preview
-                break;
-            case 'jpg':
-            case 'jpeg':
-                $contentType = 'image/jpeg';
-                $disposition = 'inline';
-                break;
-            case 'png':
-                $contentType = 'image/png';
-                $disposition = 'inline';
-                break;
-            case 'gif':
-                $contentType = 'image/gif';
-                $disposition = 'inline';
-                break;
-            case 'txt':
-                $contentType = 'text/plain';
-                $disposition = 'inline';
-                break;
-            case 'html':
-            case 'htm':
-                $contentType = 'text/html';
-                $disposition = 'inline';
-                break;
-        }
-
-        // Check if it's a preview request (from iframe)
-        $isPreview = $this->request->getGet('preview') === '1';
-        
-        if ($isPreview && in_array($extension, ['pdf', 'jpg', 'jpeg', 'png', 'gif', 'txt', 'html', 'htm'])) {
-            $disposition = 'inline';
-        }
-
         header('Content-Description: File Transfer');
-        header('Content-Type: ' . $contentType);
-        header('Content-Disposition: ' . $disposition . '; filename="' . $data->file_name . '"');
+        header('Content-Type: application/octet-stream');
+        header('Content-Disposition: attachment; filename="' . $data->file_name . '"');
         header('Expires: 0');
         header('Cache-Control: must-revalidate');
         header('Pragma: public');
@@ -374,57 +279,6 @@ class Banmas extends BaseController
         return $this->response->setJSON([
             'ok' => false,
             'message' => 'Gagal menghapus data'
-        ]);
-    }
-
-    /**
-     * Get updated data for AJAX refresh
-     */
-    public function getData()
-    {
-        $tahun = $this->request->getGet('year') ?: date('Y');
-        $bulan = $this->request->getGet('bulan') ?: date('n');
-        
-        // Get data for selected year and month, grouped by type
-        $banmasData = $this->banmasModel
-            ->where('tahun', $tahun)
-            ->where('bulan', $bulan)
-            ->orderBy('tipe', 'ASC')
-            ->findAll();
-
-        // Group data by type
-        $groupedData = [];
-        foreach ($banmasData as $item) {
-            if (!isset($groupedData[$item->tipe])) {
-                $groupedData[$item->tipe] = [];
-            }
-            $groupedData[$item->tipe][] = $item;
-        }
-
-        // Define jenis bantuan types (0=hibah, 1=bansos, 2=barang)
-        $categories = [
-            [
-                'key' => 'hibah',
-                'nama' => 'Hibah',
-                'data' => $groupedData[0] ?? []
-            ],
-            [
-                'key' => 'bansos', 
-                'nama' => 'Bantuan Sosial',
-                'data' => $groupedData[1] ?? []
-            ],
-            [
-                'key' => 'barang',
-                'nama' => 'Barang yang diserahkan kepada masyarakat', 
-                'data' => $groupedData[2] ?? []
-            ]
-        ];
-
-        return $this->response->setJSON([
-            'ok' => true,
-            'categories' => $categories,
-            'tahun' => $tahun,
-            'bulan' => $bulan
         ]);
     }
 }
