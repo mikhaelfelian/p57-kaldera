@@ -461,6 +461,31 @@
                             </li>
                         </ul>
                     </li>
+                    <li class="nav-item has-treeview <?= isMenuActive(['tutorial', 'tutorial/pdf', 'tutorial/video']) ? 'menu-open' : '' ?>">
+                        <a href="#" class="nav-link <?= isMenuActive(['tutorial', 'tutorial/pdf', 'tutorial/video']) ? 'active' : '' ?>">
+                            <i class="nav-icon fas fa-graduation-cap"></i>
+                            <p>
+                                Tutorial
+                                <i class="right fas fa-angle-left"></i>
+                            </p>
+                        </a>
+                        <ul class="nav nav-treeview">
+                            <li class="nav-item">
+                                <a href="<?= base_url('tutorial/pdf') ?>" class="nav-link <?= isMenuActive('tutorial/pdf') ? 'active' : '' ?>">
+                                    <?= nbs(3) ?>
+                                    <i class="fas fa-file-pdf nav-icon"></i>
+                                    <p>Tutorial PDF</p>
+                                </a>
+                            </li>
+                            <li class="nav-item">
+                                <a href="<?= base_url('tutorial/video') ?>" class="nav-link <?= isMenuActive('tutorial/video') ? 'active' : '' ?>">
+                                    <?= nbs(3) ?>
+                                    <i class="fas fa-video nav-icon"></i>
+                                    <p>Tutorial Video</p>
+                                </a>
+                            </li>
+                        </ul>
+                    </li>
                     <li class="nav-item has-treeview <?= isMenuActive('uploads') ? 'menu-open' : '' ?>">
                         <a href="<?= base_url('uploads') ?>" class="nav-link <?= isMenuActive('uploads') ? 'active' : '' ?>">
                             <i class="nav-icon fas fa-file-alt"></i>

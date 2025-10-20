@@ -195,6 +195,17 @@ $routes->group('uploads', ['namespace' => 'App\\Controllers', 'filter' => 'auth'
     $routes->post('delete/(:num)', 'Uploads::delete/$1', ['as' => 'uploads.delete']);
 });
 
+// ==================== Tutorial Module ====================
+$routes->group('tutorial', ['namespace' => 'App\\Controllers', 'filter' => 'auth'], function ($routes) {
+    $routes->get('/', 'Tutorial::index', ['as' => 'tutorial.index']);
+    $routes->get('pdf', 'Tutorial::pdf', ['as' => 'tutorial.pdf']);
+    $routes->get('video', 'Tutorial::video', ['as' => 'tutorial.video']);
+    $routes->post('store', 'Tutorial::store', ['as' => 'tutorial.store']);
+    $routes->get('preview/(:num)', 'Tutorial::preview/$1', ['as' => 'tutorial.preview']);
+    $routes->get('download/(:num)', 'Tutorial::download/$1', ['as' => 'tutorial.download']);
+    $routes->post('delete/(:num)', 'Tutorial::delete/$1', ['as' => 'tutorial.delete']);
+});
+
 // ==================== Indikator Module ====================
 $routes->group('indikator', ['namespace' => 'App\\Controllers', 'filter' => 'auth'], function ($routes) {
     // Metadata routes
